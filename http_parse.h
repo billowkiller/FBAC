@@ -1,4 +1,5 @@
 #include "http.h"
+#include "stringProcess.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,7 +14,8 @@ struct line {
 
 static struct line header[MAX_HEADER_LINES];
 static int nlines = 0;
-static int contypeline = 0;
+char charset[10];
+char contype[30];
 
 int on_message_begin(http_parser* _);
 int on_headers_complete(http_parser* _);
@@ -23,5 +25,6 @@ int on_header_field(http_parser* _, const char* at, size_t length);
 int on_header_value(http_parser* _, const char* at, size_t length);
 int on_body(http_parser* _, const char* at, size_t length);
 
-int processhttp();
+void charset_parse(char *, char *, char* );
+int processhttp(FILE *, char*, size_t);
 char* fileRead(char *filename, long* file_length);

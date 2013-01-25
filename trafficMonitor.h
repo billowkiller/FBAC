@@ -13,6 +13,7 @@
 #include<netinet/udp.h>	//Provides declarations for udp header
 #include<netinet/tcp.h>	//Provides declarations for tcp header
 #include<netinet/ip.h>	//Provides declarations for ip header
+#include "http_parse.h"
 
 void process_packet(u_char *, const struct pcap_pkthdr *, const u_char *);
 void process_ip_packet(const u_char * , int);

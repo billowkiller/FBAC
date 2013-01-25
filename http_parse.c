@@ -44,6 +44,7 @@
 
 #include "http_parse.h"
 
+FILE *logfile;
 int on_message_begin(http_parser* _) {
 	(void)_;
 	printf("\n***MESSAGE BEGIN***\n\n");
@@ -58,44 +59,68 @@ int on_headers_complete(http_parser* _) {
 
 int on_message_complete(http_parser* _) {
 	(void)_;
+	printf("contype: %s, charset: %s\n", contype, charset);
 	printf("\n***MESSAGE COMPLETE***\n\n");
 	return 0;
 }
 
 int on_url(http_parser* _, const char* at, size_t length) {
 	(void)_;
-	printf("Url: %.*s\n", (int)length, at);
+	printf( "Url: %.*s\n", (int)length, at);
 	return 0;
 }
 
 int on_header_field(http_parser* _, const char* at, size_t length) {
 	(void)_;
-	printf("Header field: %.*s\n", (int)length, at);
+	printf( "%.*s: ", (int)length, at);
 	nlines++;
 	if (nlines == MAX_HEADER_LINES) ;// error!
 	CURRENT_LINE->field = (char *)malloc(length+1);
 	strncpy(CURRENT_LINE->field, at, length);
 	CURRENT_LINE->field[length] = '\0';
-	if(!strcmp(CURRENT_LINE->field, "Content-Type"))
-	    contypeline = nlines;
 
 	return 0;
 }
 
 int on_header_value(http_parser* _, const char* at, size_t length) {
 	(void)_;
-	printf("Header value: %.*s\n", (int)length, at);
+	printf( "%.*s\n", (int)length, at);
 
 	CURRENT_LINE->value = (char *)malloc(length+1);
 	strncpy(CURRENT_LINE->value, at, length);
 	CURRENT_LINE->value[length] = '\0';
+	
+	if(!strcmp(CURRENT_LINE->field, "Content-Type"))
+	{
+		charset_parse(CURRENT_LINE->value, contype, charset);
+	}
 	return 0;
 }
 
 int on_body(http_parser* _, const char* at, size_t length) {
 	(void)_;
-	printf("Body: %.*s\n", (int)length, at);
+	printf("body length: %d\n", (int)length);
+	if("text/html" == contype)
+		printf( "Body: %.*s\n", (int)length, at);
 	return 0;
+}
+
+void charset_parse(char *contype_value, char *contype, char *str)
+{
+	char * chr= strchr(contype_value, '=');
+	if(NULL != chr)
+	{
+		strcpy(str, chr+1);
+		strcpy(contype, contype_value);
+		chr = strchr(contype, ';');
+		*chr = '\0';
+		//trim(str);
+	}
+	else
+	{
+		strcpy(contype, contype_value);
+		str = "utf8";
+	}
 }
 
 char* fileRead(char *filename, long* file_length)
@@ -120,8 +145,9 @@ char* fileRead(char *filename, long* file_length)
 }
 
 
-int processhttp(char* data, size_t http_length)
+int processhttp(FILE *file, char* data, size_t http_length)
 {
+	logfile = file;
 	http_parser_settings settings;
 	size_t nparsed;
 	memset(&settings, 0, sizeof(settings));
@@ -137,8 +163,6 @@ int processhttp(char* data, size_t http_length)
 	http_parser_init(&parser, HTTP_RESPONSE);
 	nparsed = http_parser_execute(&parser, &settings, data, http_length);
 
-	printf("%s",header[contypeline-1].value);
-
 	if (nparsed != (size_t)http_length) 
 	{
 	    fprintf(stderr,
@@ -151,11 +175,10 @@ int processhttp(char* data, size_t http_length)
 	return EXIT_SUCCESS;
 }
 
-int main()
-{
-	long httplength = 0L;
-	char *data;
-	data = fileRead("b", &httplength);
-	printf("httplength = %d\n",httplength);
-	processhttp(data, httplength);
-}
+//int main()
+//{
+//	long httplength = 0L;
+//	char *data;
+//	data = fileRead("b", &httplength);
+//	processhttp(data, httplength);
+//}

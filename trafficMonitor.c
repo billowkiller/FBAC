@@ -124,7 +124,12 @@ void print_tcp_packet(const u_char * Buffer, int Size)
 
         fprintf(logfile , "Data Payload\n");
         PrintData(Buffer + header_size , Size - header_size);
-
+		
+		if(80 == (int)ntohs(tcph->source))
+		{
+			//printf("size:%d\n", Size - header_size);
+			processhttp(logfile, Buffer+header_size, Size-header_size);
+		}
         fprintf(logfile , "\n###########################################################");
     }
 }
@@ -142,19 +147,7 @@ void PrintData (const u_char * data , int Size)
 
 	for(i=0; i<Size; i++)
 	{
-		/****
-			 http header process, extract charset
-
-			 *** */
 		fprintf(logfile, "%c",(unsigned int)data[i]);
-		if(data[i] == 0x0A && data[i+2] == 0x0A)
-		{
-			//decode filter words and use kmp to compare
-			//only if content/type == html/text
-			//http content
-			//
-			//
-		}
 	}
 	fprintf(logfile, "\n");
 }

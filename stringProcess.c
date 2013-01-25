@@ -17,6 +17,19 @@
  * =====================================================================================
  */
 
+#include "stringProcess.h"
+
+void trim(char * str)
+{
+	int i=0, j=0;
+	while(*(str+i) == ' ')	i++;
+	while(*(str+i+(++j)) != ' ');
+	char trim[j+1];
+	strncpy(trim, str+i, j);
+	trim[j] = '\0';
+	strcpy(str, trim);
+}
+
 const char *kmp_search(const char *text, const char *pattern)
 {
     int *T;
@@ -50,4 +63,3 @@ const char *kmp_search(const char *text, const char *pattern)
     free(T);
     return result;
 }
-
