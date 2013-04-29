@@ -44,7 +44,65 @@
 
 #include "http_parse.h"
 
-FILE *logfile;
+int decompress(char *compressdata, char *uncompressdata, int size)
+{
+    int ret, have, compresspoint = 0, uncompresspoint = 0;
+    z_stream strm;
+	unsigned char out[CHUNK];
+
+    /* allocate inflate state */
+    strm.zalloc = Z_NULL;
+    strm.zfree = Z_NULL;
+    strm.opaque = Z_NULL;
+    strm.avail_in = 0;
+    strm.next_in = Z_NULL;
+    
+    ret = inflateInit2(&strm, 16+MAX_WBITS);
+    if(ret != Z_OK)
+		return ret;
+
+	do
+	{
+		if(size - compresspoint< CHUNK)
+		{
+			strm.avail_in = size;
+		}
+		else 
+			strm.avail_in = CHUNK;
+
+		if(strm.avail_in == 0)
+			break;
+
+		strm.next_in = compressdata + compresspoint;
+		assert(ret != Z_STREAM_ERROR);
+		do
+		{
+			strm.avail_out = CHUNK;
+			strm.next_out = out;
+			ret = inflate(&strm, Z_NO_FLUSH);
+			switch(ret)
+			{
+				case Z_NEED_DICT:
+					ret = Z_DATA_ERROR;
+				case Z_DATA_ERROR:
+				case Z_MEM_ERROR:
+					(void)inflateEnd(&strm);
+					return ret;
+			}
+			have = CHUNK - strm.avail_out;
+
+			memcpy(uncompressdata+uncompresspoint, out, have);
+			uncompresspoint += have;
+		}while(strm.avail_out == 0);
+
+			compresspoint += CHUNK;
+	}while(ret != Z_STREAM_END);
+	
+	(void)inflateEnd(&strm);
+	return ret = Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
+}
+
+FILE *dest;
 int on_message_begin(http_parser* _) {
 	(void)_;
 	printf("\n***MESSAGE BEGIN***\n\n");
@@ -94,14 +152,33 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 	{
 		charset_parse(CURRENT_LINE->value, contype, charset);
 	}
+	if(!strcmp(CURRENT_LINE->field, "Content-Encoding"))
+	{
+		if(!strcmp(CURRENT_LINE->value, "gzip"))
+			isGzip = 1;
+	}
 	return 0;
 }
 
 int on_body(http_parser* _, const char* at, size_t length) {
 	(void)_;
 	printf("body length: %d\n", (int)length);
-	if("text/html" == contype)
-		printf( "Body: %.*s\n", (int)length, at);
+	
+	if(!strncmp(contype, "text/html", CONTYPE_LENGTH))
+	{
+		printf("hello, world\n");
+		//fwrite(at, 1, length, dest);
+		if(length)
+		{
+			if(isGzip)
+			{
+				char * uncomp = (char*)calloc(length*8, sizeof(char));
+				decompress(at, uncomp, length);
+				printf( "Body: %.*s\n", 8*length, uncomp);
+			}else
+				printf( "Body: %.*s\n", (int)length, at);
+		}
+	}
 	return 0;
 }
 
@@ -114,7 +191,6 @@ void charset_parse(char *contype_value, char *contype, char *str)
 		strcpy(contype, contype_value);
 		chr = strchr(contype, ';');
 		*chr = '\0';
-		//trim(str);
 	}
 	else
 	{
@@ -147,17 +223,16 @@ char* fileRead(char *filename, long* file_length)
 
 int processhttp(FILE *file, char* data, size_t http_length)
 {
-	logfile = file;
 	http_parser_settings settings;
 	size_t nparsed;
 	memset(&settings, 0, sizeof(settings));
-	settings.on_message_begin = on_message_begin;
+	//settings.on_message_begin = on_message_begin;
 	settings.on_url = on_url;
 	settings.on_header_field = on_header_field;
 	settings.on_header_value = on_header_value;
-	settings.on_headers_complete = on_headers_complete;
+	//settings.on_headers_complete = on_headers_complete;
 	settings.on_body = on_body;
-	settings.on_message_complete = on_message_complete;
+	//settings.on_message_complete = on_message_complete;
 
 	http_parser parser;
 	http_parser_init(&parser, HTTP_RESPONSE);

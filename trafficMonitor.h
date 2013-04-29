@@ -14,6 +14,10 @@
 #include<netinet/tcp.h>	//Provides declarations for tcp header
 #include<netinet/ip.h>	//Provides declarations for ip header
 #include "http_parse.h"
+#include "link.h"
+#include "nids.h"
+
+typedef Node TCPlink;
 
 void process_packet(u_char *, const struct pcap_pkthdr *, const u_char *);
 void process_ip_packet(const u_char * , int);
@@ -25,3 +29,4 @@ void deviceChose(char* devname);
 void monitor();
 
 FILE *logfile;
+TCPlink * tcp_link;
