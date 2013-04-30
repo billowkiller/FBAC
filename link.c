@@ -37,9 +37,13 @@ Node * createNode()
      }
      return node;
 }
-int InsertNode(Node * current, struct tcphdr *this_tcphdr, char * payload, int datalen) 
+int InsertNode(Node * current, struct iphdr *this_iphdr, struct tcphdr *this_tcphdr, char * payload, int datalen) 
 {  
     Node *new = (Node*)malloc(sizeof(Node)); 
+
+    new->iphdr = (struct iphdr *)malloc((unsigned int)this_iphdr->ihl*4);
+    memcpy(new->iphdr, this_iphdr, (unsigned int)this_iphdr->ihl*4);
+
     new->tcphdr = (struct tcphdr *)malloc((unsigned int)this_tcphdr->doff*4);
     memcpy(new->tcphdr, this_tcphdr, (unsigned int)this_tcphdr->doff*4);
 
@@ -71,11 +75,12 @@ void FreeLink(Node * head)
     free(ptr);  
 }
 
-int DeleteNode(Node *node, long seq)
+
+int DeleteNode(Node *node, long ack_seq)
 {
     while(node->next != NULL)
     {
-        if(node->next->tcphdr->seq == seq)
+        if(ntohl(node->next->tcphdr->seq) < ack_seq)
         {
             Node *del = node->next;
             node->next = node->next->next;

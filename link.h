@@ -20,19 +20,27 @@
 
 #include <stdio.h>  
 #include <stdlib.h>  
+#include <netinet/ip.h>
 #include <netinet/tcp.h>
-#define FALSE 0  
-#define TRUE  1  
+#include <arpa/inet.h>
+#ifndef FALSE
+	#define FALSE 0
+#endif
+
+#ifndef TRUE
+	#define TRUE 1
+#endif 
 
 typedef struct NODE  
 {  
         struct NODE *next;  
+        struct iphdr *iphdr;
         struct tcphdr *tcphdr;
         char * payload;
         int datalen;
 }Node; 
 
 Node * createNode();
-int InsertNode(Node * current, struct tcphdr *this_tcphdr, char * payload, int datalen);
-void FreeLink(Node * head);
-int DeleteNode(Node *node, long seq);
+int InsertNode(Node *, struct iphdr *, struct tcphdr *, char *, int);
+void FreeLink(Node * );
+int DeleteNode(Node *, long );

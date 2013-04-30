@@ -15,6 +15,7 @@
 #include<netinet/ip.h>	//Provides declarations for ip header
 #include "http_parse.h"
 #include "link.h"
+#include "net_util.h"
 #include "nids.h"
 
 typedef Node TCPlink;
