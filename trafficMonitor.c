@@ -71,7 +71,8 @@ tcp_callback (struct tcp_stream *a_tcp, void ** this_time_not_needed)
 
 		//write(2,tcp_link->payload, tcp_link->datalen); // we print the newly arrived data
 		//processhttp(logfile, tcp_link->payload, tcp_link->datalen);
-		
+		FreeLink(tcp_link);
+		exit(1);
       return;
     }
   if (a_tcp->nids_state == NIDS_RESET)
@@ -94,7 +95,7 @@ tcp_callback (struct tcp_stream *a_tcp, void ** this_time_not_needed)
         strcat(buf,"(urgent->)\n\n");
         buf[strlen(buf)+1]=0;
         buf[strlen(buf)]=a_tcp->server.urgdata;
-        write(1,buf,strlen(buf));
+        //write(1,buf,strlen(buf));
         return;
       }
       // We don't have to check if urgent data to client has arrived,
@@ -104,7 +105,7 @@ tcp_callback (struct tcp_stream *a_tcp, void ** this_time_not_needed)
 	{
           // new data for the client
 	  hlf = &a_tcp->client; // from now on, we will deal with hlf var,
-      InsertNode(tcp_link, (struct iphdr *)(hlf->iphdr), (struct tcphdr *)(hlf->hdr), hlf->data, hlf->count_new);                      // which will point to client side of conn
+      InsertNode(tcp_link, (struct iphdr *)(hlf->iphdr), (struct tcphdr *)(hlf->tcphdr), hlf->data, hlf->count_new);                      // which will point to client side of conn
 	  
 	  strcat (buf, "(<-)\n\n"); // symbolic direction of data
 	}
@@ -112,10 +113,10 @@ tcp_callback (struct tcp_stream *a_tcp, void ** this_time_not_needed)
 	{
 	  hlf = &a_tcp->server; // analogical
 	  strcat (buf, "(->)\n\n");
-	  if(response_ack((struct iphdr *)(hlf->iphdr), (struct tcphdr *)(hlf->hdr)))
+	  //if(response_ack((struct iphdr *)(hlf->iphdr), (struct tcphdr *)(hlf->tcphdr)))
 	  {
-	  	send_direct((struct iphdr *)(hlf->iphdr), (struct tcphdr *)(hlf->hdr));
-	  	DeleteNode(tcp_link, ntohl(tcphdr->ack_seq));
+	  	//send_direct((struct iphdr *)(hlf->iphdr), (struct tcphdr *)(hlf->hdr));
+	  	//DeleteNode(tcp_link, ntohl(tcphdr->ack_seq));
 	  }
 	}
     fprintf(stderr,"\n%s",buf); // we print the connection parameters
@@ -135,18 +136,26 @@ tcp_callback (struct tcp_stream *a_tcp, void ** this_time_not_needed)
 void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
 {
 	int size = header->len;
-
 	//Get the IP Header part of this packet , excluding the ethernet header
 	struct iphdr *iph = (struct iphdr*)(buffer + sizeof(struct ethhdr));
 	struct tcphdr* tcph = (struct tcphdr*)(buffer + iph->ihl*4 + sizeof(struct ethhdr));
 	
 	//tcp protocol
+	char *ip = "10.0.0.3";
 	if(IPPROTO_TCP == iph->protocol)
 	{
-		//printf("nids_run2");
-		if(handshark(iph, tcph))
+		if(isFromSrc(iph, ip))
 		{
-			send_direct(iph, tcph);
+            if(handshark(iph, tcph) == 1)
+			{
+				printf("\nhandshark = %d\n",handshark(iph, tcph));
+				printf("length = %d\n",ntohs(iph->tot_len));
+				printf("seq = %u\n",ntohl(tcph->seq));
+				send_data((char *)iph, SEND_DIRECT);
+			}
+			else
+				;//send_data((char *)iph, SEND_DIRECT);
+			
 		}
 		nids_run2(buffer + sizeof(struct ethhdr), size - sizeof(struct ethhdr));
 		//print_tcp_packet(buffer , size);
@@ -239,8 +248,8 @@ void print_tcp_packet(const u_char * Buffer, int Size)
         printf("                        DATA Dump                         ");
         printf("\n");
 
-        printf("Data Payload\n");
-        PrintData(Buffer + header_size , Size - header_size);
+        // printf("Data Payload\n");
+        // PrintData(Buffer + header_size , Size - header_size);
 		
 		if(80 == (int)ntohs(tcph->source))
 		{
@@ -330,7 +339,7 @@ void monitor()
 		exit(1);
 	}
 
-	char filter_exp[] = "port 80 and host www.douban.com";	/* The filter expression */
+	 char filter_exp[] = "port 80 and host www.douban.com";	/* The filter expression */
 
 	/* Compile and apply the filter */
 	if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1) {
@@ -357,10 +366,10 @@ void monitor()
 	   	fprintf(stderr,"%s\n",nids_errbuf);
 	   	exit(1);
 	   }
-	   nids_register_tcp (tcp_callback);
-	   tcp_link = createNode(); 
-	   //printf("%s\n", "nids_run");
-	   //nids_run ();
+	    nids_register_tcp (tcp_callback);
+	    tcp_link = createNode(); 
+	 //   //printf("%s\n", "nids_run");
+	 //   nids_run ();
 
 	//Put the device in sniff loop
 	pcap_loop(handle , -1 , process_packet , NULL);

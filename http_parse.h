@@ -34,3 +34,6 @@ int on_body(http_parser* _, const char* at, size_t length);
 void charset_parse(char *, char *, char* );
 int processhttp(FILE *, char*, size_t);
 char* fileRead(char *filename, long* file_length);
+
+
+//#define HTTP_PRINT

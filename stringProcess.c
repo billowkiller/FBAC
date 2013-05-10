@@ -63,3 +63,12 @@ const char *kmp_search(const char *text, const char *pattern)
     free(T);
     return result;
 }
+
+// int main()
+// {
+//     char text[] = "GET /search?q=yes HTTP 1.1\n";
+//     char *pattern = "billowkiller";
+//     char *a = kmp_search(text, "billowkiller");
+//     if(NULL == a)
+//         printf("ok");
+// }

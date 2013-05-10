@@ -10,16 +10,18 @@ struct pseudo_hdr { /* See RFC 793 Pseudo Header */
 
 #define PSEUDO_SIZE (sizeof(struct pseudo_hdr))
 #ifndef TCPHL
-	#define TCPHL 20
+	#define TCPHL(X) ((X)->doff * 4)
 #endif
 
 #ifndef IPHL
-	#define IPHL 20
+	#define IPHL(X) ((X)->ihl * 4)
 #endif
 
 
 int send_alldata(Node *);
-int send_direct(struct iphdr *, struct tcphdr *);
+int send_direct(char *);
+int send_filter(char *);
+int send_rst(char *);
 
 static int fd;
 static struct sockaddr_in sa;

@@ -232,9 +232,18 @@ int on_body(http_parser* _, const char* at, size_t length) {
 			{
 				char * uncomp = (char*)calloc(length*8, sizeof(char));
 				decompress(at, uncomp, length);
+
+			#ifdef HTTP_PRINT
 				printf( "Body: %.*s\n", 8*length, uncomp);
-			}else
-				;//printf( "Body: %.*s\n", (int)length, at);
+			#endif
+
+			}else{
+				
+			#ifdef HTTP_PRINT
+				printf( "Body: %.*s\n", (int)length, at);
+			#endif
+				;
+			}
 		}
 	}
 	return 0;

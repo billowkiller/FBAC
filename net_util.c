@@ -26,6 +26,19 @@ int isFromDest(uint32_t net)
 	return 0;
 }
 
+int isFromSrc(struct iphdr *iph, char *ip)
+{
+	struct sockaddr_in source;
+
+	memset(&source, 0, sizeof(source));
+	source.sin_addr.s_addr = iph->saddr;
+
+	if(strcmp(ip, inet_ntoa(source.sin_addr)))
+		return 0;
+	else
+		return 1;
+}
+
 int handshark(struct iphdr *iph, struct tcphdr *tcph)
 {
 	if(tcph->syn & ~(tcph->ack) & ~(tcph->rst))
@@ -36,18 +49,44 @@ int handshark(struct iphdr *iph, struct tcphdr *tcph)
 	if(tcph->syn & tcph->ack)
 		return SECONDSHARK;
 		
-	if((~(tcph->syn) & tcph->ack) 
-		&& seq == ntohl(tcph->seq) - 1 
-		&& 40 == ntohs(iph->tot_len))
+	if((~(tcph->syn) & tcph->ack & ~(tcph->psh))
+		&& seq == ntohl(tcph->seq) - 1)
 		return THIRDSHARK;
 		
 	return 0;
 }
 
-int response_ack(struct iphdr *iph, struct tcphdr *tcph)
+int is_response_ack(struct iphdr *iph, struct tcphdr *tcph)
 {
 	if((~(tcph->syn) & tcph->ack)
 		&& 40 == ntohs(iph->tot_len))
 		return TRUE;
 	return FALSE;
+}
+
+int _replace(char *data)
+{
+	struct iphdr *iph = (struct iphdr *)data;
+	struct tcphdr *tcph = (struct tcphdr *)(data + iph->ihl * 4);
+	char * payload = data + iph->ihl*4 + tcph->doff*4;
+	char *pattern = "billowkiller";
+	char *result = kmp_search(payload, pattern);
+	if(NULL != result)
+		memset(result, '*', strlen(pattern));
+	return 0;
+}
+
+int send_data(char *data, int flag)
+{
+	switch(flag)
+	{
+		case SEND_DIRECT: 
+			send_direct(data);
+			break;
+		case SEND_FILTER:
+			_replace(data);
+			send_filter(data);
+			break;
+	}
+	return 0;
 }
