@@ -6,10 +6,6 @@
 #include "data_send.h"
 #include "stringProcess.h"
 
-#ifndef DESTHOST
-	#define DESTHOST "www.douban.com"
-#endif
-
 #ifndef FALSE
 	#define FALSE 0
 #endif
@@ -18,28 +14,28 @@
 	#define TRUE 1
 #endif
 
-#ifndef FIRSTSHARK
-	#define FIRSTSHARK 1
+#ifndef TCPTYPE
+	#define FIRSTSHARK -1
+	#define SECONDSHARK -2
+	#define THIRDSHARK -3
+	#define ACK 1
+	#define GET 2
+	#define POST 3
 #endif
 
-#ifndef SECONDSHARK
-	#define SECONDSHARK 2
-#endif
-
-#ifndef THIRDSHARK
-	#define THIRDSHARK 3
+#ifndef HEADCAL
+	#define TCPHL(X) ((X)->doff * 4)
+	#define IPHL(X) ((X)->ihl * 4)
 #endif
 
 #define SEND_DIRECT 0
-#define SEND_FILTER 1
+#define SEND_GET 1
 
 static long seq = 0;
 
 int isFromDest(uint32_t);
 int isFromSrc(struct iphdr *, char *);
 
-int handshark(struct iphdr *, struct tcphdr *);
-
-int is_response_ack(struct iphdr *, struct tcphdr *);
+int tcp_type(struct iphdr *);
 
 int send_data(char *, int);

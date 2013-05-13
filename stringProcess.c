@@ -66,9 +66,7 @@ const char *kmp_search(const char *text, const char *pattern)
 
 // int main()
 // {
-//     char text[] = "GET /search?q=yes HTTP 1.1\n";
-//     char *pattern = "billowkiller";
-//     char *a = kmp_search(text, "billowkiller");
-//     if(NULL == a)
-//         printf("ok");
+//     char a[] = "GET /search?q=billowkiller HTTP/1.1\r\nHost: www.douban.com\r\nUser-Agent: Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:20.0) Gecko/20100101 Firefox/20.0\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nAccept-Language: en-US,en;q=0.5\r\nAccept-Encoding: gzip, deflate\r\nCookie: bid=\"ThlqzbkYjrI\"; __utma=30149280.942647323.1368419994.1368440128.1368443953.3; __utmc=30149280; __utmz=30149280.1368419994.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __utmb=30149280.5.10.1368443953\nConnection: keep-alive\nCache-Control: max-age=0";
+    
+//     printf("%d\n", strcmp("/", "/search?q=nihao"));
 // }

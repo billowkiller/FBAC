@@ -39,27 +39,44 @@ int isFromSrc(struct iphdr *iph, char *ip)
 		return 1;
 }
 
-int handshark(struct iphdr *iph, struct tcphdr *tcph)
+int tcp_type(struct iphdr *iph)
 {
+	struct tcphdr *tcph = (struct tcphdr *)((char *)iph + iph->ihl * 4);
 	if(tcph->syn & ~(tcph->ack) & ~(tcph->rst))
-	{
-		seq = ntohl(tcph->seq);
 		return FIRSTSHARK;
-	}
+	
 	if(tcph->syn & tcph->ack)
 		return SECONDSHARK;
 		
-	if((~(tcph->syn) & tcph->ack & ~(tcph->psh))
-		&& seq == ntohl(tcph->seq) - 1)
+	if(~(tcph->syn) & tcph->ack & ~(tcph->psh))
 		return THIRDSHARK;
-		
+	
+	if((~(tcph->syn) & tcph->ack)
+		&& 40 == ntohs(iph->tot_len))
+		return ACK;
+
+	if(ntohs(iph->tot_len) - IPHL(iph) - TCPHL(tcph))
+	{
+		char *payload = (char *)tcph + TCPHL(tcph);
+		if(!strncmp(payload, "GET", 3))
+			return GET;
+		if(!strncmp(payload, "POST", 4))
+			return POST;
+	}
 	return 0;
 }
 
-int is_response_ack(struct iphdr *iph, struct tcphdr *tcph)
+int _is_forbiden_url(char *data)
 {
-	if((~(tcph->syn) & tcph->ack)
-		&& 40 == ntohs(iph->tot_len))
+	int url_len = 0;
+	struct iphdr *iph = (struct iphdr *)data;
+	struct tcphdr *tcph = (struct tcphdr *)(data + iph->ihl * 4);
+	char * payload = strchr((char *)tcph + tcph->doff*4, '/');
+	while( *(payload + ++url_len) != ' ');
+	char * url = (char *)malloc(url_len);
+	strncpy(url, payload, url_len);
+	printf("%s\n", url);
+	if(!strcmp(url, "/search?q=nihao"))
 		return TRUE;
 	return FALSE;
 }
@@ -70,9 +87,17 @@ int _replace(char *data)
 	struct tcphdr *tcph = (struct tcphdr *)(data + iph->ihl * 4);
 	char * payload = data + iph->ihl*4 + tcph->doff*4;
 	char *pattern = "billowkiller";
-	char *result = kmp_search(payload, pattern);
+	char *result = strstr(payload, pattern);
 	if(NULL != result)
 		memset(result, '*', strlen(pattern));
+	result = strstr(payload, "Accept-Encoding");
+	if(NULL != result) //plain txt
+	{	
+		result += 17;
+		while(*result != '\r')
+			*result++ = ' ';
+	}
+	printf("payload = %s\n", payload);
 	return 0;
 }
 
@@ -83,9 +108,18 @@ int send_data(char *data, int flag)
 		case SEND_DIRECT: 
 			send_direct(data);
 			break;
-		case SEND_FILTER:
-			_replace(data);
-			send_filter(data);
+		case SEND_GET:
+			if(_is_forbiden_url(data))
+			{
+				printf("rst\n");
+				send_rst(data);
+			}
+			else 
+			{	
+				printf("_replace\n");
+				_replace(data);
+				send_filter(data);
+			}
 			break;
 	}
 	return 0;

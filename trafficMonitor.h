@@ -2,7 +2,6 @@
 	Packet sniffer using libpcap library
 */
 #include <pcap.h>
-#include <nids.h>
 #include <stdio.h>
 #include <stdlib.h> // for exit()
 #include <string.h> //for memset
@@ -15,20 +14,15 @@
 #include <netinet/tcp.h>	//Provides declarations for tcp header
 #include <netinet/ip.h>	//Provides declarations for ip header
 
-#include "http_parse.h"
 #include "net_util.h"
 
-
-typedef Node TCPlink;
-
-void process_packet(u_char *, const struct pcap_pkthdr *, const u_char *);
-void process_ip_packet(const u_char * , int);
-void print_ip_packet(const u_char * , int);
-void print_tcp_packet(const u_char *  , int );
-void print_icmp_packet(const u_char * , int );
-void PrintData (const u_char * , int);
-void deviceChose(char* devname);
+// void process_packet(u_char *, const struct pcap_pkthdr *, const u_char *);
+// void process_ip_packet(const u_char * , int);
+// void print_ip_packet(const u_char * , int);
+// void print_tcp_packet(const u_char *  , int );
+// void print_icmp_packet(const u_char * , int );
+// void PrintData (const u_char * , int);
+// void deviceChose(char* devname);
 void monitor();
 
 FILE *logfile;
-TCPlink * tcp_link;
