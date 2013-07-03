@@ -28,21 +28,24 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 	struct iphdr *iph = (struct iphdr*)(buffer + sizeof(struct ethhdr));
 	
 	//tcp protocol
-	char *ip = "10.0.0.3";
+	
+	char *ip = "106.186.24.125";
 	if(IPPROTO_TCP == iph->protocol && isFromSrc(iph, ip))
 	{
 		switch(tcp_type(iph))
 		{
 			case FIRSTSHARK:
 			case THIRDSHARK:
-				send_data((char *)iph, SEND_DIRECT);
+				//send_data((char *)iph, SEND_DIRECT);
 				break;
 			case GET:
 				printf("get\n");
-				send_data((char *)iph, SEND_GET);
+				print_tcp_packet(buffer , size);
+				//send_data((char *)iph, SEND_GET);
 				break;
 			default:
-				send_data((char *)iph, SEND_DIRECT);
+				;
+				//send_data((char *)iph, SEND_DIRECT);
 		}
 
 		//nids_run2(buffer + sizeof(struct ethhdr), size - sizeof(struct ethhdr));
@@ -135,8 +138,8 @@ void print_tcp_packet(const u_char * Buffer, int Size)
         printf("                        DATA Dump                         ");
         printf("\n");
 
-        // printf("Data Payload\n");
-        // PrintData(Buffer + header_size , Size - header_size);
+        printf("Data Payload\n");
+        PrintData(Buffer + header_size , Size - header_size);
 		
 		if(80 == (int)ntohs(tcph->source))
 		{
@@ -226,7 +229,7 @@ void monitor()
 		exit(1);
 	}
 
-	 char filter_exp[] = "port 80 and host www.douban.com";	/* The filter expression */
+	char filter_exp[] = "port 80";	/* The filter expression */
 
 	/* Compile and apply the filter */
 	if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1) {
