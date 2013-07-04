@@ -37,5 +37,6 @@ int isFromDest(uint32_t);
 int isFromSrc(struct iphdr *, char *);
 
 int tcp_type(struct iphdr *);
-
+int content_filter(struct iphdr *iph);
+int ishost(struct iphdr *iph, char *hostname);
 int send_data(char *, int);

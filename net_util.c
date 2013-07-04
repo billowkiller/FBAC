@@ -60,6 +60,7 @@ int tcp_type(struct iphdr *iph)
 		char *payload = (char *)tcph + TCPHL(tcph);
 		if(!strncmp(payload, "GET", 3))
 			return GET;
+		printf("%s\n", payload);
 		if(!strncmp(payload, "POST", 4))
 			return POST;
 	}
@@ -68,26 +69,26 @@ int tcp_type(struct iphdr *iph)
 
 int content_filter(struct iphdr *iph)
 {
+	struct tcphdr *tcph = (struct tcphdr *)((char *)iph + iph->ihl * 4);
 	char *payload = (char *)tcph + TCPHL(tcph);
 	char *start = strchr(payload, ' ');
 	int i=1;
 	while(*(start+i)!=' ')
 	{
 		if(*(start+i) == '.')
-			return 1;
+			return TRUE;
 		i++;
 	}
 	
-	return 0;
+	return FALSE;
 }
 
-int ishost(char *data, char *hostname)
+int ishost(struct iphdr *iph, char *hostname)
 {
-	struct iphdr *iph = (struct iphdr *)data;
-	struct tcphdr *tcph = (struct tcphdr *)(data + iph->ihl * 4);
-	char * payload = data + iph->ihl*4 + tcph->doff*4;
+	struct tcphdr *tcph = (struct tcphdr *)((char *)iph + iph->ihl * 4);
+	char * payload = (char *)tcph + TCPHL(tcph);
 	char *result = strstr(payload, "Host");
-	if(!strncmp(result+6, hostname, strlen(hostname)))
+	if(result && !strncmp(result+6, hostname, strlen(hostname)))
 		return TRUE;
 	return FALSE;
 }
