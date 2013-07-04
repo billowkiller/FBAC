@@ -66,6 +66,32 @@ int tcp_type(struct iphdr *iph)
 	return 0;
 }
 
+int content_filter(struct iphdr *iph)
+{
+	char *payload = (char *)tcph + TCPHL(tcph);
+	char *start = strchr(payload, ' ');
+	int i=1;
+	while(*(start+i)!=' ')
+	{
+		if(*(start+i) == '.')
+			return 1;
+		i++;
+	}
+	
+	return 0;
+}
+
+int ishost(char *data, char *hostname)
+{
+	struct iphdr *iph = (struct iphdr *)data;
+	struct tcphdr *tcph = (struct tcphdr *)(data + iph->ihl * 4);
+	char * payload = data + iph->ihl*4 + tcph->doff*4;
+	char *result = strstr(payload, "Host");
+	if(!strncmp(result+6, hostname, strlen(hostname)))
+		return TRUE;
+	return FALSE;
+}
+
 int _is_forbiden_url(char *data)
 {
 	int url_len = 0;

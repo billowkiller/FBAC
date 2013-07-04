@@ -317,10 +317,11 @@ int processhttp(FILE *file, char* data, size_t http_length)
 	return EXIT_SUCCESS;
 }
 
-//int main()
-//{
-//	long httplength = 0L;
-//	char *data;
-//	data = fileRead("b", &httplength);
-//	processhttp(data, httplength);
-//}
+// int main()
+// {
+	
+// 	long httplength = 0L;
+// 	char *data;
+// 	data = fileRead("b", &httplength);
+// 	processhttp(data, httplength);
+// }

@@ -29,8 +29,9 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 	
 	//tcp protocol
 	
-	char *ip = "106.186.24.125";
-	if(IPPROTO_TCP == iph->protocol && isFromSrc(iph, ip))
+	char *ip = "192.168.1.250";
+	char *hostname = "www.douban.com";
+	if(IPPROTO_TCP == iph->protocol && ishost((char *)iph, hostname))//isFromSrc(iph, ip))
 	{
 		switch(tcp_type(iph))
 		{
@@ -39,10 +40,16 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 				//send_data((char *)iph, SEND_DIRECT);
 				break;
 			case GET:
-				printf("get\n");
-				print_tcp_packet(buffer , size);
-				//send_data((char *)iph, SEND_GET);
+				if(!content_filter((char *)iph))
+				{
+					printf("GET\n");
+					print_tcp_packet(buffer , size);
+					//send_data((char *)iph, SEND_GET);
+				}
 				break;
+			case POST:
+				printf("POST\n");
+				print_tcp_packet(buffer , size);
 			default:
 				;
 				//send_data((char *)iph, SEND_DIRECT);
