@@ -94,14 +94,22 @@ int send_rst(char *data)
 	
 	struct iphdr * this_iph = (struct iphdr *)pack_msg;
 	struct tcphdr *this_tcph = (struct tcphdr *)(pack_msg + IPHL(iph));
-	this_iph->saddr = iph->daddr;
-	this_iph->daddr = iph->saddr;
+	unsigned long seq = ntohl(this_tcph->seq);
 
+	this_iph->tot_len = htons(TCPHL(tcph)+IPHL(iph));	//payload empty
+	this_tcph->rst = 1;
+
+	_send_data(pack_msg, 1);	//to server
+
+	this_iph->saddr = iph->daddr;  //from client
+	this_iph->daddr = iph->saddr;
+	this_tcph->dest = tcph->source;
+	this_tcph->source = tcph->dest;
 	this_tcph->ack = 1;
 	this_tcph->psh = 1;
 	this_tcph->rst = 1;
-	this_tcph->dest = tcph->source;
-	this_tcph->source = tcph->dest;
+	this_tcph->seq = this_tcph->ack_seq;
+	this_tcph->ack_seq = htonl(seq+1);
 
 	_send_data(pack_msg, 1);
 	free(pack_msg);
@@ -127,8 +135,10 @@ int _send_data(char *data, int flag)
 	if(flag)
 		_recal_cksum(data);
 
+//	printf("%d\n",ntohs(iph->tot_len));
 	if(sendto(fd, data, ntohs(iph->tot_len), 0, (struct sockaddr *)&sa, sizeof(sa))<0)
-	{
+	{printf("%d\n",ntohs(iph->tot_len));
+
 		perror("tcp error");
 		return 0;
 	}

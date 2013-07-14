@@ -1,4 +1,15 @@
 {
-  ["filetype": "text/html"]
-  ["userid": ""]
+    "block_list": [
+        111,
+        222,
+        333
+    ],
+    "sensetive_list": [
+        444,
+        555
+    ],
+    "sensetive_string": [
+        "吴*",
+        "北京大学"
+    ]
 }

@@ -18,10 +18,15 @@
  *
  * =====================================================================================
  */
-
+#include <glib.h>
 #include "trafficMonitor.h"
+
+extern int pipe_config();
+extern GHashTable* hash_config;
 
 int main()
 {
+	pipe_config();
+
 	monitor();
 }

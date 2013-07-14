@@ -30,6 +30,13 @@
 
 #define SEND_DIRECT 0
 #define SEND_GET 1
+#define SEND_POST 2
+
+#define FRIEND 1
+#define STATUS 2
+#define BLOG 3
+#define COMMENT 4
+#define BROWSE 5
 
 static long seq = 0;
 

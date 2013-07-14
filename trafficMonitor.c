@@ -29,35 +29,42 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 	
 	//tcp protocol
 	
-	char *ip = "192.168.1.250";
-	char *hostname = "www.douban.com";
-	if(IPPROTO_TCP == iph->protocol && ishost(iph, hostname))//isFromSrc(iph, ip))
+	char *ip = "10.0.0.2";
+	char *hostname = "renren.com";
+//	if(!ishost(iph, hostname))
+//		send_data((char *)iph, SEND_DIRECT);
+	if(IPPROTO_TCP == iph->protocol)// && isFromSrc(iph, ip))
 	{
 		switch(tcp_type(iph))
 		{
 			case FIRSTSHARK:
 			case THIRDSHARK:
-				//send_data((char *)iph, SEND_DIRECT);
+				send_data((char *)iph, SEND_DIRECT);
 				break;
 			case GET:
-				if(!content_filter(iph))
+				if(!content_filter(iph)) //get .css .js
 				{
 					printf("GET\n");
 					//print_tcp_packet(buffer , size);
-					//send_data((char *)iph, SEND_GET);
+					send_data((char *)iph, SEND_GET);
 				}
+				else
+					send_data((char *)iph, SEND_GET);
 				break;
 			case POST:
 				printf("POST\n");
-				print_tcp_packet(buffer , size);
+				send_data((char *)iph, SEND_POST);
+			//	print_tcp_packet(buffer , size);
 			default:
-				;
-				//send_data((char *)iph, SEND_DIRECT);
+				send_data((char *)iph, SEND_DIRECT);
 		}
 
 		//nids_run2(buffer + sizeof(struct ethhdr), size - sizeof(struct ethhdr));
 		//print_tcp_packet(buffer , size);
 	}
+	else
+		print_tcp_packet(buffer , size);
+
 }
 
 void print_ethernet_header(const u_char *Buffer, int Size)
@@ -207,6 +214,7 @@ void deviceChose(char* devname)
 	//scanf("%d" , &n);
 	n=1;
 	strcpy(devname,devs[n]);
+
 	printf("devname = %s\n",devname);
 	//Open the device for sniffing
 	printf("Opening device %s for sniffing ... " , devname);
@@ -236,7 +244,7 @@ void monitor()
 		exit(1);
 	}
 
-	char filter_exp[] = "port 80";	/* The filter expression */
+	char filter_exp[] = "dst host 14.0.63 or dst host 175.41.12 or dst host 220.181.181";	/* The filter expression */
 
 	/* Compile and apply the filter */
 	if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1) {
