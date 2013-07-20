@@ -1,29 +1,12 @@
-#include "http.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-
-struct line {
-  char *field;
-  char *value;
-};
-
-struct HTTP{
-	char url[100];
-	char host[20];
-	char cookie[300];
-	char content[200];
-};
+#include "http.h"
+#include "include.h"
 
 #define CURRENT_LINE (&header[nlines-1])
 #define MAX_HEADER_LINES 2000
 #define CONTYPE_LENGTH 9
-
-#ifndef HTTP_HEADER_TYPE
-	#define HOST 1
-	#define COOKIE 2
-#endif
 
 static struct line header[MAX_HEADER_LINES];
 static int nlines = 0;
