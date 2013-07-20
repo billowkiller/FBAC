@@ -67,29 +67,22 @@ int tcp_type(struct iphdr *iph)
 	return 0;
 }
 
-char* urldecode(char *cp)
+void _match(char* pattern,char* str,char** pos,int* len)
 {
-    char *p=(char*)malloc((strlen(cp)+1));
-    memcpy(p,cp,strlen(cp)+1);
-    char *pr=p;
-    register i=0;
-    while(*(p+i))
+    regmatch_t pmatch;
+    regex_t* preg=(regex_t*)malloc(sizeof(regex_t));
+    regcomp(preg,pattern,REG_ICASE|REG_EXTENDED);
+    regexec(preg,str,1,&pmatch,REG_ICASE|REG_EXTENDED);
+    if(pmatch.rm_so>=0)
     {
-       if ((*p=*(p+i)) == '%')
-       {
-        *p=*(p+i+1) >= 'A' ? ((*(p+i+1) & 0XDF) - 'A') + 10 : (*(p+i+1) - '0');//0xDF按位与是将小写字母转成大写大写
-        *p=(*p) * 16;
-        *p+=*(p+i+2) >= 'A' ? ((*(p+i+2) & 0XDF) - 'A') + 10 : (*(p+i+2) - '0');
-        i+=2;
-       }
-       else if (*(p+i)=='+')
-       {
-        *p=' ';
-       }
-       p++;
+        *len=pmatch.rm_eo-pmatch.rm_so;
+        *pos=&str[pmatch.rm_so];
     }
-    *p='\0';
-    return pr;
+    else
+    {
+        *pos=NULL;
+        *len=0;
+    }
 }
 
 char* _url(char *payload)
@@ -101,6 +94,90 @@ char* _url(char *payload)
 	return url;
 }
 
+char* urldecode(char *cp)
+{
+    int length=0;
+    int j;
+    char* cpp=cp;
+    while(*cpp)
+    {
+        if(*cpp=='%')
+        {
+            cpp+=2;
+ 
+        }
+        length++;
+        cpp++;
+    }
+    length++;
+    cpp=cp;
+    char *p=(char*)malloc(length);
+    char *pr=p;
+    while(*cpp)
+    {
+        if(*cpp=='%')
+        {
+            cpp++;
+            *p=(*cpp>='A'?((*cpp&0xDF)-'A')+10:(*cpp-'0'));
+            *p=(*p)*16;
+            cpp++;
+            *p+=(*cpp>='A'?((*cpp&0xDF)-'A')+10:(*cpp-'0'));
+        }
+        else if(*cpp=='+')
+        *p=' ';
+        else *p=*cpp;
+ 
+        p++;
+        cpp++;
+    }
+    *p='\0';
+    return pr;
+}
+ 
+ 
+inline char toHex(char x)
+{
+    return (x>9?x+55:x+'0');
+}
+ 
+char* urlencode(char *p)
+{
+    char *cp=p;
+    int length=0;
+    while(*cp)
+    {
+        if(isalnum(*cp));
+        else if(isspace(*cp));
+        else length+=2;
+ 
+        length++;
+        cp++;
+    }
+    length++;
+    cp=p;
+    char *rp=(char*)malloc(sizeof(length));
+    char *r=rp;
+    while(*cp)
+    {
+        if(isalnum(*cp))
+        *rp++=*cp;
+        else if(isspace(*cp))
+        {
+           *rp++='+';
+        }
+        else
+        {
+            *rp++='%';
+            *rp++=toHex((char)(((unsigned char)*cp)>>4));//最高位为1,按无符号数计算
+            *rp++=toHex((char)(((unsigned char)*cp)%16));
+        }
+        cp++;
+    }
+    *rp='\0';
+    return r;
+}
+
+//according to host, not url
 int _page_type(char *payload)
 {
 	char *host = strstr(payload, "Host");
@@ -185,6 +262,11 @@ int _replace(char *data)
 	return 0;
 }
 
+_filter_post(char *payload)
+{
+
+}
+
 int _status_filter(char *payload)
 {
 	char *result = strstr(payload, "\r\n\r\n")+4;
@@ -212,8 +294,9 @@ int _browse_filter(char *payload, int get_or_post)
 		if(query)
 		{
 			query += 2;
-			char *d_query = urldecode(query);		//need free
-			if(!strncmp(d_query, "吴涛", 4))
+//			char *d_query = urldecode(query);		//need free
+//query match
+			///if(!strncmp(d_query, "吴*", 4))
 				return FALSE; 
 		}
 	}else
@@ -224,50 +307,114 @@ int _browse_filter(char *payload, int get_or_post)
 	
 }
 
+int _check_blocklist(char *str)
+{
+	printf("*******_check_blocklist****************\n");
+	printf("Sizeofhashtable:%d\n",g_hash_table_size(hash_config));
+	GSList *list = g_hash_table_lookup(hash_config,"block_list");
+	printf("*******list****************\n");
+	GSList *iterator = NULL;
+	for (iterator = list; iterator; iterator = iterator->next)
+	{
+		printf("*******%s\n******", (char*)iterator->data);
+		if(!strstr(str, (char*)iterator->data))
+			return FALSE;
+	}
+	return TRUE;
+}
+
+char *_check_sslist(char *str)
+{
+	GSList *list = g_hash_table_lookup(hash_config,"sensetive_list");
+	GSList *iterator = NULL;
+	char *position = NULL;
+	for (iterator = list; iterator; iterator = iterator->next)
+	{
+		position = strstr(str, (char*)iterator->data);
+		break;
+	}
+	return position;
+}
+
+char *_check_strlist(char *str)
+{
+	GSList *list = g_hash_table_lookup(hash_config,"sensetive_string");
+	GSList *iterator = NULL;
+	char *position = NULL;
+	for (iterator = list; iterator; iterator = iterator->next)
+	{
+		position = strstr(str, (char*)iterator->data);
+		break;
+	}
+	return position;
+}
+
 int send_data(char *data, int flag)
 {
+	printf("Sizeofhashtable:%d\n",g_hash_table_size(hash_config));
 	struct iphdr *iph = (struct iphdr *)data;
 	struct tcphdr *tcph = (struct tcphdr *)(data + IPHL(iph));
+	int http_len = IPL(iph) - IPHL(iph) - TCPHL(tcph);
 	char * payload = data + TCPHL(tcph) + IPHL(iph);
 	switch(flag)
 	{
 		case SEND_DIRECT: 
-			send_direct(data);
+		//	send_direct(data);
 			break;
 		case SEND_GET:
-		printf("%s", _url(payload));              //need free
-			if(_is_forbiden(data))
+			printf("**********in SEND_GE\n");
+			processhttp(payload, http_len);
+			printf("---------------processing url: %s\n", http.url);
+	printf("Sizeofhashtable:%d\n",g_hash_table_size(hash_config));
+			
+			if(!_check_blocklist(http.url))
 			{
-				printf("rst\n");
 				send_rst(data);
-			}
-			else if(!_browse_filter(payload, SEND_GET)) 
-			{	
 				printf("rst\n");
-				send_rst(data);
-			}else
-			{
-				_replace(data);
-				printf("yes\n");
-				send_filter(data);
 			}
+			else
+				;
+//				send_filter(data);
+			printf("*************SEND_GET FINISH***************\n");
+			
+			//handle url and free http, not cookie this time
+
+
+		//	
+		//	if(_is_forbiden(data))
+		//	{
+		//		printf("rst\n");
+		//		send_rst(data);
+		//	}
+		//	else if(!_browse_filter(payload, SEND_GET)) 
+		//	{	
+		//		printf("rst\n");
+		//		send_rst(data);
+		//	}else
+		//	{
+		//		_replace(data);
+		//		printf("yes\n");
+		//		send_filter(data);
+		//	}
 			break;
 		case SEND_POST:
-			switch(_page_type(payload))
-			{
-				case STATUS:
-//					_status_filter(payload);
-					break;
-				case BROWSE:
-					break;
-				case BLOG:
-					break;
-				case COMMENT:
-					break;
-				case FRIEND:
-					break;
-			}
-			send_filter(data);
+			processhttp(payload, http_len);
+//			send_filter(data);
+		//	switch(_page_type(payload))
+		//	{
+		//		case STATUS:
+//		//			_status_filter(payload);
+		//			break;
+		//		case BROWSE:
+		//			break;
+		//		case BLOG:
+		//			break;
+		//		case COMMENT:
+		//			break;
+		//		case FRIEND:
+		//			break;
+		//	}
+		//	send_filter(data);
 			break;
 	}
 	return 0;

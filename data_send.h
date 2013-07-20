@@ -1,4 +1,16 @@
-#include "link.h"
+#include <stdio.h>  
+#include <stdlib.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+
+#ifndef FALSE
+	#define FALSE 0
+#endif
+
+#ifndef TRUE
+	#define TRUE 1
+#endif
 
 struct pseudo_hdr { /* See RFC 793 Pseudo Header */
     u_long saddr, daddr;/* source and dest address */

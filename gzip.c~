@@ -1,0 +1,19 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  gzip.c
+ *
+ *    Description:  gzip uncompress & compress
+ *
+ *        Version:  1.0
+ *        Created:  07/16/2013 03:42:49 AM
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  billowkiller (BK), billowkiller@gmail.com
+ *   Organization:  
+ *
+ * =====================================================================================
+ */
+
+

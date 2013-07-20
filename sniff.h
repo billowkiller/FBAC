@@ -13,8 +13,7 @@
 #include <netinet/udp.h>	//Provides declarations for udp header
 #include <netinet/tcp.h>	//Provides declarations for tcp header
 #include <netinet/ip.h>	//Provides declarations for ip header
-
-#include "net_util.h"
+#include <glib.h>
 
 // void process_packet(u_char *, const struct pcap_pkthdr *, const u_char *);
 // void process_ip_packet(const u_char * , int);
@@ -26,3 +25,13 @@
 void monitor();
 
 FILE *logfile;
+
+extern GHashTable* hash_config;
+
+extern int isFromDest(uint32_t);
+extern int isFromSrc(struct iphdr *, char *);
+extern int tcp_type(struct iphdr *);
+extern int content_filter(struct iphdr *);
+extern int ishost(struct iphdr *, char *);
+extern int send_data(char *, int);
+extern int pipe_config();

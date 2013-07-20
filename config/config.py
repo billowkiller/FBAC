@@ -14,6 +14,9 @@ for k in d.keys():
 	print k, len(d[k]),
 	for item in d[k]:
 		if type(item) is unicode:
-			print urllib.quote(item.encode('utf8'))
+			v = urllib.quote(item.encode('utf8'))
+			if v.count('%')%3 != 0:
+				v = v.replace('%2A', '*')
+			print v,
 		else:
 			print item,

@@ -1,39 +1,39 @@
 #include "http.h"
-#include "stringProcess.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "zlib.h"
-#include <assert.h>
 
-#define CHUNK 16384
 
 struct line {
   char *field;
   char *value;
 };
 
+struct HTTP{
+	char url[100];
+	char host[20];
+	char cookie[300];
+	char content[200];
+};
+
 #define CURRENT_LINE (&header[nlines-1])
 #define MAX_HEADER_LINES 2000
 #define CONTYPE_LENGTH 9
 
+#ifndef HTTP_HEADER_TYPE
+	#define HOST 1
+	#define COOKIE 2
+#endif
+
 static struct line header[MAX_HEADER_LINES];
 static int nlines = 0;
 static int isGzip = 0;
-char charset[10];
-char contype[30];
+static int http_field_type = 0;
+static char charset[10];
+static char contype[30];
 
-int on_message_begin(http_parser* _);
-int on_headers_complete(http_parser* _);
-int on_message_complete(http_parser* _);
-int on_url(http_parser* _, const char* at, size_t length);
-int on_header_field(http_parser* _, const char* at, size_t length);
-int on_header_value(http_parser* _, const char* at, size_t length);
-int on_body(http_parser* _, const char* at, size_t length);
-
-void charset_parse(char *, char *, char* );
-int processhttp(FILE *, char*, size_t);
-char* fileRead(char *filename, long* file_length);
+struct HTTP http;
+int processhttp(char*, int);
 
 
 //#define HTTP_PRINT
