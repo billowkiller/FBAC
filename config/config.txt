@@ -9,7 +9,7 @@
 		528498149
     ],
     "sensetive_string": [
-        "吴*",
+        "billowkille.",
         "北京大学"
     ]
 }

@@ -17,7 +17,9 @@
  */
 #include "data_send.h"
 
- inline u_short in_cksum(u_short *addr, int len)
+#define PSEUDO_SIZE (sizeof(struct pseudo_hdr))
+
+inline u_short in_cksum(u_short *addr, int len)
 {
     register int nleft = len;
     register u_short *w = addr;
@@ -137,9 +139,11 @@ int _send_data(char *data, int flag)
 
 //	printf("%d\n",ntohs(iph->tot_len));
 	if(sendto(fd, data, ntohs(iph->tot_len), 0, (struct sockaddr *)&sa, sizeof(sa))<0)
-	{printf("%d\n",ntohs(iph->tot_len));
-
+	{
 		perror("tcp error");
+		printf("%ip packet length = d\n",ntohs(iph->tot_len));
+		printf("content:%s\n", tcph + TCPHL(tcph));
+
 		return 0;
 	}
 	close(fd);	

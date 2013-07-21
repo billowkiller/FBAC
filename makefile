@@ -18,7 +18,7 @@ net_util.o: net_util.c data_send.o
 	$(CC) -c $^ $(GLIB)
 
 http_parse.o: http_parse.c http.o
-	$(CC) -c $^
+	$(CC) -c $^ $(GLIB)
 
 http.o: http.c
 	$(CC) -c  $<

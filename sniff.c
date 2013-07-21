@@ -23,7 +23,6 @@
 
 void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
 {
-	printf("*******************process_packet****************\n");
 	int size = header->len;
 	//Get the IP Header part of this packet , excluding the ethernet header
 	struct iphdr *iph = (struct iphdr*)(buffer + sizeof(struct ethhdr));
@@ -40,7 +39,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 		{
 			case FIRSTSHARK:
 			case THIRDSHARK:
-	//			send_data((char *)iph, SEND_DIRECT);
+				send_data((char *)iph, SEND_DIRECT);
 				break;
 			case GET:
 				if(!content_filter(iph)) //get .css .js
@@ -50,7 +49,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 					send_data((char *)iph, SEND_GET);
 				}
 				else
-					send_data((char *)iph, SEND_GET);
+					send_data((char *)iph, SEND_DIRECT);
 				break;
 			case POST:
 				printf("POST\n");
@@ -271,7 +270,5 @@ void monitor()
 int main()
 {
 	pipe_config();
-	printf("Sizeofhashtable:%d\n",g_hash_table_size(hash_config));
 	monitor();
-
 }

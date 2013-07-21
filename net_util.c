@@ -73,7 +73,7 @@ void _match(char* pattern,char* str,char** pos,int* len)
     regex_t* preg=(regex_t*)malloc(sizeof(regex_t));
     regcomp(preg,pattern,REG_ICASE|REG_EXTENDED);
     regexec(preg,str,1,&pmatch,REG_ICASE|REG_EXTENDED);
-    if(pmatch.rm_so>=0)
+    if(pmatch.rm_so>=0&&pmatch.rm_so<strlen(str))
     {
         *len=pmatch.rm_eo-pmatch.rm_so;
         *pos=&str[pmatch.rm_so];
@@ -178,12 +178,8 @@ char* urlencode(char *p)
 }
 
 //according to host, not url
-int _page_type(char *payload)
+int _page_type(char *host)
 {
-	char *host = strstr(payload, "Host");
-	if(!host)
-		return 0;
-	host += 6; //Host: url
 	if(!strncmp(host, "shell", 5))
 		return STATUS;
 	else if(!strncmp(host, "friend", 6))
@@ -228,99 +224,16 @@ int ishost(struct iphdr *iph, char *hostname)
 //	return FALSE;
 }
 
-int _is_forbiden(char *data)
-{
-	struct iphdr *iph = (struct iphdr *)data;
-	struct tcphdr *tcph = (struct tcphdr *)(data + iph->ihl * 4);
-	char * payload = data + iph->ihl*4 + tcph->doff*4;
-	//printf("%s", payload);
-	int len = strchr(payload, '\r')-payload;
-	char * firstline = (char *)malloc(len);
-	memcpy(firstline, payload, len);
-	if(strstr(firstline, "344324313"))
-		return TRUE;
-	return FALSE;
-}
-
-int _replace(char *data)
-{
-	struct iphdr *iph = (struct iphdr *)data;
-	struct tcphdr *tcph = (struct tcphdr *)(data + iph->ihl * 4);
-	char * payload = data + iph->ihl*4 + tcph->doff*4;
-	char *pattern = "billowkiller";
-	char *result = strstr(payload, pattern);
-	if(NULL != result)
-		memset(result, '*', strlen(pattern));
-	result = strstr(payload, "Accept-Encoding");
-	if(NULL != result) //plain txt
-	{	
-		result += 17;
-		while(*result != '\r')
-			*result++ = ' ';
-	}
-//	printf("payload = %s\n", payload);
-	return 0;
-}
-
-_filter_post(char *payload)
-{
-
-}
-
-int _status_filter(char *payload)
-{
-	char *result = strstr(payload, "\r\n\r\n")+4;
-	if(strstr(result, "528498149"))
-	{
-		printf("%s\n", result);
-		char *first = strchr(result, '=');
-		char *last = strchr(result, '&');
-		char *content = (char *)malloc(last - first-1);
-		memcpy(content, first+1, last-first-1);
-		printf("%s\n", content);
-		free(content);
-		memset(first+1, '*', last-first-1);
-		return TRUE;
-	}
-	return FALSE;
-}
-
-int _browse_filter(char *payload, int get_or_post)
-{
-	if(get_or_post == SEND_GET)
-	{
-		char *url = _url(payload);              //need free
-		char *query = strstr(url, "q=");
-		if(query)
-		{
-			query += 2;
-//			char *d_query = urldecode(query);		//need free
-//query match
-			///if(!strncmp(d_query, "吴*", 4))
-				return FALSE; 
-		}
-	}else
-	{
-		char *result = strstr(payload, "\r\n\r\n")+4;
-	}
-	return TRUE;
-	
-}
-
 int _check_blocklist(char *str)
 {
-	printf("*******_check_blocklist****************\n");
-	printf("Sizeofhashtable:%d\n",g_hash_table_size(hash_config));
 	GSList *list = g_hash_table_lookup(hash_config,"block_list");
-	printf("*******list****************\n");
 	GSList *iterator = NULL;
 	for (iterator = list; iterator; iterator = iterator->next)
 	{
-		printf("*******%s\n******", (char*)iterator->data);
-		if(!strstr(str, (char*)iterator->data))
-			return FALSE;
+		if(strstr(str, (char*)iterator->data))
+			return TRUE;
 	}
-	return TRUE;
+	return FALSE;
 }
 
 char *_check_sslist(char *str)
@@ -341,80 +254,72 @@ char *_check_strlist(char *str)
 	GSList *list = g_hash_table_lookup(hash_config,"sensetive_string");
 	GSList *iterator = NULL;
 	char *position = NULL;
+	int len;
 	for (iterator = list; iterator; iterator = iterator->next)
 	{
-		position = strstr(str, (char*)iterator->data);
-		break;
+		printf("..........match:%s......\n", (char*)iterator->data);
+		_match((char*)iterator->data, str, &position, &len);
+		printf("..........match finish, len=%d.........\n", len);
+		//position = strstr(str, (char*)iterator->data);
+		if(position)
+		{
+			memset(position, '*', len);
+			break;
+		}
 	}
 	return position;
 }
 
 int send_data(char *data, int flag)
 {
-	printf("Sizeofhashtable:%d\n",g_hash_table_size(hash_config));
 	struct iphdr *iph = (struct iphdr *)data;
 	struct tcphdr *tcph = (struct tcphdr *)(data + IPHL(iph));
 	int http_len = IPL(iph) - IPHL(iph) - TCPHL(tcph);
 	char * payload = data + TCPHL(tcph) + IPHL(iph);
+	printf("%s\n", payload);
 	switch(flag)
 	{
 		case SEND_DIRECT: 
-		//	send_direct(data);
+			send_direct(data);
 			break;
 		case SEND_GET:
 			printf("**********in SEND_GE\n");
 			processhttp(payload, http_len);
-			printf("---------------processing url: %s\n", http.url);
-	printf("Sizeofhashtable:%d\n",g_hash_table_size(hash_config));
+			printf("url: %s\n", http.url);
 			
-			if(!_check_blocklist(http.url))
+			if(_check_blocklist(http.url))
 			{
 				send_rst(data);
 				printf("rst\n");
 			}
-			else
-				;
-//				send_filter(data);
+			else if(_check_strlist(http.url))
+				send_filter(data);
+			else 
+				send_filter(data);
 			printf("*************SEND_GET FINISH***************\n");
 			
 			//handle url and free http, not cookie this time
-
-
-		//	
-		//	if(_is_forbiden(data))
-		//	{
-		//		printf("rst\n");
-		//		send_rst(data);
-		//	}
-		//	else if(!_browse_filter(payload, SEND_GET)) 
-		//	{	
-		//		printf("rst\n");
-		//		send_rst(data);
-		//	}else
-		//	{
-		//		_replace(data);
-		//		printf("yes\n");
-		//		send_filter(data);
-		//	}
 			break;
 		case SEND_POST:
 			processhttp(payload, http_len);
-//			send_filter(data);
-		//	switch(_page_type(payload))
-		//	{
-		//		case STATUS:
-//		//			_status_filter(payload);
-		//			break;
-		//		case BROWSE:
-		//			break;
-		//		case BLOG:
-		//			break;
-		//		case COMMENT:
-		//			break;
-		//		case FRIEND:
-		//			break;
-		//	}
-		//	send_filter(data);
+
+			printf(".......host:%s\n", http.host);
+			switch(_page_type(http.host))
+			{
+				case STATUS:
+					printf(".....status content:%s\n", http.content);
+					_check_strlist(http.content);
+					break;
+				case BROWSE:
+					break;
+				case BLOG:
+					break;
+				case COMMENT:
+					break;
+				case FRIEND:
+					break;
+			}
+			send_filter(data);
 			break;
 	}
 	return 0;

@@ -43,6 +43,7 @@
  */
 
 #include "http_parse.h"
+#include <glib.h>
 
 int _header_field_type(const char *at)
 {
@@ -101,9 +102,9 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 			memcpy(http.host, at, (int)length);
 			http.host[(int)length] = '\0';
 			break;
-		case COOKIE:
-			memcpy(http.cookie, at, (int)length);
-			http.cookie[(int)length] = '\0';
+		case COOKIE: //unknow size of cookie, stay available
+			//memcpy(http.cookie, at, (int)length);
+			//http.cookie[(int)length] = '\0';
 			break;
 	}
 //	printf( "%.*s\n", (int)length, at);
@@ -126,7 +127,7 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 
 int on_body(http_parser* _, const char* at, size_t length) {
 	(void)_;
-	printf("body length: %d\n", (int)length);
+	printf("body : %s\n", at);
 	memcpy(http.content, at, (int)length);
 	http.content[(int)length] = '\0';
 	
@@ -198,6 +199,7 @@ char* fileRead(char *filename, long* file_length)
 
 int processhttp(char* data, int http_length)
 {
+	extern GHashTable *hash_config;
 	http_parser_settings settings;
 	size_t nparsed;
 	memset(&settings, 0, sizeof(settings));
@@ -215,14 +217,13 @@ int processhttp(char* data, int http_length)
 
 	if (nparsed != (size_t)http_length) 
 	{
-	    fprintf(stderr,
-	            "Error: %s (%s)\n",
+	    printf( "Error: %s (%s)\n",
 	            http_errno_description(HTTP_PARSER_ERRNO(&parser)),
 	            http_errno_name(HTTP_PARSER_ERRNO(&parser)));
-	    return EXIT_FAILURE;
+	    return FALSE;
 	}
 
-	return EXIT_SUCCESS;
+	return TRUE;
 }
 
 // int main()
