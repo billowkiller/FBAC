@@ -41,22 +41,22 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 			case THIRDSHARK:
 				send_data((char *)iph, SEND_DIRECT);
 				break;
-			case GET:
-				if(!content_filter(iph)) //get .css .js
-				{
-					printf("GET\n");
-					//print_tcp_packet(buffer , size);
-					send_data((char *)iph, SEND_GET);
-				}
-				else
-					send_data((char *)iph, SEND_DIRECT);
-				break;
-			case POST:
-				printf("POST\n");
-				send_data((char *)iph, SEND_POST);
+//			case GET:
+//				if(!content_filter(iph)) //get .css .js
+//				{
+//					printf("GET\n");
+//					//print_tcp_packet(buffer , size);
+//					send_data((char *)iph, SEND_GET);
+//				}
+//				else
+//					send_data((char *)iph, SEND_DIRECT);
+//				break;
+//			case POST:
+//				printf("POST\n");
+//				send_data((char *)iph, SEND_POST);
 			//	print_tcp_packet(buffer , size);
 			default:
-				send_data((char *)iph, SEND_DIRECT);
+				send_data((char *)iph, SEND_UP);
 		}
 
 		//nids_run2(buffer + sizeof(struct ethhdr), size - sizeof(struct ethhdr));

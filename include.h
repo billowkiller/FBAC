@@ -1,7 +1,9 @@
-#ifndef FALSE_TRUE
-#define FALSE_TRUE
-	#define FALSE 0
-	#define TRUE 1
+#ifndef	FALSE
+#define	FALSE	(0)
+#endif
+
+#ifndef	TRUE
+#define	TRUE	(!FALSE)
 #endif
 
 #ifndef TCPTYPE
@@ -9,8 +11,8 @@
 	#define FIRSTSHARK -1
 	#define SECONDSHARK -2
 	#define THIRDSHARK -3
-	#define ACK 1
-	#define GET 2
+	#define ACK -4
+	#define GET 1
 	#define POST 3
 #endif
 
@@ -24,8 +26,7 @@
 #ifndef SENDTYPE
 #define SENDTYPE
 	#define SEND_DIRECT 0
-	#define SEND_GET 1
-	#define SEND_POST 2
+	#define SEND_UP 1
 #endif
 
 #ifndef WEBTYPE
@@ -53,6 +54,7 @@ struct pseudo_hdr { /* See RFC 793 Pseudo Header */
 };
 
 struct HTTP{
+	unsigned char method;
 	char url[100];
 	char host[20];
 	char cookie[300];
@@ -63,4 +65,13 @@ struct line {
   char *field;
   char *value;
 };
+
+struct connection_info{
+	char user_id[20];
+	char s_id[20]; //visitor view subject's page
+	int p_type; /* page type */
+	int r_type; /* resource type */
+	char r_id[20]; /* resource id */
+}
 #endif
+

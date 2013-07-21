@@ -30,6 +30,26 @@ void trim(char * str)
 	strcpy(str, trim);
 }
 
+void regex_match(char* pattern,char* str,char** pos,int* len)
+{
+    regmatch_t pmatch;
+    regex_t* preg=(regex_t*)malloc(sizeof(regex_t));
+    regcomp(preg,pattern,REG_ICASE|REG_EXTENDED);
+    regexec(preg,str,1,&pmatch,REG_ICASE|REG_EXTENDED);
+    if(pmatch.rm_so>=0&&pmatch.rm_so<strlen(str))
+    {
+        *len=pmatch.rm_eo-pmatch.rm_so;
+        *pos=&str[pmatch.rm_so];
+    }
+    else
+    {
+        *pos=NULL;
+        *len=0;
+    }
+}
+
+
+
 const char *kmp_search(const char *text, const char *pattern)
 {
     int *T;

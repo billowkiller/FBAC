@@ -23,7 +23,6 @@
 // void print_icmp_packet(const u_char * , int );
 // void PrintData (const u_char * , int);
 // void deviceChose(char* devname);
-void monitor();
 
 FILE *logfile;
 

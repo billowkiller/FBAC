@@ -55,34 +55,7 @@ int tcp_type(struct iphdr *iph)
 		&& 40 == ntohs(iph->tot_len))
 		return ACK;
 
-	if(ntohs(iph->tot_len) - IPHL(iph) - TCPHL(tcph))
-	{
-		char *payload = (char *)tcph + TCPHL(tcph);
-		if(!strncmp(payload, "GET", 3))
-			return GET;
-//		printf("%s\n", payload);
-		if(!strncmp(payload, "POST", 4))
-			return POST;
-	}
 	return 0;
-}
-
-void _match(char* pattern,char* str,char** pos,int* len)
-{
-    regmatch_t pmatch;
-    regex_t* preg=(regex_t*)malloc(sizeof(regex_t));
-    regcomp(preg,pattern,REG_ICASE|REG_EXTENDED);
-    regexec(preg,str,1,&pmatch,REG_ICASE|REG_EXTENDED);
-    if(pmatch.rm_so>=0&&pmatch.rm_so<strlen(str))
-    {
-        *len=pmatch.rm_eo-pmatch.rm_so;
-        *pos=&str[pmatch.rm_so];
-    }
-    else
-    {
-        *pos=NULL;
-        *len=0;
-    }
 }
 
 char* _url(char *payload)
@@ -282,10 +255,8 @@ int send_data(char *data, int flag)
 		case SEND_DIRECT: 
 			send_direct(data);
 			break;
-		case SEND_GET:
-			printf("**********in SEND_GE\n");
+		case SEND_UP:
 			processhttp(payload, http_len);
-			printf("url: %s\n", http.url);
 			
 			if(_check_blocklist(http.url))
 			{
@@ -299,27 +270,6 @@ int send_data(char *data, int flag)
 			printf("*************SEND_GET FINISH***************\n");
 			
 			//handle url and free http, not cookie this time
-			break;
-		case SEND_POST:
-			processhttp(payload, http_len);
-
-			printf(".......host:%s\n", http.host);
-			switch(_page_type(http.host))
-			{
-				case STATUS:
-					printf(".....status content:%s\n", http.content);
-					_check_strlist(http.content);
-					break;
-				case BROWSE:
-					break;
-				case BLOG:
-					break;
-				case COMMENT:
-					break;
-				case FRIEND:
-					break;
-			}
-			send_filter(data);
 			break;
 	}
 	return 0;

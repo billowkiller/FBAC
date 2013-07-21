@@ -43,7 +43,6 @@
  */
 
 #include "http_parse.h"
-#include <glib.h>
 
 int _header_field_type(const char *at)
 {
@@ -54,30 +53,30 @@ int _header_field_type(const char *at)
 	return 0;
 }
 
-int on_message_begin(http_parser* _) {
-	(void)_;
-	printf("\n***MESSAGE BEGIN***\n\n");
-	return 0;
-}
-
-int on_headers_complete(http_parser* _) {
-	(void)_;
-	printf("\n***HEADERS COMPLETE***\n\n");
- 	return 0;
-}
-
-int on_message_complete(http_parser* _) {
-	(void)_;
-	//printf("contype: %s, charset: %s\n", contype, charset);
-	printf("\n***MESSAGE COMPLETE***\n\n");
-	return 0;
+void init_value()
+{
+	c_info.user_id[0] = '\0';	
+	c_info.s_id[0] = '\0';	
+	c_info.r_id[0] = '\0';	
 }
 
 int on_url(http_parser* _, const char* at, size_t length) {
 	(void)_;
-	memcpy(http.url, at, (int)length);
+	char *pos;
+	int len
+	if((int)length >100)
+		return -1;
+	memcpy(http.url, at+1, (int)length);
 	http.url[(int)length] = '\0';
-//	printf( "Url: %.*s\n", (int)length, at);
+	parseURL(http.url, &storage);
+	qs_scanvalue("__user", readURLField(http.url, storage.query), c_info.user_id, sizeof(c_info.user_id));
+
+	regex_match("(\\w+\.)+\\w+", readURLField(http.url, storage.path, &pos, &len));   //regex [\w+\.]+, not endwith php
+	if(len != 0 && !strstr(readURLField(http.url, storage.path)))
+	{
+		c_info.s_id = readURLField(http.url, storage.path);
+		printf("subject name:%s", c_info.s_id);
+	}
 	return 0;
 }
 
@@ -214,6 +213,7 @@ int processhttp(char* data, int http_length)
 	http_parser parser;
 	http_parser_init(&parser, HTTP_REQUEST);
 	nparsed = http_parser_execute(&parser, &settings, data, (size_t)http_length);
+	http.method = parser.method;
 
 	if (nparsed != (size_t)http_length) 
 	{
