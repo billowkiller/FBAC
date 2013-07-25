@@ -33,9 +33,13 @@
 #define WEBTYPE
 	#define FRIEND 1
 	#define STATUS 2
-	#define BLOG 3
+	#define NOTE 3
 	#define COMMENT 4
-	#define BROWSE 5
+	#define PHOTO 5
+	#define BROWSE 6
+	#define MEDIA_SET 7
+	#define ADD_FRIEND 8
+	#define EDIT_NOTE 9
 #endif
 
 #ifndef HTTP_HEADER_TYPE
@@ -55,7 +59,7 @@ struct pseudo_hdr { /* See RFC 793 Pseudo Header */
 
 struct HTTP{
 	unsigned char method;
-	char url[100];
+	char url[300];
 	char host[20];
 	char cookie[300];
 	char content[200];
@@ -70,8 +74,6 @@ struct connection_info{
 	char user_id[20];
 	char s_id[20]; //visitor view subject's page
 	int p_type; /* page type */
-	int r_type; /* resource type */
-	char r_id[20]; /* resource id */
-}
+	char r_id[50]; /* resource id */
+};
 #endif
-

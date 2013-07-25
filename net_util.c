@@ -67,89 +67,6 @@ char* _url(char *payload)
 	return url;
 }
 
-char* urldecode(char *cp)
-{
-    int length=0;
-    int j;
-    char* cpp=cp;
-    while(*cpp)
-    {
-        if(*cpp=='%')
-        {
-            cpp+=2;
- 
-        }
-        length++;
-        cpp++;
-    }
-    length++;
-    cpp=cp;
-    char *p=(char*)malloc(length);
-    char *pr=p;
-    while(*cpp)
-    {
-        if(*cpp=='%')
-        {
-            cpp++;
-            *p=(*cpp>='A'?((*cpp&0xDF)-'A')+10:(*cpp-'0'));
-            *p=(*p)*16;
-            cpp++;
-            *p+=(*cpp>='A'?((*cpp&0xDF)-'A')+10:(*cpp-'0'));
-        }
-        else if(*cpp=='+')
-        *p=' ';
-        else *p=*cpp;
- 
-        p++;
-        cpp++;
-    }
-    *p='\0';
-    return pr;
-}
- 
- 
-inline char toHex(char x)
-{
-    return (x>9?x+55:x+'0');
-}
- 
-char* urlencode(char *p)
-{
-    char *cp=p;
-    int length=0;
-    while(*cp)
-    {
-        if(isalnum(*cp));
-        else if(isspace(*cp));
-        else length+=2;
- 
-        length++;
-        cp++;
-    }
-    length++;
-    cp=p;
-    char *rp=(char*)malloc(sizeof(length));
-    char *r=rp;
-    while(*cp)
-    {
-        if(isalnum(*cp))
-        *rp++=*cp;
-        else if(isspace(*cp))
-        {
-           *rp++='+';
-        }
-        else
-        {
-            *rp++='%';
-            *rp++=toHex((char)(((unsigned char)*cp)>>4));//最高位为1,按无符号数计算
-            *rp++=toHex((char)(((unsigned char)*cp)%16));
-        }
-        cp++;
-    }
-    *rp='\0';
-    return r;
-}
-
 //according to host, not url
 int _page_type(char *host)
 {
@@ -158,7 +75,7 @@ int _page_type(char *host)
 	else if(!strncmp(host, "friend", 6))
 		return FRIEND;
 	else if(!strncmp(host, "blog", 4))
-		return BLOG;
+		return NOTE;
 	else if(!strncmp(host, "comment", 7))
 		return COMMENT;
 	else if(!strncmp(host, "browse", 6))
@@ -189,8 +106,14 @@ int ishost(struct iphdr *iph, char *hostname)
 	struct tcphdr *tcph = (struct tcphdr *)((char *)iph + iph->ihl * 4);
 	char * payload = (char *)tcph + TCPHL(tcph);
 	char *result = strstr(payload, "Host");
-	if(result && strstr(result+6, hostname))
+	char *host = (char *)malloc(20);
+	if(result)
+		memcpy(host, result+6, 20);
+	if(result && strstr(host, hostname))
+	{
+		free(host);
 		return TRUE;
+	}
 	return FALSE;
 //	if(result && !strncmp(result+6, hostname, strlen(hostname)))
 //		return TRUE;
@@ -231,7 +154,7 @@ char *_check_strlist(char *str)
 	for (iterator = list; iterator; iterator = iterator->next)
 	{
 		printf("..........match:%s......\n", (char*)iterator->data);
-		_match((char*)iterator->data, str, &position, &len);
+//		_match((char*)iterator->data, str, &position, &len);
 		printf("..........match finish, len=%d.........\n", len);
 		//position = strstr(str, (char*)iterator->data);
 		if(position)
@@ -249,25 +172,35 @@ int send_data(char *data, int flag)
 	struct tcphdr *tcph = (struct tcphdr *)(data + IPHL(iph));
 	int http_len = IPL(iph) - IPHL(iph) - TCPHL(tcph);
 	char * payload = data + TCPHL(tcph) + IPHL(iph);
-	printf("%s\n", payload);
+	
+	int n;
 	switch(flag)
 	{
 		case SEND_DIRECT: 
 			send_direct(data);
 			break;
 		case SEND_UP:
-			processhttp(payload, http_len);
-			
-			if(_check_blocklist(http.url))
+			if(payload)
 			{
-				send_rst(data);
-				printf("rst\n");
+				if(!processhttp(payload, http_len))
+					send_rst(data);
+				n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
+				if(n)
+				{
+					printf("find num = %d\n", n);
+					send_rst(data);
+				}
 			}
-			else if(_check_strlist(http.url))
-				send_filter(data);
-			else 
-				send_filter(data);
-			printf("*************SEND_GET FINISH***************\n");
+			
+		//	if(_check_blocklist(http.url))
+		//	{
+		//		send_rst(data);
+		//		printf("rst\n");
+		//	}
+		//	else if(_check_strlist(http.url))
+		//		send_filter(data);
+		//	else 
+		//		send_filter(data);
 			
 			//handle url and free http, not cookie this time
 			break;

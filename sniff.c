@@ -29,17 +29,17 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 	
 	//tcp protocol
 	
-	char *ip = "10.0.0.2";
-	char *hostname = "renren.com";
+	char *ip = "106.186.24.125";
+	char *hostname = "facebook.com";
 //	if(!ishost(iph, hostname))
 //		send_data((char *)iph, SEND_DIRECT);
-	if(IPPROTO_TCP == iph->protocol)// && isFromSrc(iph, ip))
+	if(IPPROTO_TCP == iph->protocol && isFromSrc(iph, ip) && ishost(iph, hostname))
 	{
 		switch(tcp_type(iph))
 		{
 			case FIRSTSHARK:
 			case THIRDSHARK:
-				send_data((char *)iph, SEND_DIRECT);
+				//send_data((char *)iph, SEND_DIRECT);
 				break;
 //			case GET:
 //				if(!content_filter(iph)) //get .css .js
@@ -56,14 +56,16 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 //				send_data((char *)iph, SEND_POST);
 			//	print_tcp_packet(buffer , size);
 			default:
-				send_data((char *)iph, SEND_UP);
+				//if(!content_filter(iph))
+					send_data((char *)iph, SEND_UP);
 		}
 
 		//nids_run2(buffer + sizeof(struct ethhdr), size - sizeof(struct ethhdr));
-		//print_tcp_packet(buffer , size);
+	//	print_tcp_packet(buffer , size);
 	}
 	else
-		print_tcp_packet(buffer , size);
+		;
+//		print_tcp_packet(buffer , size);
 
 }
 
@@ -243,8 +245,8 @@ void monitor()
 		fprintf(stderr, "Couldn't open device %s : %s\n" , devname , errbuf);
 		exit(1);
 	}
-
-	char filter_exp[] = "dst host 14.0.63 or dst host 175.41.12 or dst host 220.181.181";	/* The filter expression */
+char filter_exp[] = "tcp";
+	//char filter_exp[] = "dst host 173.252.110 or dst host 31.13.82 or dst host 220.181.181";	/* The filter expression */
 
 	/* Compile and apply the filter */
 	if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1) {
@@ -267,8 +269,31 @@ void monitor()
 	pcap_loop(handle , -1 , process_packet , NULL);
 }
  
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  init_sqlite
+ *  Description:  
+ * =====================================================================================
+ */
+int init_sqlite()
+{
+	char* dbpath="/home/wutao/FBAC/config/fbac.db";
+    char *zErrMsg = 0;
+    int rc;
+    //open the database file.If the file is not exist,it will create a file.
+    rc = sqlite3_open(dbpath, &db);
+    if( rc )
+    {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+        return 0;
+    }
+	return 1;
+}		/* -----  end of function init_sqlite  ----- */
 int main()
 {
+	init_sqlite();
+
 	pipe_config();
 	monitor();
 }

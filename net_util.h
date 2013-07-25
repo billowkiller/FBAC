@@ -3,14 +3,17 @@
 #include <netinet/tcp.h>
 #include <netinet/ip.h>
 #include <string.h>
-#include <regex.h>
 #include <glib.h>
+#include <sqlite3.h>
 #include "data_send.h"
 #include "include.h"
 
 extern GHashTable* hash_config;
 extern struct HTTP http;
+extern sqlite3* db;
+extern struct connection_info c_info;
 extern int processhttp(char *, int);
+extern int find_db(char *, char *, int, char *, sqlite3 *);
 
 static long seq = 0;
 

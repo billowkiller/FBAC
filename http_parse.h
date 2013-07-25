@@ -24,4 +24,7 @@ struct connection_info c_info;
 int processhttp(char*, int);
 
 extern void regex_match(char*, char*, char**, int*);
+extern char* urlencode(char *);
+extern char* urldecode(char *);
+
 //#define HTTP_PRINT

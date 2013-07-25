@@ -13,6 +13,7 @@
 #include <netinet/tcp.h>	//Provides declarations for tcp header
 #include <netinet/ip.h>	//Provides declarations for ip header
 #include <glib.h>
+#include <sqlite3.h>
 
 #include "include.h"
 
@@ -25,6 +26,7 @@
 // void deviceChose(char* devname);
 
 FILE *logfile;
+sqlite3 *db = NULL;
 
 extern GHashTable* hash_config;
 

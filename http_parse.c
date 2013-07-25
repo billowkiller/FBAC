@@ -53,29 +53,87 @@ int _header_field_type(const char *at)
 	return 0;
 }
 
-void init_value()
+void _init_c_info()
 {
 	c_info.user_id[0] = '\0';	
 	c_info.s_id[0] = '\0';	
 	c_info.r_id[0] = '\0';	
+	c_info.p_type = 0;
+}
+
+int _page_type_(char *path)
+{
+	if(strstr(path, "notes"))
+		return NOTE;
+	if(strstr(path, "photos"))
+		return PHOTO;
+	if(strstr(path, "media_set"))
+		return MEDIA_SET;
+	if(strstr(path, "friends"))
+		return FRIEND;
+	if(strstr(path, "add_friend"))
+		return ADD_FRIEND;
+	if(strstr(path, "edit"))
+		return EDIT_NOTE;
+	if(strstr(path, "add_comment"))
+		return COMMENT;
+	return 0;
+}
+
+void _print_c_info()
+{
+	printf("user_id=%s, s_id=%s, p_type=%d, r_id=%s\n", c_info.user_id, c_info.s_id, c_info.p_type, c_info.r_id);	
 }
 
 int on_url(http_parser* _, const char* at, size_t length) {
 	(void)_;
 	char *pos;
-	int len
-	if((int)length >100)
+	int len=0;
+	char *path;
+	if((int)length > 300 || (int)length <2) 
 		return -1;
 	memcpy(http.url, at+1, (int)length);
 	http.url[(int)length] = '\0';
-	parseURL(http.url, &storage);
-	qs_scanvalue("__user", readURLField(http.url, storage.query), c_info.user_id, sizeof(c_info.user_id));
+	printf("............url = %s.........\n", http.url);
 
-	regex_match("(\\w+\.)+\\w+", readURLField(http.url, storage.path, &pos, &len));   //regex [\w+\.]+, not endwith php
-	if(len != 0 && !strstr(readURLField(http.url, storage.path)))
+	//parse url
+	parseURL(http.url, &storage);
+
+	//store user_id
+	if(storage.query.end - storage.query.start != 0)
+		qs_scanvalue("__user", readURLField(http.url, storage.query), c_info.user_id, sizeof(c_info.user_id));
+
+	//stupid implemention of s_id
+	path = readURLField(http.url, storage.path);
+	c_info.p_type = _page_type_(path);
+	if((pos = strchr(path, '/')) == strrchr(path, '/'))
 	{
-		c_info.s_id = readURLField(http.url, storage.path);
-		printf("subject name:%s", c_info.s_id);
+		if(!pos)
+		{
+			strcpy(c_info.s_id, path);
+			free(path);
+		}
+		else
+		{
+			storage.path.end = pos - path;
+			free(path);
+			path = readURLField(http.url, storage.path);
+			strcpy(c_info.s_id,path);
+			free(path);
+		}
+		printf("subject name:%s\n", c_info.s_id);
+	}
+//	regex_match("(\\w+\\.)+\\w+", path, &pos, &len);   //regex [\w+\.]+, not endwith php
+//	if(len != 0 && !strstr(path, "php"))  //need modify
+//	{
+//		printf("pos = %s, len=%d\n", pos, len);
+//	    strcpy(c_info.s_id, path);
+//		printf("subject name:%s\n", c_info.s_id);
+//	}
+
+	if(c_info.p_type == MEDIA_SET)
+	{
+		qs_scanvalue("set", readURLField(http.url, storage.query), c_info.r_id, sizeof(c_info.r_id));
 	}
 	return 0;
 }
@@ -98,10 +156,16 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 	switch(http_field_type)
 	{
 		case HOST:
+//	printf(" HOST:%.*s: ", (int)length, at);
 			memcpy(http.host, at, (int)length);
 			http.host[(int)length] = '\0';
 			break;
 		case COOKIE: //unknow size of cookie, stay available
+			if(c_info.user_id[0]=='\0')
+			{
+				char *start = strstr(at, "c_user")+7;
+				memcpy(c_info.user_id, start, strchr(start, ';')-start);
+			}
 			//memcpy(http.cookie, at, (int)length);
 			//http.cookie[(int)length] = '\0';
 			break;
@@ -129,6 +193,13 @@ int on_body(http_parser* _, const char* at, size_t length) {
 	printf("body : %s\n", at);
 	memcpy(http.content, at, (int)length);
 	http.content[(int)length] = '\0';
+
+	//analysis
+	if(c_info.user_id[0] == '\0')
+		qs_scanvalue("__user", readURLField(http.url, storage.query), c_info.user_id, sizeof(c_info.user_id));
+	qs_scanvalue("to_friend", readURLField(http.url, storage.query), c_info.s_id, sizeof(c_info.s_id));
+
+
 	
 //	if(!strncmp(contype, "text/html", CONTYPE_LENGTH))
 //	{
@@ -198,29 +269,31 @@ char* fileRead(char *filename, long* file_length)
 
 int processhttp(char* data, int http_length)
 {
-	extern GHashTable *hash_config;
+	_init_c_info();
 	http_parser_settings settings;
 	size_t nparsed;
 	memset(&settings, 0, sizeof(settings));
-	//settings.on_message_begin = on_message_begin;
 	settings.on_url = on_url;
 	settings.on_header_field = on_header_field;
 	settings.on_header_value = on_header_value;
-	//settings.on_headers_complete = on_headers_complete;
 	settings.on_body = on_body;
-	//settings.on_message_complete = on_message_complete;
 
 	http_parser parser;
 	http_parser_init(&parser, HTTP_REQUEST);
 	nparsed = http_parser_execute(&parser, &settings, data, (size_t)http_length);
 	http.method = parser.method;
 
+	//test
+	_print_c_info();
+
 	if (nparsed != (size_t)http_length) 
 	{
+		printf("data:\n%s\n", data);
 	    printf( "Error: %s (%s)\n",
 	            http_errno_description(HTTP_PARSER_ERRNO(&parser)),
 	            http_errno_name(HTTP_PARSER_ERRNO(&parser)));
-	    return FALSE;
+		if(strstr(data, "falungong"))
+	    	return FALSE;
 	}
 
 	return TRUE;
