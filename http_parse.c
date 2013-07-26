@@ -190,14 +190,14 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 
 int on_body(http_parser* _, const char* at, size_t length) {
 	(void)_;
-	printf("body : %s\n", at);
-	memcpy(http.content, at, (int)length);
-	http.content[(int)length] = '\0';
+	//printf("body : %s\n", at);
+	//memcpy(http.content, at, (int)length);
+	//http.content[(int)length] = '\0';
 
 	//analysis
-	if(c_info.user_id[0] == '\0')
-		qs_scanvalue("__user", readURLField(http.url, storage.query), c_info.user_id, sizeof(c_info.user_id));
-	qs_scanvalue("to_friend", readURLField(http.url, storage.query), c_info.s_id, sizeof(c_info.s_id));
+	//if(c_info.user_id[0] == '\0')
+	//	qs_scanvalue("__user", readURLField(http.url, storage.query), c_info.user_id, sizeof(c_info.user_id));
+	//qs_scanvalue("to_friend", readURLField(http.url, storage.query), c_info.s_id, sizeof(c_info.s_id));
 
 
 	
@@ -292,8 +292,8 @@ int processhttp(char* data, int http_length)
 	    printf( "Error: %s (%s)\n",
 	            http_errno_description(HTTP_PARSER_ERRNO(&parser)),
 	            http_errno_name(HTTP_PARSER_ERRNO(&parser)));
-		if(strstr(data, "falungong"))
-	    	return FALSE;
+	//	if(strstr(data, "falungong"))
+	//    	return FALSE;
 	}
 
 	return TRUE;
