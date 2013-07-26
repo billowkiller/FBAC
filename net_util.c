@@ -48,12 +48,12 @@ int tcp_type(struct iphdr *iph)
 	if(tcph->syn & tcph->ack)
 		return SECONDSHARK;
 		
-	if(~(tcph->syn) & tcph->ack & ~(tcph->psh))
-		return THIRDSHARK;
-	
-	if((~(tcph->syn) & tcph->ack)
-		&& 40 == ntohs(iph->tot_len))
-		return ACK;
+// 	if(~(tcph->syn) & tcph->ack & ~(tcph->psh))
+// 		return THIRDSHARK;
+// 	
+// 	if((~(tcph->syn) & tcph->ack)
+// 		&& 40 == ntohs(iph->tot_len))
+// 		return ACK;
 
 	return 0;
 }

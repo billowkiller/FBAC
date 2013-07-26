@@ -43,6 +43,7 @@
  */
 
 #include "http_parse.h"
+#define DEBUG
 
 int _header_field_type(const char *at)
 {
@@ -98,7 +99,9 @@ int on_url(http_parser* _, const char* at, size_t length) {
 
 	//parse url
 	parseURL(http.url, &storage);
-
+#ifdef DEBUG
+printf("parseURL OK\n");
+#endif
 	//store user_id
 	if(storage.query.end - storage.query.start != 0)
 		qs_scanvalue("__user", readURLField(http.url, storage.query), c_info.user_id, sizeof(c_info.user_id));
@@ -106,6 +109,9 @@ int on_url(http_parser* _, const char* at, size_t length) {
 	//stupid implemention of s_id
 	path = readURLField(http.url, storage.path);
 	c_info.p_type = _page_type_(path);
+#ifdef DEBUG
+printf("PTYPE OK\n");
+#endif
 	if((pos = strchr(path, '/')) == strrchr(path, '/'))
 	{
 		if(!pos)
@@ -161,11 +167,11 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 			http.host[(int)length] = '\0';
 			break;
 		case COOKIE: //unknow size of cookie, stay available
-			if(c_info.user_id[0]=='\0')
-			{
-				char *start = strstr(at, "c_user")+7;
-				memcpy(c_info.user_id, start, strchr(start, ';')-start);
-			}
+// 			if(c_info.user_id[0]=='\0')
+// 			{
+// 				char *start = strstr(at, "c_user")+7;
+// 				memcpy(c_info.user_id, start, strchr(start, ';')-start);
+// 			}
 			//memcpy(http.cookie, at, (int)length);
 			//http.cookie[(int)length] = '\0';
 			break;

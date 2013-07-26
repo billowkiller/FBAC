@@ -20,6 +20,136 @@
  */
 
 #include "sniff.h"
+#include <nids.h>
+#define int_ntoa(x)	inet_ntoa(*((struct in_addr *)&x))
+extern struct HTTP http;
+extern struct connection_info c_info;
+extern int processhttp(char *, int);
+
+char *upStream;
+int us_len;
+
+// struct tuple4 contains addresses and port numbers of the TCP connections
+// the following auxiliary function produces a string looking like
+// 10.0.0.1,1024,10.0.0.2,23
+char *
+adres (struct tuple4 addr)
+{
+  static char buf[256];
+  strcpy (buf, int_ntoa (addr.saddr));
+  sprintf (buf + strlen (buf), ",%i,", addr.source);
+  strcat (buf, int_ntoa (addr.daddr));
+  sprintf (buf + strlen (buf), ",%i", addr.dest);
+  return buf;
+}
+
+void
+tcp_callback (struct tcp_stream *a_tcp, void ** this_time_not_needed)
+{
+  char buf[1024];
+  strcpy (buf, adres (a_tcp->addr)); // we put conn params into buf
+  if (a_tcp->nids_state == NIDS_JUST_EST)
+    {
+    // connection described by a_tcp is established
+    // here we decide, if we wish to follow this stream
+    // sample condition: if (a_tcp->addr.dest!=23) return;
+    // in this simple app we follow each stream, so..
+      a_tcp->client.collect++; // we want data received by a client
+      a_tcp->server.collect++; // and by a server, too
+      a_tcp->server.collect_urg++; // we want urgent data received by a
+                                   // server
+#ifdef WE_WANT_URGENT_DATA_RECEIVED_BY_A_CLIENT
+      a_tcp->client.collect_urg++; // if we don't increase this value,
+                                   // we won't be notified of urgent data
+                                   // arrival
+#endif
+      fprintf (stderr, "%s established\n\n", buf);
+      return;
+    }
+  if (a_tcp->nids_state == NIDS_CLOSE)
+    {
+      // connection has been closed normally
+      	fprintf (stderr, "%s closing\n\n", buf);
+
+		//write(2,tcp_link->payload, tcp_link->datalen); // we print the newly arrived data
+		//processhttp(logfile, tcp_link->payload, tcp_link->datalen);
+		//FreeLink(tcp_link);
+		exit(1);
+      return;
+    }
+  if (a_tcp->nids_state == NIDS_RESET)
+    {
+      // connection has been closed by RST
+      fprintf (stderr, "%s reset\n\n", buf);
+      return;
+    }
+
+  if (a_tcp->nids_state == NIDS_DATA)
+    {
+      // new data has arrived; gotta determine in what direction
+      // and if it's urgent or not
+
+      struct half_stream *hlf;
+
+      if (a_tcp->server.count_new_urg)
+      {
+        // new byte of urgent data has arrived 
+        strcat(buf,"(urgent->)\n\n");
+        buf[strlen(buf)+1]=0;
+        buf[strlen(buf)]=a_tcp->server.urgdata;
+        //write(1,buf,strlen(buf));
+        return;
+      }
+      // We don't have to check if urgent data to client has arrived,
+      // because we haven't increased a_tcp->client.collect_urg variable.
+      // So, we have some normal data to take care of.
+      if (a_tcp->client.count_new)
+	{
+          // new data for the client
+	  hlf = &a_tcp->client; // from now on, we will deal with hlf var,
+      //InsertNode(tcp_link, (struct iphdr *)(hlf->iphdr), (struct tcphdr *)(hlf->tcphdr), hlf->data, hlf->count_new);                      // which will point to client side of conn
+	  
+	  strcat (buf, "(<-)\n\n"); // symbolic direction of data
+	}
+      else
+	{
+	  hlf = &a_tcp->server; // analogical
+	  strcat (buf, "(->)\n\n");
+	  //if(response_ack((struct iphdr *)(hlf->iphdr), (struct tcphdr *)(hlf->tcphdr)))
+	  {
+	  	//send_direct((struct iphdr *)(hlf->iphdr), (struct tcphdr *)(hlf->hdr));
+	  	//DeleteNode(tcp_link, ntohl(tcphdr->ack_seq));
+	  }
+	}
+    fprintf(stderr,"\n%s",buf); // we print the connection parameters
+                              // (saddr, daddr, sport, dport) accompanied
+                              // by data flow direction (-> or <-)
+
+	nids_discard(a_tcp, 0);
+    //processhttp(hlf->data, hlf->count_new);
+	
+	
+// 	if(!strncmp(hlf->data, "GET", 3) || !strncmp(hlf->data, "POST", 4))
+// 	{
+// 		//printf("new data:\n%.*s ", us_len, upStream);
+// 		us_len = 0;
+// 		memcpy(upStream + us_len, hlf->data, hlf->count_new);
+// 		us_len = hlf->count_new;
+// 		processhttp(upStream, us_len);
+// 	}else
+// 	{
+// 		memcpy(upStream + us_len, hlf->data, hlf->count_new);
+// 		us_len += hlf->count_new;
+// 	}
+	
+    write(2,hlf->data,hlf->count_new); // we print the newly arrived data
+      
+    }
+  return ;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+
 
 void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
 {
@@ -29,36 +159,44 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 	
 	//tcp protocol
 	
-	char *ip = "106.186.24.125";
+	char *ip = "192.168.1.215";
 	char *hostname = "facebook.com";
 //	if(!ishost(iph, hostname))
 //		send_data((char *)iph, SEND_DIRECT);
-	if(IPPROTO_TCP == iph->protocol && isFromSrc(iph, ip) && ishost(iph, hostname))
+	if(IPPROTO_TCP == iph->protocol)
 	{
-		switch(tcp_type(iph))
+		if(tcp_type(iph))
 		{
-			case FIRSTSHARK:
-			case THIRDSHARK:
-				//send_data((char *)iph, SEND_DIRECT);
-				break;
-//			case GET:
-//				if(!content_filter(iph)) //get .css .js
-//				{
-//					printf("GET\n");
-//					//print_tcp_packet(buffer , size);
-//					send_data((char *)iph, SEND_GET);
-//				}
-//				else
-//					send_data((char *)iph, SEND_DIRECT);
-//				break;
-//			case POST:
-//				printf("POST\n");
-//				send_data((char *)iph, SEND_POST);
-			//	print_tcp_packet(buffer , size);
-			default:
-				//if(!content_filter(iph))
-					send_data((char *)iph, SEND_UP);
+			nids_run2(buffer + sizeof(struct ethhdr), size - sizeof(struct ethhdr));
 		}
+		else if(isFromSrc(iph, ip))
+		{
+			nids_run2(buffer + sizeof(struct ethhdr), size - sizeof(struct ethhdr));
+		}
+// 		switch(tcp_type(iph))
+// 		{
+// 			case FIRSTSHARK:
+// 			case THIRDSHARK:
+// 				//send_data((char *)iph, SEND_DIRECT);
+// 				break;
+// //			case GET:
+// //				if(!content_filter(iph)) //get .css .js
+// //				{
+// //					printf("GET\n");
+// //					//print_tcp_packet(buffer , size);
+// //					send_data((char *)iph, SEND_GET);
+// //				}
+// //				else
+// //					send_data((char *)iph, SEND_DIRECT);
+// //				break;
+// //			case POST:
+// //				printf("POST\n");
+// //				send_data((char *)iph, SEND_POST);
+// 			//	print_tcp_packet(buffer , size);
+// 			default:
+// 				//if(!content_filter(iph))
+// 					send_data((char *)iph, SEND_UP);
+// 		}
 
 		//nids_run2(buffer + sizeof(struct ethhdr), size - sizeof(struct ethhdr));
 	//	print_tcp_packet(buffer , size);
@@ -245,7 +383,7 @@ void monitor()
 		fprintf(stderr, "Couldn't open device %s : %s\n" , devname , errbuf);
 		exit(1);
 	}
-char filter_exp[] = "tcp";
+char filter_exp[] = "host 211.147.4";
 	//char filter_exp[] = "dst host 173.252.110 or dst host 31.13.82 or dst host 220.181.181";	/* The filter expression */
 
 	/* Compile and apply the filter */
@@ -277,7 +415,7 @@ char filter_exp[] = "tcp";
  */
 int init_sqlite()
 {
-	char* dbpath="/home/wutao/FBAC/config/fbac.db";
+    char* dbpath="/home/wutao/FBAC/config/fbac.db";
     char *zErrMsg = 0;
     int rc;
     //open the database file.If the file is not exist,it will create a file.
@@ -292,7 +430,16 @@ int init_sqlite()
 }		/* -----  end of function init_sqlite  ----- */
 int main()
 {
-	init_sqlite();
+	upStream = (char *)malloc(10000);
+	us_len = 0;
+	if (!nids_init ())
+	{
+		fprintf(stderr,"%s\n",nids_errbuf);
+		exit(1);
+	}
+	nids_register_tcp (tcp_callback);
+
+	//init_sqlite();
 
 	pipe_config();
 	monitor();
