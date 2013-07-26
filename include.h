@@ -46,6 +46,7 @@
 #define HTTP_HEADER_TYPE
 	#define HOST 1
 	#define COOKIE 2
+	#define CONTENT_LENGTH 3
 #endif
 
 
@@ -57,12 +58,15 @@ struct pseudo_hdr { /* See RFC 793 Pseudo Header */
     u_short tcpl;	/* tcp length */
 };
 
+static int content_length;
+
 struct HTTP{
 	unsigned char method;
+	int head_length;
 	char url[300];
 	char host[20];
 	char cookie[300];
-	char content[200];
+	char content[1500];
 };
 
 struct line {

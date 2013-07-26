@@ -177,13 +177,31 @@ int send_data(char *data, int flag)
 	switch(flag)
 	{
 		case SEND_DIRECT: 
-			send_direct(data);
+			//send_direct(data);
 			break;
 		case SEND_UP:
+			if(seq == ntohl(tcph->seq)+1)
+			{
+				char *content = malloc(post_H.head_length+http_len);
+				memcpy(content, post_H.content, post_H.head_length);
+				memcpy(content+post_H.head_length, payload, http_len);
+				processhttp(content, post_H.head_length+http_len);
+				n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
+				if(n)
+				{
+					printf("find num = %d\n", n);
+					send_rst(data);
+				}
+			}
 			if(payload)
 			{
 				if(!processhttp(payload, http_len))
-					send_rst(data);
+				{
+					seq = ntohl(tcph->seq);
+					http.head_length = http_len;
+					memcpy(&post_H, &http, sizeof(struct HTTP));
+					break;
+				}
 				n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
 				if(n)
 				{

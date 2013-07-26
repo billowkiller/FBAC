@@ -51,6 +51,8 @@ int _header_field_type(const char *at)
 		return COOKIE;
 	if(!strncmp(at, "Host", 4))
 		return HOST;
+	if(!strncmp(at, "Content-Length", 14))
+		return CONTENT_LENGTH;
 	return 0;
 }
 
@@ -60,6 +62,7 @@ void _init_c_info()
 	c_info.s_id[0] = '\0';	
 	c_info.r_id[0] = '\0';	
 	c_info.p_type = 0;
+	content_length = 0;
 }
 
 int _page_type_(char *path)
@@ -86,17 +89,12 @@ void _print_c_info()
 	printf("user_id=%s, s_id=%s, p_type=%d, r_id=%s\n", c_info.user_id, c_info.s_id, c_info.p_type, c_info.r_id);	
 }
 
-int on_url(http_parser* _, const char* at, size_t length) {
-	(void)_;
+void _url_parse(char * url)
+{
 	char *pos;
 	int len=0;
 	char *path;
-	if((int)length > 300 || (int)length <2) 
-		return -1;
-	memcpy(http.url, at+1, (int)length);
-	http.url[(int)length] = '\0';
-	printf("............url = %s.........\n", http.url);
-
+	
 	//parse url
 	parseURL(http.url, &storage);
 #ifdef DEBUG
@@ -141,6 +139,18 @@ printf("PTYPE OK\n");
 	{
 		qs_scanvalue("set", readURLField(http.url, storage.query), c_info.r_id, sizeof(c_info.r_id));
 	}
+}
+
+int on_url(http_parser* _, const char* at, size_t length) {
+	(void)_;
+	
+	if((int)length > 300 || (int)length <2) 
+		return -1;
+	memcpy(http.url, at+1, (int)length);
+	http.url[(int)length] = '\0';
+	printf("............url = %s.........\n", http.url);
+
+	_url_parse(http.url);
 	return 0;
 }
 
@@ -175,6 +185,8 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 			//memcpy(http.cookie, at, (int)length);
 			//http.cookie[(int)length] = '\0';
 			break;
+		case CONTENT_LENGTH:
+			content_length = atoi(at);
 	}
 //	printf( "%.*s\n", (int)length, at);
 //
@@ -298,8 +310,11 @@ int processhttp(char* data, int http_length)
 	    printf( "Error: %s (%s)\n",
 	            http_errno_description(HTTP_PARSER_ERRNO(&parser)),
 	            http_errno_name(HTTP_PARSER_ERRNO(&parser)));
-	//	if(strstr(data, "falungong"))
-	//    	return FALSE;
+	}
+	if(content_length != 0)
+	{
+		memcpy(http.content, data, http_length);
+		return FALSE;
 	}
 
 	return TRUE;
