@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <sqlite3.h>
 #include <string.h>
-#define MAXL 200
-#define sMAX 500
+#define MAXL 500
+#define sMAX 1000
 
 char** query(char *sql, int* nrow, int* ncolumn, sqlite3* db)
 {
@@ -150,8 +150,12 @@ int finda_rL(char*res_type, char* sub_role,int res_type_num, char* res_from_id, 
     return row;
 }
 
-int findt(char* rid, char* sid, char* res_id, int res_type_num, char* table, sqlite3* db)//ridΪ±»·ÃÊßd
+int findt(char* rid, char* sid, char* res_id, int res_type_num, char* table, sqlite3* db)
 {
+	printf("rid: %s\n", rid);
+	printf("sid: %s\n", sid);
+	printf("res_id: %s\n", res_id);
+	printf("table: %s\n", table);
     char selectStr[sMAX]="select * from ";
     strcat(selectStr,table);
     char* wh=" where";
@@ -195,20 +199,20 @@ int findt(char* rid, char* sid, char* res_id, int res_type_num, char* table, sql
         strcat(type," and");
         strcat(selectStr,type);
     }
-  //  if(res_type_num)
-    //{
-        char type_n[MAXL]=" (res_type_num=";
-        char tp[10];
-        sprintf(tp,"%d",res_type_num);
+	char type_n[2*MAXL]=" (res_type_num=";
+	char tp[10];
+	sprintf(tp,"%d",res_type_num);
 
-        strcat(type_n,tp);
-        strcat(type_n," or res_type_num=0)");
-        strcat(type_n," and");
-        strcat(selectStr,type_n);
-    //}
+	strcat(type_n,tp);
+	strcat(type_n," or res_type_num=0)");
+	strcat(type_n," and");
+	strcat(selectStr,type_n);
+
     int len=strlen(selectStr)-4;
     *(selectStr+len)='\0';
     int row=0,column;
+	printf("len = %d\n", strlen(selectStr));
+	printf("sql=%s\n", selectStr);
     query(selectStr,&row,&column,db);
     return row;
 }
@@ -216,7 +220,9 @@ int findt(char* rid, char* sid, char* res_id, int res_type_num, char* table, sql
 int find_db(char* rid, char* sid,  int res_type_num, char* res_id, sqlite3* db)
 {
     int a=0,v=0;
+	printf("check one\n");
     a=findt(rid, sid, res_id, res_type_num, "a_roleList", db);
+	printf("check two\n");
     v=findt(rid, sid, res_id, res_type_num, "v_roleList", db);
     return a+v;
 }

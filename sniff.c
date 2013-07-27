@@ -245,7 +245,7 @@ void monitor()
 		fprintf(stderr, "Couldn't open device %s : %s\n" , devname , errbuf);
 		exit(1);
 	}
-char filter_exp[] = "host 211.147.4";
+char filter_exp[] = "host 31.13.82";
 	//char filter_exp[] = "dst host 173.252.110 or dst host 31.13.82 or dst host 220.181.181";	/* The filter expression */
 
 	/* Compile and apply the filter */
@@ -292,7 +292,7 @@ int init_sqlite()
 }		/* -----  end of function init_sqlite  ----- */
 int main()
 {
-	//init_sqlite();
+	init_sqlite();
 	pipe_config();
 	monitor();
 }

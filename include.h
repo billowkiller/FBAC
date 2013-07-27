@@ -1,3 +1,5 @@
+#define DEBUG   //define debug print
+
 #ifndef	FALSE
 #define	FALSE	(0)
 #endif
@@ -47,6 +49,7 @@
 	#define HOST 1
 	#define COOKIE 2
 	#define CONTENT_LENGTH 3
+	#define REFERER 4
 #endif
 
 
@@ -67,6 +70,7 @@ struct HTTP{
 	char host[20];
 	char cookie[300];
 	char content[1500];
+	char comment[100];
 };
 
 struct line {

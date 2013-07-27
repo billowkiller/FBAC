@@ -180,26 +180,41 @@ int send_data(char *data, int flag)
 			//send_direct(data);
 			break;
 		case SEND_UP:
-			if(seq == ntohl(tcph->seq)+1)
+
+			#ifdef DEBUG
+				printf("seq = %ld, http_len=%d\n", ntohl(tcph->seq), http_len);
+			#endif
+			if(seq+post_H.head_length == ntohl(tcph->seq))
 			{
 				char *content = malloc(post_H.head_length+http_len);
 				memcpy(content, post_H.content, post_H.head_length);
 				memcpy(content+post_H.head_length, payload, http_len);
+			#ifdef DEBUG
+				printf("length=%d\ncontent=%s\n", post_H.head_length+http_len, content);
+			#endif
 				processhttp(content, post_H.head_length+http_len);
+
+			#ifdef DEBUG
+				printf("\ncheck db\n");
+			#endif
 				n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
 				if(n)
 				{
 					printf("find num = %d\n", n);
 					send_rst(data);
 				}
+				free(content);
 			}
-			if(payload)
+			else if(payload)
 			{
 				if(!processhttp(payload, http_len))
 				{
 					seq = ntohl(tcph->seq);
 					http.head_length = http_len;
 					memcpy(&post_H, &http, sizeof(struct HTTP));
+			#ifdef DEBUG
+				printf("post_H.content = %s\n", post_H.content);
+			#endif
 					break;
 				}
 				n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);

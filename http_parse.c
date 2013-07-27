@@ -43,7 +43,6 @@
  */
 
 #include "http_parse.h"
-#define DEBUG
 
 int _header_field_type(const char *at)
 {
@@ -53,6 +52,8 @@ int _header_field_type(const char *at)
 		return HOST;
 	if(!strncmp(at, "Content-Length", 14))
 		return CONTENT_LENGTH;
+	if(!strncmp(at, "Referer", 7))
+		return REFERER;
 	return 0;
 }
 
@@ -63,6 +64,7 @@ void _init_c_info()
 	c_info.r_id[0] = '\0';	
 	c_info.p_type = 0;
 	content_length = 0;
+	http.comment[0] = '\0'; 
 }
 
 int _page_type_(char *path)
@@ -86,7 +88,7 @@ int _page_type_(char *path)
 
 void _print_c_info()
 {
-	printf("user_id=%s, s_id=%s, p_type=%d, r_id=%s\n", c_info.user_id, c_info.s_id, c_info.p_type, c_info.r_id);	
+	printf("user_id=%s, s_id=%s, p_type=%d, r_id=%s, comment=%s\n", c_info.user_id, c_info.s_id, c_info.p_type, c_info.r_id, http.comment);	
 }
 
 void _url_parse(char * url)
@@ -96,19 +98,23 @@ void _url_parse(char * url)
 	char *path;
 	
 	//parse url
-	parseURL(http.url, &storage);
+	parseURL(url, &storage);
+	storage.path.start += 1;
 #ifdef DEBUG
 printf("parseURL OK\n");
 #endif
 	//store user_id
 	if(storage.query.end - storage.query.start != 0)
-		qs_scanvalue("__user", readURLField(http.url, storage.query), c_info.user_id, sizeof(c_info.user_id));
+		qs_scanvalue("__user", readURLField(url, storage.query), c_info.user_id, sizeof(c_info.user_id));
 
 	//stupid implemention of s_id
-	path = readURLField(http.url, storage.path);
+	path = readURLField(url, storage.path);
 	c_info.p_type = _page_type_(path);
 #ifdef DEBUG
 printf("PTYPE OK\n");
+#endif
+#ifdef DEBUG
+printf("path = %s\n", path);
 #endif
 	if((pos = strchr(path, '/')) == strrchr(path, '/'))
 	{
@@ -121,7 +127,7 @@ printf("PTYPE OK\n");
 		{
 			storage.path.end = pos - path;
 			free(path);
-			path = readURLField(http.url, storage.path);
+			path = readURLField(url, storage.path);
 			strcpy(c_info.s_id,path);
 			free(path);
 		}
@@ -137,7 +143,7 @@ printf("PTYPE OK\n");
 
 	if(c_info.p_type == MEDIA_SET)
 	{
-		qs_scanvalue("set", readURLField(http.url, storage.query), c_info.r_id, sizeof(c_info.r_id));
+		qs_scanvalue("set", readURLField(url, storage.query), c_info.r_id, sizeof(c_info.r_id));
 	}
 }
 
@@ -146,7 +152,7 @@ int on_url(http_parser* _, const char* at, size_t length) {
 	
 	if((int)length > 300 || (int)length <2) 
 		return -1;
-	memcpy(http.url, at+1, (int)length);
+	memcpy(http.url, at, (int)length);
 	http.url[(int)length] = '\0';
 	printf("............url = %s.........\n", http.url);
 
@@ -156,19 +162,13 @@ int on_url(http_parser* _, const char* at, size_t length) {
 
 int on_header_field(http_parser* _, const char* at, size_t length) {
 	(void)_;
-//	printf( "%.*s: ", (int)length, at);
-//	nlines++;
-//	if (nlines == MAX_HEADER_LINES) ;// error!
 	http_field_type =  _header_field_type(at);
-//	CURRENT_LINE->field = (char *)malloc(length+1);
-//	strncpy(CURRENT_LINE->field, at, length);
-//	CURRENT_LINE->field[length] = '\0';
-
 	return 0;
 }
 
 int on_header_value(http_parser* _, const char* at, size_t length) {
 	(void)_;
+	char *url;
 	switch(http_field_type)
 	{
 		case HOST:
@@ -177,16 +177,26 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 			http.host[(int)length] = '\0';
 			break;
 		case COOKIE: //unknow size of cookie, stay available
-// 			if(c_info.user_id[0]=='\0')
-// 			{
-// 				char *start = strstr(at, "c_user")+7;
-// 				memcpy(c_info.user_id, start, strchr(start, ';')-start);
-// 			}
+ 			if(c_info.user_id[0]=='\0')
+ 			{
+				printf("IN COOKIE\n");
+ 				char *start = strstr(at, "c_user");
+				if(start)
+					memcpy(c_info.user_id, start+7, strchr(start+7, ';')-start-7);
+ 			}
 			//memcpy(http.cookie, at, (int)length);
 			//http.cookie[(int)length] = '\0';
 			break;
 		case CONTENT_LENGTH:
 			content_length = atoi(at);
+			break;
+		case REFERER:
+	printf(" REFERER p:%.*s: ", (int)length, at);
+			url = (char *)malloc((int)length);
+			memcpy(url, at, (int)length);
+			printf("REFERER: %s\n", url);
+			_url_parse(url);
+			free(url);
 	}
 //	printf( "%.*s\n", (int)length, at);
 //
@@ -213,10 +223,17 @@ int on_body(http_parser* _, const char* at, size_t length) {
 	//http.content[(int)length] = '\0';
 
 	//analysis
-	//if(c_info.user_id[0] == '\0')
-	//	qs_scanvalue("__user", readURLField(http.url, storage.query), c_info.user_id, sizeof(c_info.user_id));
-	//qs_scanvalue("to_friend", readURLField(http.url, storage.query), c_info.s_id, sizeof(c_info.s_id));
-
+	if(c_info.user_id[0] == '\0')
+	{
+		qs_scanvalue("__user", at, c_info.user_id, sizeof(c_info.user_id));
+		printf("user_id = %s\n", c_info.user_id);
+	}
+		if(c_info.p_type == COMMENT)
+	{
+		qs_scanvalue("comment_text", at, http.comment, sizeof(http.comment));
+	}
+	if(c_info.p_type == ADD_FRIEND)
+		qs_scanvalue("to_friend", at, c_info.s_id, sizeof(c_info.s_id));
 
 	
 //	if(!strncmp(contype, "text/html", CONTYPE_LENGTH))
@@ -306,12 +323,11 @@ int processhttp(char* data, int http_length)
 
 	if (nparsed != (size_t)http_length) 
 	{
-		printf("data:\n%s\n", data);
 	    printf( "Error: %s (%s)\n",
 	            http_errno_description(HTTP_PARSER_ERRNO(&parser)),
 	            http_errno_name(HTTP_PARSER_ERRNO(&parser)));
 	}
-	if(content_length != 0)
+	if(content_length != 0 && http.method == 3)
 	{
 		memcpy(http.content, data, http_length);
 		return FALSE;
