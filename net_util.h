@@ -14,6 +14,7 @@ extern sqlite3* db;
 extern struct connection_info c_info;
 extern int processhttp(char *, int);
 extern int find_db(char *, char *, int, char *, sqlite3 *);
+extern int iskeyword(char *, sqlite3 *);
 
 static struct HTTP post_H;
 static long seq = 0;

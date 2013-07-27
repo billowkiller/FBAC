@@ -143,19 +143,14 @@ int finda_rL(char*res_type, char* sub_role,int res_type_num, char* res_from_id, 
 
     int len=strlen(selectStr)-4;
     *(selectStr+len)='\0';
-    printf("%d\n",strlen(selectStr));
-    printf("%s\n",selectStr);
     int row=0,column;
+printf("selectStr = %s\n", selectStr);
     query(selectStr,&row,&column,db);
     return row;
 }
 
 int findt(char* rid, char* sid, char* res_id, int res_type_num, char* table, sqlite3* db)
 {
-	printf("rid: %s\n", rid);
-	printf("sid: %s\n", sid);
-	printf("res_id: %s\n", res_id);
-	printf("table: %s\n", table);
     char selectStr[sMAX]="select * from ";
     strcat(selectStr,table);
     char* wh=" where";
@@ -211,8 +206,6 @@ int findt(char* rid, char* sid, char* res_id, int res_type_num, char* table, sql
     int len=strlen(selectStr)-4;
     *(selectStr+len)='\0';
     int row=0,column;
-	printf("len = %d\n", strlen(selectStr));
-	printf("sql=%s\n", selectStr);
     query(selectStr,&row,&column,db);
     return row;
 }
@@ -220,9 +213,45 @@ int findt(char* rid, char* sid, char* res_id, int res_type_num, char* table, sql
 int find_db(char* rid, char* sid,  int res_type_num, char* res_id, sqlite3* db)
 {
     int a=0,v=0;
-	printf("check one\n");
     a=findt(rid, sid, res_id, res_type_num, "a_roleList", db);
-	printf("check two\n");
     v=findt(rid, sid, res_id, res_type_num, "v_roleList", db);
     return a+v;
 }
+
+int iskeyword(char* word, sqlite3* db)//if(word=='\0') return 0
+{
+    if(word[0] == '\0')
+		return 0;
+    //select * from key_word where string = 38@word
+    char select[100];
+    strcpy(select,"select * from key_word where string = '");
+    strcat(select,word);
+    strcat(select,"'");
+    //printf("select:%s len:%d,strlen:%d",select,len,strlen(select));
+    int row=0,column;
+    query(select,&row,&column,db);
+    return row;
+}
+
+//int main( )
+//{
+//    char* dbpath="/home/wutao/FBAC/config/fbac.db";
+//    sqlite3 *db=NULL;
+//    char *zErrMsg = 0;
+//    int rc;
+//    rc = sqlite3_open(dbpath, &db);
+//    if( rc )
+//    {
+//        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+//        sqlite3_close(db);
+//        return 0;
+//    }
+//
+//   // int n=find_db("barackobama", "100000179669235", 8, "\0",db);
+//	int n = iskeyword("Obama", db);
+//    printf("%d\n",n);
+//	sqlite3_close(db); //close database
+//    return 0;
+//}
+
+

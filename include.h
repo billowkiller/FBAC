@@ -61,7 +61,6 @@ struct pseudo_hdr { /* See RFC 793 Pseudo Header */
     u_short tcpl;	/* tcp length */
 };
 
-static int content_length;
 
 struct HTTP{
 	unsigned char method;
@@ -69,8 +68,7 @@ struct HTTP{
 	char url[300];
 	char host[20];
 	char cookie[300];
-	char content[1500];
-	char comment[100];
+	char content[4096];
 };
 
 struct line {
@@ -83,5 +81,6 @@ struct connection_info{
 	char s_id[20]; //visitor view subject's page
 	int p_type; /* page type */
 	char r_id[50]; /* resource id */
+	char comment[100]; /* post content */
 };
 #endif

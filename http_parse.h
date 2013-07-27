@@ -18,6 +18,8 @@ static int http_field_type = 0;
 static char charset[10];
 static char contype[30];
 static URL storage;
+static int con_len=0;
+static int content_length;
 
 struct HTTP http;
 struct connection_info c_info;

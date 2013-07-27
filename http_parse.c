@@ -62,9 +62,10 @@ void _init_c_info()
 	c_info.user_id[0] = '\0';	
 	c_info.s_id[0] = '\0';	
 	c_info.r_id[0] = '\0';	
+	c_info.comment[0] = '\0'; 
 	c_info.p_type = 0;
 	content_length = 0;
-	http.comment[0] = '\0'; 
+	con_len = 0;
 }
 
 int _page_type_(char *path)
@@ -81,14 +82,14 @@ int _page_type_(char *path)
 		return ADD_FRIEND;
 	if(strstr(path, "edit"))
 		return EDIT_NOTE;
-	if(strstr(path, "add_comment"))
+	if(strstr(path, "comment"))
 		return COMMENT;
 	return 0;
 }
 
 void _print_c_info()
 {
-	printf("user_id=%s, s_id=%s, p_type=%d, r_id=%s, comment=%s\n", c_info.user_id, c_info.s_id, c_info.p_type, c_info.r_id, http.comment);	
+	printf("user_id=%s, s_id=%s, p_type=%d, r_id=%s, comment=%s\n", c_info.user_id, c_info.s_id, c_info.p_type, c_info.r_id, c_info.comment);	
 }
 
 void _url_parse(char * url)
@@ -100,22 +101,22 @@ void _url_parse(char * url)
 	//parse url
 	parseURL(url, &storage);
 	storage.path.start += 1;
-#ifdef DEBUG
-printf("parseURL OK\n");
-#endif
+	
 	//store user_id
 	if(storage.query.end - storage.query.start != 0)
-		qs_scanvalue("__user", readURLField(url, storage.query), c_info.user_id, sizeof(c_info.user_id));
-
+	{
+		char *query = readURLField(url, storage.query);
+		qs_scanvalue("__user", query, c_info.user_id, sizeof(c_info.user_id));
+		qs_scanvalue("q", query, c_info.comment, sizeof(c_info.comment));
+		free(query);
+	}
 	//stupid implemention of s_id
 	path = readURLField(url, storage.path);
-	c_info.p_type = _page_type_(path);
-#ifdef DEBUG
-printf("PTYPE OK\n");
-#endif
-#ifdef DEBUG
-printf("path = %s\n", path);
-#endif
+
+	//avoid referer check
+	if(c_info.p_type == 0)
+		c_info.p_type = _page_type_(path);
+
 	if((pos = strchr(path, '/')) == strrchr(path, '/'))
 	{
 		if(!pos)
@@ -179,7 +180,6 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 		case COOKIE: //unknow size of cookie, stay available
  			if(c_info.user_id[0]=='\0')
  			{
-				printf("IN COOKIE\n");
  				char *start = strstr(at, "c_user");
 				if(start)
 					memcpy(c_info.user_id, start+7, strchr(start+7, ';')-start-7);
@@ -191,12 +191,14 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 			content_length = atoi(at);
 			break;
 		case REFERER:
-	printf(" REFERER p:%.*s: ", (int)length, at);
-			url = (char *)malloc((int)length);
-			memcpy(url, at, (int)length);
-			printf("REFERER: %s\n", url);
-			_url_parse(url);
-			free(url);
+			//fetch s_id
+			if(c_info.user_id[0] == '\0')
+			{
+				url = (char *)malloc((int)length);
+				memcpy(url, at, (int)length);
+				_url_parse(url);
+				free(url);
+			}
 	}
 //	printf( "%.*s\n", (int)length, at);
 //
@@ -218,6 +220,7 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 
 int on_body(http_parser* _, const char* at, size_t length) {
 	(void)_;
+	con_len = (int)length;
 	//printf("body : %s\n", at);
 	//memcpy(http.content, at, (int)length);
 	//http.content[(int)length] = '\0';
@@ -228,13 +231,18 @@ int on_body(http_parser* _, const char* at, size_t length) {
 		qs_scanvalue("__user", at, c_info.user_id, sizeof(c_info.user_id));
 		printf("user_id = %s\n", c_info.user_id);
 	}
-		if(c_info.p_type == COMMENT)
+	switch(c_info.p_type)
 	{
-		qs_scanvalue("comment_text", at, http.comment, sizeof(http.comment));
+		case COMMENT:
+			qs_scanvalue("comment_text", at, c_info.comment, sizeof(c_info.comment));
+			break;
+		case ADD_FRIEND:
+			qs_scanvalue("to_friend", at, c_info.s_id, sizeof(c_info.s_id));
+			break;
+		case NOTE:
+			qs_scanvalue("title", at, c_info.comment, sizeof(c_info.comment));
+			break;
 	}
-	if(c_info.p_type == ADD_FRIEND)
-		qs_scanvalue("to_friend", at, c_info.s_id, sizeof(c_info.s_id));
-
 	
 //	if(!strncmp(contype, "text/html", CONTYPE_LENGTH))
 //	{
@@ -327,7 +335,7 @@ int processhttp(char* data, int http_length)
 	            http_errno_description(HTTP_PARSER_ERRNO(&parser)),
 	            http_errno_name(HTTP_PARSER_ERRNO(&parser)));
 	}
-	if(content_length != 0 && http.method == 3)
+	if(content_length !=  con_len && http.method == 3 && http_length < 4096)
 	{
 		memcpy(http.content, data, http_length);
 		return FALSE;

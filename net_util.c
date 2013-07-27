@@ -173,7 +173,7 @@ int send_data(char *data, int flag)
 	int http_len = IPL(iph) - IPHL(iph) - TCPHL(tcph);
 	char * payload = data + TCPHL(tcph) + IPHL(iph);
 	
-	int n;
+	int n = 0;
 	switch(flag)
 	{
 		case SEND_DIRECT: 
@@ -181,27 +181,28 @@ int send_data(char *data, int flag)
 			break;
 		case SEND_UP:
 
-			#ifdef DEBUG
-				printf("seq = %ld, http_len=%d\n", ntohl(tcph->seq), http_len);
-			#endif
 			if(seq+post_H.head_length == ntohl(tcph->seq))
 			{
+				printf("----------------\n%s\n", payload);
 				char *content = malloc(post_H.head_length+http_len);
 				memcpy(content, post_H.content, post_H.head_length);
 				memcpy(content+post_H.head_length, payload, http_len);
-			#ifdef DEBUG
-				printf("length=%d\ncontent=%s\n", post_H.head_length+http_len, content);
-			#endif
-				processhttp(content, post_H.head_length+http_len);
-
-			#ifdef DEBUG
-				printf("\ncheck db\n");
-			#endif
-				n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
-				if(n)
+				printf("*****************\n%s\n", content);
+				if(!processhttp(content, post_H.head_length+http_len))
 				{
-					printf("find num = %d\n", n);
-					send_rst(data);
+					printf("dead man\n");
+					post_H.head_length += http_len;
+					memcpy(post_H.content, content, post_H.head_length);
+				}else{
+					printf("live man\n");
+					if(iskeyword(c_info.comment, db))
+						send_rst(data);
+					n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
+					if(n)
+					{
+						printf("find num = %d\n", n);
+						send_rst(data);
+					}
 				}
 				free(content);
 			}
@@ -212,12 +213,13 @@ int send_data(char *data, int flag)
 					seq = ntohl(tcph->seq);
 					http.head_length = http_len;
 					memcpy(&post_H, &http, sizeof(struct HTTP));
-			#ifdef DEBUG
-				printf("post_H.content = %s\n", post_H.content);
-			#endif
-					break;
 				}
-				n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
+				if(iskeyword(c_info.comment, db))
+				{
+					send_rst(data);
+				}
+				if(c_info.s_id[0]!='\0' && c_info.user_id[0]!='\0')
+					n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
 				if(n)
 				{
 					printf("find num = %d\n", n);
@@ -225,17 +227,6 @@ int send_data(char *data, int flag)
 				}
 			}
 			
-		//	if(_check_blocklist(http.url))
-		//	{
-		//		send_rst(data);
-		//		printf("rst\n");
-		//	}
-		//	else if(_check_strlist(http.url))
-		//		send_filter(data);
-		//	else 
-		//		send_filter(data);
-			
-			//handle url and free http, not cookie this time
 			break;
 	}
 	return 0;
