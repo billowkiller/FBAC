@@ -18,11 +18,3 @@ extern int iskeyword(char *, sqlite3 *);
 
 static struct HTTP post_H;
 static long seq = 0;
-
-int isFromDest(uint32_t);
-int isFromSrc(struct iphdr *, char *);
-
-int tcp_type(struct iphdr *);
-int content_filter(struct iphdr *);
-int ishost(struct iphdr *, char *);
-int send_data(char *, int);

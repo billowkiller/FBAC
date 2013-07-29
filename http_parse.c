@@ -59,8 +59,8 @@ int _header_field_type(const char *at)
 
 void _init_c_info()
 {
-	c_info.user_id[0] = '\0';	
-	c_info.s_id[0] = '\0';	
+	c_info.user_id[0] = '\0';
+	c_info.s_id[0] = '\0';
 	c_info.r_id[0] = '\0';	
 	c_info.comment[0] = '\0'; 
 	c_info.p_type = 0;
@@ -100,7 +100,7 @@ void _url_parse(char * url)
 	
 	//parse url
 	parseURL(url, &storage);
-	storage.path.start += 1;
+	storage.path.start += 1;  //remove '/'
 	
 	//store user_id
 	if(storage.query.end - storage.query.start != 0)
@@ -110,10 +110,10 @@ void _url_parse(char * url)
 		qs_scanvalue("q", query, c_info.comment, sizeof(c_info.comment));
 		free(query);
 	}
-	//stupid implemention of s_id
+	//modify me, stupid implemention of s_id
 	path = readURLField(url, storage.path);
 
-	//avoid referer check
+	//avoid referer url check
 	if(c_info.p_type == 0)
 		c_info.p_type = _page_type_(path);
 
@@ -144,7 +144,9 @@ void _url_parse(char * url)
 
 	if(c_info.p_type == MEDIA_SET)
 	{
-		qs_scanvalue("set", readURLField(url, storage.query), c_info.r_id, sizeof(c_info.r_id));
+		path = readURLField(url, storage.query);
+		qs_scanvalue("set", path, c_info.r_id, sizeof(c_info.r_id));
+		free(path);
 	}
 }
 
@@ -172,11 +174,6 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 	char *url;
 	switch(http_field_type)
 	{
-		case HOST:
-//	printf(" HOST:%.*s: ", (int)length, at);
-			memcpy(http.host, at, (int)length);
-			http.host[(int)length] = '\0';
-			break;
 		case COOKIE: //unknow size of cookie, stay available
  			if(c_info.user_id[0]=='\0')
  			{

@@ -55,18 +55,11 @@
 
 #ifndef STRUCT
 #define STRUCT
-struct pseudo_hdr { /* See RFC 793 Pseudo Header */
-    u_long saddr, daddr;/* source and dest address */
-    u_char mbz, ptcl;	/* zero and protocol */
-    u_short tcpl;	/* tcp length */
-};
-
 
 struct HTTP{
 	unsigned char method;
 	int head_length;
 	char url[300];
-	char host[20];
 	char cookie[300];
 	char content[4096];
 };

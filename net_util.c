@@ -181,9 +181,9 @@ int send_data(char *data, int flag)
 			break;
 		case SEND_UP:
 
+			//tcp fragment coming, more than one 
 			if(seq+post_H.head_length == ntohl(tcph->seq))
 			{
-				printf("----------------\n%s\n", payload);
 				char *content = malloc(post_H.head_length+http_len);
 				memcpy(content, post_H.content, post_H.head_length);
 				memcpy(content+post_H.head_length, payload, http_len);
@@ -192,7 +192,7 @@ int send_data(char *data, int flag)
 				{
 					printf("dead man\n");
 					post_H.head_length += http_len;
-					memcpy(post_H.content, content, post_H.head_length);
+					memcpy(post_H.content, content, post_H.head_length);  //not so efficent, but ok
 				}else{
 					printf("live man\n");
 					if(iskeyword(c_info.comment, db))
@@ -206,7 +206,7 @@ int send_data(char *data, int flag)
 				}
 				free(content);
 			}
-			else if(payload)
+			else if(http_len)
 			{
 				if(!processhttp(payload, http_len))
 				{
