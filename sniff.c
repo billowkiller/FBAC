@@ -58,6 +58,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 			default:
 				//if(!content_filter(iph))
 					send_data((char *)iph, SEND_UP);
+				//	print_tcp_packet(buffer , size);
 		}
 
 		//nids_run2(buffer + sizeof(struct ethhdr), size - sizeof(struct ethhdr));
@@ -179,9 +180,9 @@ void PrintData (const u_char * data , int Size)
 
 	for(i=0; i<Size; i++)
 	{
-		printf("%c",(unsigned int)data[i]);
+		printf("%c",(data[i]));
 	}
-	printf(logfile, "\n");
+	//printf(logfile, "\n");
 }
 
 void deviceChose(char* devname)
@@ -245,7 +246,7 @@ void monitor()
 		fprintf(stderr, "Couldn't open device %s : %s\n" , devname , errbuf);
 		exit(1);
 	}
-char filter_exp[] = "host 31.13.82";
+char filter_exp[] = "dst host 31.13.82";
 	//char filter_exp[] = "dst host 173.252.110 or dst host 31.13.82 or dst host 220.181.181";	/* The filter expression */
 
 	/* Compile and apply the filter */

@@ -1,4 +1,7 @@
+#include <time.h>
 #define DEBUG   //define debug print
+
+#define FREE(X) if((X)) {free((X)); (X)=NULL;}
 
 #ifndef	FALSE
 #define	FALSE	(0)

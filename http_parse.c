@@ -23,7 +23,7 @@
  * Additional changes are licensed under the same terms as NGINX and
  * copyright Joyent, Inc. and other Node contributors. All rights reserved.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * Permission is hereby granted, FREE of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
  * deal in the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
@@ -43,7 +43,10 @@
  */
 
 #include "http_parse.h"
+#include <time.h>
 
+static time_t start, end;
+static int t = 0;
 int _header_field_type(const char *at)
 {
 	if(!strncmp(at, "Cookie", 6))
@@ -59,6 +62,7 @@ int _header_field_type(const char *at)
 
 void _init_c_info()
 {
+	memset(&c_info, 0, sizeof(struct connection_info));
 	c_info.user_id[0] = '\0';
 	c_info.s_id[0] = '\0';
 	c_info.r_id[0] = '\0';	
@@ -72,7 +76,7 @@ int _page_type_(char *path)
 {
 	if(strstr(path, "notes"))
 		return NOTE;
-	if(strstr(path, "photos"))
+	if(strstr(path, "photo"))
 		return PHOTO;
 	if(strstr(path, "media_set"))
 		return MEDIA_SET;
@@ -84,6 +88,8 @@ int _page_type_(char *path)
 		return EDIT_NOTE;
 	if(strstr(path, "comment"))
 		return COMMENT;
+	if(strstr(path, "updatestatus"))
+		return STATUS;
 	return 0;
 }
 
@@ -94,6 +100,7 @@ void _print_c_info()
 
 void _url_parse(char * url)
 {
+	printf("............url = %s.........\n", url);
 	char *pos;
 	int len=0;
 	char *path;
@@ -101,18 +108,23 @@ void _url_parse(char * url)
 	//parse url
 	parseURL(url, &storage);
 	storage.path.start += 1;  //remove '/'
+	if(storage.path.start == storage.path.end)
+		return;
 	
 	//store user_id
-	if(storage.query.end - storage.query.start != 0)
+	if(storage.query.end != storage.query.start)
 	{
-		char *query = readURLField(url, storage.query);
+		char * query = readURLField(url, storage.query);
+		printf("malloc 1\n");
 		qs_scanvalue("__user", query, c_info.user_id, sizeof(c_info.user_id));
 		qs_scanvalue("q", query, c_info.comment, sizeof(c_info.comment));
-		free(query);
+		FREE(query);
+		printf("FREE 1\n");
 	}
 	//modify me, stupid implemention of s_id
 	path = readURLField(url, storage.path);
-
+		printf("malloc 2\n");
+	printf("url path = %s\n", path);
 	//avoid referer url check
 	if(c_info.p_type == 0)
 		c_info.p_type = _page_type_(path);
@@ -121,19 +133,25 @@ void _url_parse(char * url)
 	{
 		if(!pos)
 		{
-			strcpy(c_info.s_id, path);
-			free(path);
+			printf("end = %d\n", storage.path.end);
+			printf("start= %d\n", storage.path.start);
+			printf("%s\n", path);
+			memcpy(c_info.s_id, path, storage.path.end);
+			c_info.s_id[storage.path.end] = '\0';
+			FREE(path);
+		printf("FREE 2\n");
 		}
 		else
 		{
 			storage.path.end = pos - path;
-			free(path);
-			path = readURLField(url, storage.path);
-			strcpy(c_info.s_id,path);
-			free(path);
+			memcpy(c_info.s_id,path, pos-path);
+			c_info.s_id[pos-path] = '\0';
+			FREE(path);
+		printf("FREE 4\n");
 		}
 		printf("subject name:%s\n", c_info.s_id);
-	}
+	}else
+		FREE(path);
 //	regex_match("(\\w+\\.)+\\w+", path, &pos, &len);   //regex [\w+\.]+, not endwith php
 //	if(len != 0 && !strstr(path, "php"))  //need modify
 //	{
@@ -145,8 +163,10 @@ void _url_parse(char * url)
 	if(c_info.p_type == MEDIA_SET)
 	{
 		path = readURLField(url, storage.query);
+		printf("malloc 4\n");
 		qs_scanvalue("set", path, c_info.r_id, sizeof(c_info.r_id));
-		free(path);
+		FREE(path);
+		printf("FREE 6\n");
 	}
 }
 
@@ -157,7 +177,6 @@ int on_url(http_parser* _, const char* at, size_t length) {
 		return -1;
 	memcpy(http.url, at, (int)length);
 	http.url[(int)length] = '\0';
-	printf("............url = %s.........\n", http.url);
 
 	_url_parse(http.url);
 	return 0;
@@ -171,7 +190,7 @@ int on_header_field(http_parser* _, const char* at, size_t length) {
 
 int on_header_value(http_parser* _, const char* at, size_t length) {
 	(void)_;
-	char *url;
+	//char *url;
 	switch(http_field_type)
 	{
 		case COOKIE: //unknow size of cookie, stay available
@@ -179,8 +198,12 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
  			{
  				char *start = strstr(at, "c_user");
 				if(start)
-					memcpy(c_info.user_id, start+7, strchr(start+7, ';')-start-7);
- 			}
+				{
+					int len = strchr(start+7, ';')-start-7;
+					memcpy(c_info.user_id, start+7, len);
+					c_info.user_id[len] = '\0';
+				}
+			}
 			//memcpy(http.cookie, at, (int)length);
 			//http.cookie[(int)length] = '\0';
 			break;
@@ -191,11 +214,13 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 			//fetch s_id
 			if(c_info.user_id[0] == '\0')
 			{
-				url = (char *)malloc((int)length);
+				char *url = (char *)malloc((int)length+1);
 				memcpy(url, at, (int)length);
+				url[(int)length] = '\0';
 				_url_parse(url);
-				free(url);
+				FREE(url);
 			}
+			break;
 	}
 //	printf( "%.*s\n", (int)length, at);
 //
@@ -238,6 +263,9 @@ int on_body(http_parser* _, const char* at, size_t length) {
 			break;
 		case NOTE:
 			qs_scanvalue("title", at, c_info.comment, sizeof(c_info.comment));
+			break;
+		case STATUS:
+			qs_scanvalue("xhpc_message_text", at, c_info.comment, sizeof(c_info.comment));
 			break;
 	}
 	
@@ -301,7 +329,7 @@ char* fileRead(char *filename, long* file_length)
 	char* data = malloc(*file_length);
 	if (fread(data, 1, *file_length, file) != (size_t)*file_length) {
 	  fprintf(stderr, "couldn't read entire file\n");
-	  free(data);
+	  FREE(data);
 	}
 	return data;
 }
@@ -309,6 +337,9 @@ char* fileRead(char *filename, long* file_length)
 
 int processhttp(char* data, int http_length)
 {
+	if(!start)
+		start = time(NULL);
+	printf("t=%d\n",t++);
 	_init_c_info();
 	http_parser_settings settings;
 	size_t nparsed;
@@ -322,6 +353,9 @@ int processhttp(char* data, int http_length)
 	http_parser_init(&parser, HTTP_REQUEST);
 	nparsed = http_parser_execute(&parser, &settings, data, (size_t)http_length);
 	http.method = parser.method;
+
+		end = time(NULL);
+		printf("%fms\n", difftime(end, start)/t);
 
 	//test
 	_print_c_info();
