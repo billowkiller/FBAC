@@ -62,7 +62,7 @@ int _header_field_type(const char *at)
 
 void _init_c_info()
 {
-	memset(&c_info, 0, sizeof(struct connection_info));
+	bzero(&c_info, sizeof(c_info));
 	c_info.user_id[0] = '\0';
 	c_info.s_id[0] = '\0';
 	c_info.r_id[0] = '\0';	
@@ -127,29 +127,28 @@ void _url_parse(char * url)
 	printf("url path = %s\n", path);
 	//avoid referer url check
 	if(c_info.p_type == 0)
+	{
 		c_info.p_type = _page_type_(path);
+		printf("p_type = %d\n", c_info.p_type);
+	}
 
 	if((pos = strchr(path, '/')) == strrchr(path, '/'))
 	{
 		if(!pos)
 		{
-			printf("end = %d\n", storage.path.end);
-			printf("start= %d\n", storage.path.start);
-			printf("%s\n", path);
-			memcpy(c_info.s_id, path, storage.path.end);
-			c_info.s_id[storage.path.end] = '\0';
+			strcpy(c_info.s_id, path);
 			FREE(path);
 		printf("FREE 2\n");
 		}
 		else
 		{
-			storage.path.end = pos - path;
 			memcpy(c_info.s_id,path, pos-path);
+			printf("pos-path = %d\n", pos-path);
 			c_info.s_id[pos-path] = '\0';
 			FREE(path);
-		printf("FREE 4\n");
+			printf("FREE 4\n");
 		}
-		printf("subject name:%s\n", c_info.s_id);
+		printf("c_info.s_id = %s\n", c_info.s_id);
 	}else
 		FREE(path);
 //	regex_match("(\\w+\\.)+\\w+", path, &pos, &len);   //regex [\w+\.]+, not endwith php

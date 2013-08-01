@@ -1,4 +1,3 @@
-#include <time.h>
 #define DEBUG   //define debug print
 
 #define FREE(X) if((X)) {free((X)); (X)=NULL;}
@@ -76,7 +75,7 @@ struct connection_info{
 	char user_id[20];
 	char s_id[20]; //visitor view subject's page
 	int p_type; /* page type */
-	char r_id[50]; /* resource id */
+	char r_id[52]; /* resource id */
 	char comment[100]; /* post content */
 };
 #endif
