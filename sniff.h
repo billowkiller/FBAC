@@ -1,7 +1,6 @@
 /*
 	Packet sniffer using libpcap library
 */
-#include <pcap.h>
 #include <stdio.h>
 #include <stdlib.h> // for exit()
 #include <string.h> //for memset
@@ -14,18 +13,13 @@
 #include <netinet/ip.h>	//Provides declarations for ip header
 #include <glib.h>
 #include <sqlite3.h>
+#include <linux/netfilter.h>		/* for NF_ACCEPT */
+#include <errno.h>
+
+#include <libnetfilter_queue/libnetfilter_queue.h>
 
 #include "include.h"
 
-// void process_packet(u_char *, const struct pcap_pkthdr *, const u_char *);
-// void process_ip_packet(const u_char * , int);
-// void print_ip_packet(const u_char * , int);
-// void print_tcp_packet(const u_char *  , int );
-// void print_icmp_packet(const u_char * , int );
-// void PrintData (const u_char * , int);
-// void deviceChose(char* devname);
-
-FILE *logfile;
 sqlite3 *db = NULL;
 
 extern GHashTable* hash_config;
@@ -35,5 +29,5 @@ extern int isFromSrc(struct iphdr *, char *);
 extern int tcp_type(struct iphdr *);
 extern int content_filter(struct iphdr *);
 extern int ishost(struct iphdr *, char *);
-extern int send_data(char *, int);
+extern int send_data(char *);
 extern int pipe_config();

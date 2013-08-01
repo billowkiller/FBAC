@@ -1,25 +1,15 @@
-/*
- * =====================================================================================
- *
- *       Filename:  trafficMonitor.c
- *
- *    Description:  monitor traffic at specified device
- *    				* fliter string is defined
- *    				* loop to callback parse method
- *    				* logfile stored log.txt
- *
- *        Version:  1.0
- *        Created:  01/25/2013 03:38:56 PM
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  Billowkiller (bk), billowkiller@gmail.com
- *   Organization:  
- *
- * =====================================================================================
- */
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <linux/types.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
+#include <linux/netfilter.h>		/* for NF_ACCEPT */
+#include <errno.h>
 
-#include "sniff.h"
+#include <libnetfilter_queue/libnetfilter_queue.h>
+
 
 int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 	      struct nfq_data *nfa, void *data)
@@ -39,16 +29,19 @@ int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 		pdata_len = 0;
 	}
 	
-	printf("send_data\n");
-	int verdict = send_data(pdata);
+	struct iphdr *iph = (struct iphdr *)pdata;
+	struct tcphdr *tcph= (struct tcphdr*)((u_int8_t*)iph+ (iph->ihl<<2));
+	int http_len = IPL(iph) - IPHL(iph) - TCPHL(tcph);
+    char * payload = pdata + TCPHL(tcph) + IPHL(iph);
+	printf("pdata_len = %d\n", pdata_len);
+	printf("http_len = %d\n", http_len);
+	if(http_len)
+		printf("%s\n", payload);
 	
-	if(verdict)
-		return nfq_set_verdict_mark(qh, id, NF_REPEAT, 1, (u_int32_t)pdata_len, pdata);
-	else
-		return nfq_set_verdict_mark(qh, id, NF_DROP, 1, (u_int32_t)pdata_len, pdata);
+	return nfq_set_verdict_mark(qh, id, NF_REPEAT, 1, (u_int32_t)pdata_len, pdata);
 }
 
-void monitor()
+int main(int argc, char **argv)
 {
 	struct nfq_handle *h;
 	struct nfq_q_handle *qh;
@@ -76,7 +69,10 @@ void monitor()
 		exit(1);
 	}
 	
-	int qid = 8010;
+	int qid = 0;
+	if(argc == 2){
+		qid = atoi(argv[1]);
+	}
 
 	printf("binding this socket to queue '%d'\n", qid);
 	qh = nfq_create_queue(h,  qid, &cb, NULL);
@@ -95,7 +91,6 @@ void monitor()
 
 	for (;;) {
 		if ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
-			printf("nfq_handle_packet\n");
 			nfq_handle_packet(h, buf, rv);
 			continue;
 		}
@@ -128,32 +123,4 @@ void monitor()
 	nfq_close(h);
 
 	exit(0);
-}
- 
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  init_sqlite
- *  Description:  
- * =====================================================================================
- */
-int init_sqlite()
-{
-    char* dbpath="/home/wutao/FBAC/config/fbac.db";
-    char *zErrMsg = 0;
-    int rc;
-    //open the database file.If the file is not exist,it will create a file.
-    rc = sqlite3_open(dbpath, &db);
-    if( rc )
-    {
-        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-		sqlite3_close(db);
-        return 0;
-    }
-	return 1;
-}		/* -----  end of function init_sqlite  ----- */
-int main()
-{
-	//init_sqlite();
-	//pipe_config();
-	monitor();
 }

@@ -4,7 +4,7 @@ PCAP = -lpcap
 NET = -lnet
 GTHREAD = -lgthread-2.0
 SQLITE = -lsqlite3
-NIDS = -lnids $(NET) $(GTHREAD) -lnsl $(ZIP)
+QUEUE = -lnetfilter_queue
 GLIB = `pkg-config --cflags --libs glib-2.0` 
 OBJ = sniff.o net_util.o http_parse.o\
 	  http.o data_send.o user_config.o\
@@ -12,10 +12,10 @@ OBJ = sniff.o net_util.o http_parse.o\
 	  sqlite.o
 
 sniff:$(OBJ) 
-	$(CC) -o sniff $(OBJ) $(GLIB) $(PCAP) $(SQLITE) $(NIDS)
+	$(CC) -o sniff $(OBJ) $(GLIB) $(QUEUE) $(SQLITE)
 
 sniff.o: sniff.c
-	$(CC) -c $^ $(PCAP) $(GLIB) $(SQLITE) $(NIDS)
+	$(CC) -c $^ $(QUEUE) $(GLIB) $(SQLITE)
 
 net_util.o: net_util.c data_send.o sqlite.o
 	$(CC) -c $^ $(GLIB) $(SQLITE) 

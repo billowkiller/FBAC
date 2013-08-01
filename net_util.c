@@ -166,68 +166,64 @@ char *_check_strlist(char *str)
 	return position;
 }
 
-int send_data(char *data, int flag)
+int send_data(char *data)
 {
 	struct iphdr *iph = (struct iphdr *)data;
 	struct tcphdr *tcph = (struct tcphdr *)(data + IPHL(iph));
 	int http_len = IPL(iph) - IPHL(iph) - TCPHL(tcph);
+	
+	if(http_len == 0)
+		return 1;
+	
 	char * payload = data + TCPHL(tcph) + IPHL(iph);
 	
+	printf("%s\n", payload);
 	int n = 0;
-	switch(flag)
+	//tcp fragment coming, more than one 
+	if(seq+post_H.head_length == ntohl(tcph->seq))
 	{
-		case SEND_DIRECT: 
-			//send_direct(data);
-			break;
-		case SEND_UP:
-
-			//tcp fragment coming, more than one 
-			if(seq+post_H.head_length == ntohl(tcph->seq))
+		char *content = malloc(post_H.head_length+http_len);
+		memcpy(content, post_H.content, post_H.head_length);
+		memcpy(content+post_H.head_length, payload, http_len);
+		printf("*****************\n%s\n", content);
+		if(!processhttp(content, post_H.head_length+http_len))
+		{
+			printf("dead man\n");
+			post_H.head_length += http_len;
+			memcpy(post_H.content, content, post_H.head_length);  //not so efficent, but ok
+		}else{
+			printf("live man\n");
+			if(iskeyword(c_info.comment, db))
+				return 0;
+			n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
+			if(n)
 			{
-				char *content = malloc(post_H.head_length+http_len);
-				memcpy(content, post_H.content, post_H.head_length);
-				memcpy(content+post_H.head_length, payload, http_len);
-				printf("*****************\n%s\n", content);
-				if(!processhttp(content, post_H.head_length+http_len))
-				{
-					printf("dead man\n");
-					post_H.head_length += http_len;
-					memcpy(post_H.content, content, post_H.head_length);  //not so efficent, but ok
-				}else{
-					printf("live man\n");
-					if(iskeyword(c_info.comment, db))
-						send_rst(data);
-					n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
-					if(n)
-					{
-						printf("find num = %d\n", n);
-						send_rst(data);
-					}
-				}
-				free(content);
+				printf("find num = %d\n", n);
+				return 0;
 			}
-			else if(http_len)
-			{
-				if(!processhttp(payload, http_len))
-				{
-					seq = ntohl(tcph->seq);
-					http.head_length = http_len;
-					memcpy(&post_H, &http, sizeof(struct HTTP));
-				}
-				if(iskeyword(c_info.comment, db))
-				{
-					send_rst(data);
-				}
-				if(c_info.s_id[0]!='\0' && c_info.user_id[0]!='\0')
-					n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
-				if(n)
-				{
-					printf("find num = %d\n", n);
-					send_rst(data);
-				}
-			}
-			
-			break;
+		}
+		free(content);
 	}
-	return 0;
+	else if(http_len)
+	{
+		if(!processhttp(payload, http_len))
+		{
+			seq = ntohl(tcph->seq);
+			http.head_length = http_len;
+			memcpy(&post_H, &http, sizeof(struct HTTP));
+		}
+		if(iskeyword(c_info.comment, db))
+		{
+			return 0;
+		}
+		if(c_info.s_id[0]!='\0' && c_info.user_id[0]!='\0')
+			n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
+		if(n)
+		{
+			printf("find num = %d\n", n);
+			return 0;
+		}
+	}
+			
+	return 1;
 }
