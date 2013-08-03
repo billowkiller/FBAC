@@ -174,10 +174,10 @@ int send_data(char *data)
 	
 	if(http_len == 0)
 		return 1;
-	
+	if(dseq == ntohl(tcph->seq))
+		return 0;
 	char * payload = data + TCPHL(tcph) + IPHL(iph);
 	
-	printf("%s\n", payload);
 	int n = 0;
 	//tcp fragment coming, more than one 
 	if(seq+post_H.head_length == ntohl(tcph->seq))
@@ -194,11 +194,18 @@ int send_data(char *data)
 		}else{
 			printf("live man\n");
 			if(iskeyword(c_info.comment, db))
+			{
+		//		post_H.head_length -= http_len;
+				free(content); //need delete
+				dseq = ntohl(tcph->seq);
 				return 0;
+			}
 			n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
 			if(n)
 			{
 				printf("find num = %d\n", n);
+				free(content); //need delete
+				dseq = ntohl(tcph->seq);
 				return 0;
 			}
 		}

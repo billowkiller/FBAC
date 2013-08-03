@@ -39,7 +39,6 @@ int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 		pdata_len = 0;
 	}
 	
-	printf("send_data\n");
 	int verdict = send_data(pdata);
 	
 	if(verdict)
@@ -95,7 +94,6 @@ void monitor()
 
 	for (;;) {
 		if ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
-			printf("nfq_handle_packet\n");
 			nfq_handle_packet(h, buf, rv);
 			continue;
 		}
@@ -153,7 +151,7 @@ int init_sqlite()
 }		/* -----  end of function init_sqlite  ----- */
 int main()
 {
-	//init_sqlite();
+	init_sqlite();
 	//pipe_config();
 	monitor();
 }
