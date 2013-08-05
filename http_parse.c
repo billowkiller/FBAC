@@ -242,9 +242,7 @@ int on_header_value(http_parser* _, const char* at, size_t length) {
 int on_body(http_parser* _, const char* at, size_t length) {
 	(void)_;
 	con_len = (int)length;
-	//printf("body : %s\n", at);
-	//memcpy(http.content, at, (int)length);
-	//http.content[(int)length] = '\0';
+	char *title;
 
 	//analysis
 	if(c_info.user_id[0] == '\0')
@@ -261,7 +259,10 @@ int on_body(http_parser* _, const char* at, size_t length) {
 			qs_scanvalue("to_friend", at, c_info.s_id, sizeof(c_info.s_id));
 			break;
 		case NOTE:
-			qs_scanvalue("title", at, c_info.comment, sizeof(c_info.comment));
+			title = (char *)malloc(30);
+			qs_scanvalue("title", at, title, sizeof(title));
+			qs_scanvalue("note_content", at, c_info.comment, sizeof(c_info.comment));
+			strcat(c_info.comment, title);
 			break;
 		case STATUS:
 			qs_scanvalue("xhpc_message_text", at, c_info.comment, sizeof(c_info.comment));

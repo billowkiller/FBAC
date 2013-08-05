@@ -78,10 +78,7 @@ int _page_type(char *host)
 		return NOTE;
 	else if(!strncmp(host, "comment", 7))
 		return COMMENT;
-	else if(!strncmp(host, "browse", 6))
-		return BROWSE;
-	else
-		return 0;
+	return 0;
 
 }
 
@@ -193,7 +190,7 @@ int send_data(char *data)
 			memcpy(post_H.content, content, post_H.head_length);  //not so efficent, but ok
 		}else{
 			printf("live man\n");
-			if(iskeyword(c_info.comment, db))
+			if(kw_match(c_info.comment))
 			{
 		//		post_H.head_length -= http_len;
 				free(content); //need delete
@@ -219,7 +216,7 @@ int send_data(char *data)
 			http.head_length = http_len;
 			memcpy(&post_H, &http, sizeof(struct HTTP));
 		}
-		if(iskeyword(c_info.comment, db))
+		if(kw_match(c_info.comment))
 		{
 			return 0;
 		}

@@ -1,6 +1,12 @@
 #define DEBUG   //define debug print
+#define NDEBUG   //shutdown assert
+
+#include <assert.h>
 
 #define FREE(X) if((X)) {free((X)); (X)=NULL;}
+#define PR(X, Y) printf(#X " = " Y "\n", X ) //i=1; PR(i, "%d")
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 #ifndef	FALSE
 #define	FALSE	(0)
@@ -40,20 +46,10 @@
 	#define NOTE 3
 	#define COMMENT 4
 	#define PHOTO 5
-	#define BROWSE 6
-	#define MEDIA_SET 7
-	#define ADD_FRIEND 8
-	#define EDIT_NOTE 9
+	#define MEDIA_SET 6
+	#define ADD_FRIEND 7
+	#define EDIT_NOTE 8
 #endif
-
-#ifndef HTTP_HEADER_TYPE
-#define HTTP_HEADER_TYPE
-	#define HOST 1
-	#define COOKIE 2
-	#define CONTENT_LENGTH 3
-	#define REFERER 4
-#endif
-
 
 #ifndef STRUCT
 #define STRUCT
@@ -64,11 +60,6 @@ struct HTTP{
 	char url[300];
 	char cookie[300];
 	char content[4096];
-};
-
-struct line {
-  char *field;
-  char *value;
 };
 
 struct connection_info{

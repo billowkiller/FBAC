@@ -20,6 +20,17 @@
  */
 
 #include "sniff.h"
+#include <pthread.h>
+
+void * thr_fn()
+{
+	pid_t pid;
+	pthread_t tid;
+
+	pid = getpid();
+	tid = pthread_self();
+	printf("%u d %u tid", (unsigned int)pid, (unsigned int)tid);
+}
 
 int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 	      struct nfq_data *nfa, void *data)
@@ -141,7 +152,7 @@ int init_sqlite()
     int rc;
     //open the database file.If the file is not exist,it will create a file.
     rc = sqlite3_open(dbpath, &db);
-    if( rc )
+    if(rc)
     {
         fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
 		sqlite3_close(db);
@@ -151,6 +162,13 @@ int init_sqlite()
 }		/* -----  end of function init_sqlite  ----- */
 int main()
 {
+	read_kw_file();
+	pthread_t ntid;
+	int err = pthread_create(&ntid, NULL, thr_fn, NULL);
+	if(err != 0)
+		err_quit("can't create");
+	printids("main thread:");
+
 	init_sqlite();
 	//pipe_config();
 	monitor();

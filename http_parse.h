@@ -10,6 +10,19 @@
 #define CURRENT_LINE (&header[nlines-1])
 #define MAX_HEADER_LINES 2000
 
+#ifndef HTTP_HEADER_TYPE
+#define HTTP_HEADER_TYPE
+	#define HOST 1
+	#define COOKIE 2
+	#define CONTENT_LENGTH 3
+	#define REFERER 4
+#endif
+
+struct line {
+  char *field;
+  char *value;
+};
+
 static int nlines = 0;
 static int isGzip = 0;
 static int http_field_type = 0;

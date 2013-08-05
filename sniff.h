@@ -31,3 +31,4 @@ extern int content_filter(struct iphdr *);
 extern int ishost(struct iphdr *, char *);
 extern int send_data(char *);
 extern int pipe_config();
+extern void read_kw_file();
