@@ -1,6 +1,9 @@
-#define DEBUG   //define debug print
+//#define DEBUG   //define debug print
 #define NDEBUG   //shutdown assert
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 
 #define FREE(X) if((X)) {free((X)); (X)=NULL;}

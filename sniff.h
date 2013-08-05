@@ -1,9 +1,6 @@
 /*
 	Packet sniffer using libpcap library
 */
-#include <stdio.h>
-#include <stdlib.h> // for exit()
-#include <string.h> //for memset
 #include <sys/socket.h>
 #include <arpa/inet.h> // for inet_ntoa()
 #include <net/ethernet.h>
@@ -15,6 +12,9 @@
 #include <sqlite3.h>
 #include <linux/netfilter.h>		/* for NF_ACCEPT */
 #include <errno.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <pthread.h>
 
 #include <libnetfilter_queue/libnetfilter_queue.h>
 
@@ -32,3 +32,4 @@ extern int ishost(struct iphdr *, char *);
 extern int send_data(char *);
 extern int pipe_config();
 extern void read_kw_file();
+extern void* input(void *arg);

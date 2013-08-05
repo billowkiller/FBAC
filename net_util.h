@@ -1,8 +1,7 @@
-#include <stdio.h>
 #include <netdb.h>
 #include <netinet/tcp.h>
 #include <netinet/ip.h>
-#include <string.h>
+
 #include <glib.h>
 #include <sqlite3.h>
 #include "data_send.h"

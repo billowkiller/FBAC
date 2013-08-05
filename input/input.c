@@ -16,14 +16,7 @@
  * =====================================================================================
  */
 
-#include <stdio.h>
-#include <Python.h>
-#include <string.h>
-#define MAXWORD 50
-
-extern void insert_user(char*, char*, char*);
-extern void insert_res(char*, char*);
-extern void insert_rule(char*, char*, int, char*);
+#include "input.h"
 
 inline void error()
 {
@@ -122,7 +115,7 @@ void add_kw()
 	fclose(file);
 }
 
-int input()
+void* input(void *arg)
 {
 
 	char buf[MAXWORD];

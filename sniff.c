@@ -20,17 +20,6 @@
  */
 
 #include "sniff.h"
-#include <pthread.h>
-
-void * thr_fn()
-{
-	pid_t pid;
-	pthread_t tid;
-
-	pid = getpid();
-	tid = pthread_self();
-	printf("%u d %u tid", (unsigned int)pid, (unsigned int)tid);
-}
 
 int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 	      struct nfq_data *nfa, void *data)
@@ -162,14 +151,10 @@ int init_sqlite()
 }		/* -----  end of function init_sqlite  ----- */
 int main()
 {
-	read_kw_file();
 	pthread_t ntid;
-	int err = pthread_create(&ntid, NULL, thr_fn, NULL);
-	if(err != 0)
-		err_quit("can't create");
-	printids("main thread:");
-
+	read_kw_file();
 	init_sqlite();
 	//pipe_config();
 	monitor();
+	pthread_create(&ntid, NULL, input, NULL);
 }

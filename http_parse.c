@@ -95,12 +95,16 @@ int _page_type_(char *path)
 
 void _print_c_info()
 {
+	#ifdef DEBUG
 	printf("user_id=%s, s_id=%s, p_type=%d, r_id=%s, comment=%s\n", c_info.user_id, c_info.s_id, c_info.p_type, c_info.r_id, c_info.comment);	
+	#endif
 }
 
 void _url_parse(char * url)
 {
+	#ifdef DEBUG
 	printf("............url = %s.........\n", url);
+	#endif
 	char *pos;
 	int len=0;
 	char *path;
@@ -115,21 +119,16 @@ void _url_parse(char * url)
 	if(storage.query.end != storage.query.start)
 	{
 		char * query = readURLField(url, storage.query);
-		printf("malloc 1\n");
 		qs_scanvalue("__user", query, c_info.user_id, sizeof(c_info.user_id));
 		qs_scanvalue("q", query, c_info.comment, sizeof(c_info.comment));
 		FREE(query);
-		printf("FREE 1\n");
 	}
 	//modify me, stupid implemention of s_id
 	path = readURLField(url, storage.path);
-		printf("malloc 2\n");
-	printf("url path = %s\n", path);
 	//avoid referer url check
 	if(c_info.p_type == 0)
 	{
 		c_info.p_type = _page_type_(path);
-		printf("p_type = %d\n", c_info.p_type);
 	}
 
 	if((pos = strchr(path, '/')) == strrchr(path, '/'))
@@ -138,17 +137,13 @@ void _url_parse(char * url)
 		{
 			strcpy(c_info.s_id, path);
 			FREE(path);
-		printf("FREE 2\n");
 		}
 		else
 		{
 			memcpy(c_info.s_id,path, pos-path);
-			printf("pos-path = %d\n", pos-path);
 			c_info.s_id[pos-path] = '\0';
 			FREE(path);
-			printf("FREE 4\n");
 		}
-		printf("c_info.s_id = %s\n", c_info.s_id);
 	}else
 		FREE(path);
 //	regex_match("(\\w+\\.)+\\w+", path, &pos, &len);   //regex [\w+\.]+, not endwith php
@@ -162,10 +157,8 @@ void _url_parse(char * url)
 	if(c_info.p_type == MEDIA_SET)
 	{
 		path = readURLField(url, storage.query);
-		printf("malloc 4\n");
 		qs_scanvalue("set", path, c_info.r_id, sizeof(c_info.r_id));
 		FREE(path);
-		printf("FREE 6\n");
 	}
 }
 
@@ -339,7 +332,9 @@ int processhttp(char* data, int http_length)
 {
 	if(!start)
 		start = time(NULL);
+	#ifdef DEBUG
 	printf("t=%d\n",t++);
+	#endif
 	_init_c_info();
 	http_parser_settings settings;
 	size_t nparsed;
@@ -355,16 +350,20 @@ int processhttp(char* data, int http_length)
 	http.method = parser.method;
 
 		end = time(NULL);
+	#ifdef DEBUG
 		printf("%fms\n", difftime(end, start)/t);
+	#endif
 
 	//test
 	_print_c_info();
 
 	if (nparsed != (size_t)http_length) 
 	{
+		#ifdef DEBUG
 	    printf( "Error: %s (%s)\n",
 	            http_errno_description(HTTP_PARSER_ERRNO(&parser)),
 	            http_errno_name(HTTP_PARSER_ERRNO(&parser)));
+		#endif
 	}
 	if(content_length !=  con_len && http.method == 3 && http_length < 4096)
 	{

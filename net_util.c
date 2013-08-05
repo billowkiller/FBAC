@@ -182,14 +182,14 @@ int send_data(char *data)
 		char *content = malloc(post_H.head_length+http_len);
 		memcpy(content, post_H.content, post_H.head_length);
 		memcpy(content+post_H.head_length, payload, http_len);
+		#ifdef DEBUG
 		printf("*****************\n%s\n", content);
+		#endif
 		if(!processhttp(content, post_H.head_length+http_len))
 		{
-			printf("dead man\n");
 			post_H.head_length += http_len;
 			memcpy(post_H.content, content, post_H.head_length);  //not so efficent, but ok
 		}else{
-			printf("live man\n");
 			if(kw_match(c_info.comment))
 			{
 		//		post_H.head_length -= http_len;
@@ -197,10 +197,12 @@ int send_data(char *data)
 				dseq = ntohl(tcph->seq);
 				return 0;
 			}
-			n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
+			n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id);
 			if(n)
 			{
+				#ifdef DEBUG
 				printf("find num = %d\n", n);
+				#endif
 				free(content); //need delete
 				dseq = ntohl(tcph->seq);
 				return 0;
@@ -221,10 +223,12 @@ int send_data(char *data)
 			return 0;
 		}
 		if(c_info.s_id[0]!='\0' && c_info.user_id[0]!='\0')
-			n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id, db);
+			n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id);
 		if(n)
 		{
+			#ifdef DEBUG
 			printf("find num = %d\n", n);
+			#endif
 			return 0;
 		}
 	}
