@@ -8,6 +8,7 @@
 
 #define FREE(X) if((X)) {free((X)); (X)=NULL;}
 #define PR(X, Y) printf(#X " = " Y "\n", X ) //i=1; PR(i, "%d")
+#define PS(X) printf(#X " = %s\n", X ) //PR(str)
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 

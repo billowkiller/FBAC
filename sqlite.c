@@ -21,33 +21,38 @@ int exeNonQuery(char* sql)//return 0 if Ok
     return r;
 }
 
-int find_db(int res_type_num, char* sid, char* rfid, char* rid)//sid为访问者id ,被访问者rfid为输入name,rid为resourceid
+int find_db(char* sid, char* rfid, int res_type_num, char* rid)
 {
     //select * from  rule_list where (res_type_num= or res_type_num=0) and (sub_group=(select ugroup from user_group where uid='') or sub_group='*') and (res_from_group=(select ugroup from user_group where nid='') or res_from_group='*') and (res_group=(select rgroup from res_group where id='') or res_group='*')
-    int len=307;
+	int len=369;
     char buf[10];
     sprintf(buf,"%d",res_type_num);
-    len=len+strlen(buf)+strlen(sid)+strlen(rfid)+strlen(rid);
+    len=len+strlen(buf)+strlen(sid)+2*strlen(rfid)+strlen(rid);
     char sql[len];
     memset(sql,0,sizeof(sql));
     strcpy(sql,"select * from  rule_list where (res_type_num=");
     strcat(sql,buf);
-    strcat(sql," or res_type_num=0) and (sub_group=(select ugroup from user_group where uid='");
+    strcat(sql," or res_type_num=0) and (sub_group in (select ugroup from user_group where uid='");
     strcat(sql,sid);
-    strcat(sql,"') or sub_group='*') and (res_from_group=(select ugroup from user_group where nid='");
+    strcat(sql,"' or uid='*') or sub_group='*') and (res_from_group in (select ugroup from user_group where nid='");
     strcat(sql,rfid);
-    strcat(sql,"') or res_from_group='*') and (res_group=(select rgroup from res_group where id='");
+
+    strcat(sql,"' or uid='");
+    strcat(sql,rfid);
+
+
+    strcat(sql,"' or nid='*' or uid='*') or res_from_group='*') and (res_group in (select rgroup from res_group where id='");
     strcat(sql,rid);
-    strcat(sql,"') or res_group='*')");
+    strcat(sql,"' or id='*') or res_group='*')");
     int row=0,column;
-    //printf("%s\n",sql);
+    //printf("%s len:%d\n",sql,strlen(sql));
     query(sql,&row,&column);
     return row;
 }
-
 void insert_user(char* uid, char* nid ,char* group)
 {
     //insert into user_group (uid,ugroup,nid) values ('','','')
+
     int len=58;
     len=len+strlen(uid)+strlen(nid)+strlen(group);
     char sql[len];
@@ -62,9 +67,11 @@ void insert_user(char* uid, char* nid ,char* group)
     exeNonQuery(sql);
 
 }
+
 void insert_res(char* id, char* group)
 {
     //insert into res_group (id,rgroup) values ('','')
+    int flag=0;
     int len=49;
     len=len+strlen(id)+strlen(group);
     char sql[len];
@@ -76,7 +83,8 @@ void insert_res(char* id, char* group)
     strcat(sql,"')");
     exeNonQuery(sql);
 }
-void insert_rule(int type, char* sg, char* rfg, char* rg)
+
+void insert_rule(char* sg, char* rfg, int type, char* rg)
 {
     //insert into rule_list (res_type_num,sub_group,res_from_group,res_group) values (,'','','')
     int len=91;
@@ -96,3 +104,42 @@ void insert_rule(int type, char* sg, char* rfg, char* rg)
     strcat(sql,"')");
     exeNonQuery(sql);
 }
+
+static void _cleartable(char* table)
+{
+    //delete from
+    int len=13+strlen(table);
+    char sql[len];
+    strcpy(sql,"delete from ");
+    strcat(sql,table);
+    exeNonQuery(sql);
+}
+
+void clear_db_table()
+{
+    _cleartable("res_group");
+    _cleartable("user_group");
+    _cleartable("rule_list");
+}
+
+//sqlite3 *db=NULL;
+//int main( )
+//{
+//    char* dbpath="/home/wutao/FBAC/config/fbac.db";
+//
+//    char *zErrMsg = 0;
+//    int rc;
+//    //open the database file.If the file is not exist,it will create a file.
+//    rc = sqlite3_open(dbpath, &db);
+//    if( rc )
+//    {
+//        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+//        sqlite3_close(db);
+//        return 0;
+//    }
+//
+//	insert_res("a.135774426629277.1073741827.100005901611", "a");
+//    sqlite3_close(db); //close database
+//    return 0;
+//
+//}

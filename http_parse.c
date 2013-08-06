@@ -95,9 +95,9 @@ int _page_type_(char *path)
 
 void _print_c_info()
 {
-	#ifdef DEBUG
+#ifdef DEBUG
 	printf("user_id=%s, s_id=%s, p_type=%d, r_id=%s, comment=%s\n", c_info.user_id, c_info.s_id, c_info.p_type, c_info.r_id, c_info.comment);	
-	#endif
+#endif
 }
 
 void _url_parse(char * url)
@@ -115,22 +115,12 @@ void _url_parse(char * url)
 	if(storage.path.start == storage.path.end)
 		return;
 	
-	//store user_id
-	if(storage.query.end != storage.query.start)
-	{
-		char * query = readURLField(url, storage.query);
-		qs_scanvalue("__user", query, c_info.user_id, sizeof(c_info.user_id));
-		qs_scanvalue("q", query, c_info.comment, sizeof(c_info.comment));
-		FREE(query);
-	}
-	//modify me, stupid implemention of s_id
 	path = readURLField(url, storage.path);
 	//avoid referer url check
 	if(c_info.p_type == 0)
-	{
 		c_info.p_type = _page_type_(path);
-	}
 
+	//modify me, stupid implemention of s_id
 	if((pos = strchr(path, '/')) == strrchr(path, '/'))
 	{
 		if(!pos)
@@ -144,6 +134,11 @@ void _url_parse(char * url)
 			c_info.s_id[pos-path] = '\0';
 			FREE(path);
 		}
+		if(strlen(c_info.s_id) > 4 && !strcmp(c_info.s_id+ strlen(c_info.s_id) - 4, ".php"))
+		{
+			bzero(c_info.s_id, sizeof(c_info.s_id));
+			c_info.s_id[0] = '\0';
+		}
 	}else
 		FREE(path);
 //	regex_match("(\\w+\\.)+\\w+", path, &pos, &len);   //regex [\w+\.]+, not endwith php
@@ -154,11 +149,21 @@ void _url_parse(char * url)
 //		printf("subject name:%s\n", c_info.s_id);
 //	}
 
-	if(c_info.p_type == MEDIA_SET)
+	if(storage.query.end != storage.query.start)
 	{
-		path = readURLField(url, storage.query);
-		qs_scanvalue("set", path, c_info.r_id, sizeof(c_info.r_id));
-		FREE(path);
+		char * query = readURLField(url, storage.query);
+		qs_scanvalue("__user", query, c_info.user_id, sizeof(c_info.user_id));
+		qs_scanvalue("q", query, c_info.comment, sizeof(c_info.comment));
+		switch(c_info.p_type)
+		{
+			case MEDIA_SET:
+				qs_scanvalue("set", query, c_info.r_id, sizeof(c_info.r_id));
+				break;
+			case PHOTO:
+				qs_scanvalue("fbid", query, c_info.r_id, sizeof(c_info.r_id));
+				break;
+		}
+		FREE(query);
 	}
 }
 

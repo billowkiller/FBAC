@@ -56,20 +56,17 @@ void monitor()
 	int rv;
 	char buf[4096] __attribute__ ((aligned));
 
-	printf("opening library handle\n");
 	h = nfq_open();
 	if (!h) {
 		fprintf(stderr, "error during nfq_open()\n");
 		exit(1);
 	}
 
-	printf("unbinding existing nf_queue handler for AF_INET (if any)\n");
 	if (nfq_unbind_pf(h, AF_INET) < 0) {
 		fprintf(stderr, "error during nfq_unbind_pf()\n");
 		exit(1);
 	}
 
-	printf("binding nfnetlink_queue as nf_queue handler for AF_INET\n");
 	if (nfq_bind_pf(h, AF_INET) < 0) {
 		fprintf(stderr, "error during nfq_bind_pf()\n");
 		exit(1);
@@ -77,14 +74,12 @@ void monitor()
 	
 	int qid = 8010;
 
-	printf("binding this socket to queue '%d'\n", qid);
 	qh = nfq_create_queue(h,  qid, &cb, NULL);
 	if (!qh) {
 		fprintf(stderr, "error during nfq_create_queue()\n");
 		exit(1);
 	}
 
-	printf("setting copy_packet mode\n");
 	if (nfq_set_mode(qh, NFQNL_COPY_PACKET, 0xffff) < 0) {
 		fprintf(stderr, "can't set packet_copy mode\n");
 		exit(1);
@@ -154,7 +149,7 @@ int main()
 	pthread_t ntid;
 	read_kw_file();
 	init_sqlite();
+	pthread_create(&ntid, NULL, input, NULL);
 	//pipe_config();
 	monitor();
-	pthread_create(&ntid, NULL, input, NULL);
 }

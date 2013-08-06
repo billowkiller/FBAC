@@ -17,6 +17,7 @@
  */
 
 #include "input.h"
+#define PS(X) printf(#X " = %s\n", X ) //PR(str)
 
 inline void error()
 {
@@ -32,7 +33,7 @@ int fetch_id(char *id, char *nid, char *uid)
         return 0;
     }
 	PyRun_SimpleString("import sys");
-	PyRun_SimpleString("sys.path.append('./')");
+	PyRun_SimpleString("sys.path.append('./input/')");
 
     PyObject* pModule = NULL;
     PyObject* pFunc = NULL;
@@ -48,71 +49,100 @@ int fetch_id(char *id, char *nid, char *uid)
     char *str = PyString_AsString(pRetVal);
 	char *delim = strchr(str, ' ');
 	memcpy(nid, str, delim-str);
-	nid[delim-str+1] = '\0';
 	strcpy(uid, delim+1);
-	uid[strlen(uid)] = '\0';
     Py_Finalize();
 
 	return 1;
 }
 
-//void add_db(char *id, char *group, int is_user)
-//{
-//	char delims[] = ",";
-//	char *result = NULL;
-//	result = strtok(id, delims );
-//	if(is_user)
-//	{
-//		while( result != NULL ) 
-//		{
-//			char nid[MAXWORD], uid[MAXWORD];
-//			fetch_id(result, nid, uid);
-//			//insert db
-//			insert_user(uid, nid, group);
-//			result = strtok( NULL, delims );
-//		}
-//	}
-//	else
-//	{
-//		while( result != NULL ) 
-//		{
-//			//insert db
-//			insert_res(result, group);
-//			result = strtok( NULL, delims );
-//		}
-//	}
-//}
-
-void add_rule()
+static char * add_db(char *id, char *group, int is_user)
 {
+	char delims[] = ",";
+	char *result = NULL;
+	result = strtok(id, delims );
+	if(is_user)
+	{
+		while( result != NULL ) 
+		{
+			if(result[0] == '*')
+			{
+				insert_user(result, result, group);
+				break;
+			}
+			char nid[MAXWORD], uid[MAXWORD];
+			bzero(nid, MAXWORD);
+			bzero(uid, MAXWORD);
+			
+			fetch_id(result, nid, uid);
+			//insert db
+			insert_user(uid, nid, group);
+			result = strtok( NULL, delims);
+		}
+	}
+	else
+	{
+		while( result != NULL ) 
+		{
+			//insert db
+			insert_res(result, group);
+			result = strtok( NULL, delims );
+		}
+	}
+}
+
+static void add_rule()
+{
+	char group1[MAXWORD];
+	char group2[MAXWORD];
+	char group3[MAXWORD];
 	char userid[MAXWORD];	
-	char group1[MAXWORD];	
-	char objectid[MAXWORD];	
-	char group2[MAXWORD];	
+	char subjectid[MAXWORD];	
 	char resourceid[MAXWORD];	
-	char group3[MAXWORD];	
-	int type;
-	scanf("%s", userid);
-	scanf("%s", group1);
-	scanf("%s", objectid);
-	scanf("%s", group3);
-	scanf("%d", &type);
-	scanf("%s", resourceid);
-	scanf("%s", group3);
-	add_db(userid, group1, 1);
-	add_db(objectid, group2, 1);
-	add_db(resourceid, group3, 0);
+	char type;
+	int type_num;
+	sprintf(group1, "%ld", time(NULL));
+	strcpy(group2, group1);
+	strcat(group2, "u");
+	strcpy(group3, group1);
+	strcat(group3, "o");
+	bzero(subjectid, MAXWORD);
+	scanf("%s %s %c %s", userid, subjectid, &type, resourceid);
+	if(type == '*')
+		type_num = 0;
+	else
+		type_num = type - '0';
+	printf("RULE OK\n");
+	printf("%s %s %s\n", userid, subjectid, resourceid);
+	if(resourceid[0] != '*')
+		add_db(resourceid, group1, 0);
+	else
+		strcpy(group1, "*");
+	printf("1\n");
+	if(userid[0] != '*')
+		add_db(userid, group2, 1);
+	else
+		strcpy(group2, "*");
+	printf("2\n");
+	printf("subjectid = %s\n", subjectid);
+	if(subjectid[0] != '*')
+		add_db(subjectid, group3, 1);
+	else
+		strcpy(group3, "*");
+	printf("3\n");
     //add_rule	
-	insert_rule(group1, group2, type, group3);
+	insert_rule(group2, group3, type_num, group1);
+	printf("4\n");
 }
 
 void add_kw()
 {
 	char kw[MAXWORD];
 	scanf("%s", kw);
-	FILE *file = fopen("../keywords", "a");
+	add_kw_list(kw);	
+	FILE *file = fopen("keywords", "a");
 	fprintf(file, "%s\n", kw);
 	fclose(file);
+
 }
 
 void* input(void *arg)
@@ -123,36 +153,36 @@ void* input(void *arg)
 	{
 		 printf("\n\n");
         printf("/*************************************************************\\\n");
-        printf("/* Please follow the command below to add rules and keywords. *\\\n");
-        printf("/*-----------------------------------------------------------*\\\n");
-        printf("/* RULE < userid group objectid group type resouceid group *\\\n");
-        printf("/* KEYWORD < keyword *\\\n");
-        printf("/* help *\\\n");
-        printf("/*************************************************************\\\n\n\n");
+        printf(" Please follow the command below to add rules and keywords. \n");
+        printf(" -----------------------------------------------------------\n");
+        printf(" RULE < userid subjectid type resouceid \n");
+        printf(" KEYWORD < keyword \n");
+        printf(" help \n");
+        printf("/*************************************************************\\\n\n");
 
 		bzero(buf, MAXWORD);
 		scanf("%s", buf);
 		if(!strcmp(buf, "RULE"))
 		{
-			scanf("%s\n", buf);
+			scanf("%s", buf);
 			add_rule();
 		}
 		else if(!strcmp(buf, "KEYWORD"))
 		{
-			scanf("%s\n", buf);
+			scanf("%s", buf);
 			add_kw();
 		}
 		else if(!strcmp(buf, "help"))
 		{
-			printf("\n\ntype:\n");
-			printf("FRIEND 1\n");
-			printf(" STATUS 2\n");
-			printf(" NOTE 3\n");
-			printf(" COMMENT 4\n");
-			printf(" PHOTO 5\n");
-			printf(" MEDIA_SET 6\n");
-			printf(" ADD_FRIEND 7\n");
-			printf(" EDIT_NOTE 8\n");
+			printf("\n\nTYPE:\n");
+			printf("	 FRIEND 1\n");
+			printf("	 STATUS 2\n");
+			printf("	 NOTE 3\n");
+			printf("	 COMMENT 4\n");
+			printf("	 PHOTO 5\n");
+			printf("	 MEDIA_SET 6\n");
+			printf("	 ADD_FRIEND 7\n");
+			printf("	 EDIT_NOTE 8\n");
 		}
 	}
 }

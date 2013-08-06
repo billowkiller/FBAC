@@ -1,5 +1,5 @@
 from urllib2 import urlopen
-from simplejson import loads
+from json import loads
 
 def fetchID(id):
 	content = loads(urlopen('http://graph.facebook.com/'+id).read())

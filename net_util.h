@@ -12,7 +12,7 @@ extern struct HTTP http;
 extern sqlite3* db;
 extern struct connection_info c_info;
 extern int processhttp(char *, int);
-extern int find_db(char *, char *, int, char *, sqlite3 *);
+extern int find_db(char *, char *, int, char *);
 //extern int iskeyword(char *, sqlite3 *);
 extern int kw_match(char *str);
 

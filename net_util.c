@@ -195,9 +195,10 @@ int send_data(char *data)
 		//		post_H.head_length -= http_len;
 				free(content); //need delete
 				dseq = ntohl(tcph->seq);
+printf("keywords match\n");
 				return 0;
 			}
-			n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id);
+			n = find_db(c_info.user_id, c_info.s_id, c_info.p_type, c_info.r_id);
 			if(n)
 			{
 				#ifdef DEBUG
@@ -218,12 +219,12 @@ int send_data(char *data)
 			http.head_length = http_len;
 			memcpy(&post_H, &http, sizeof(struct HTTP));
 		}
-		if(kw_match(c_info.comment))
-		{
+		if(kw_match(c_info.comment)){
+printf("keywords match\n");
 			return 0;
-		}
-		if(c_info.s_id[0]!='\0' && c_info.user_id[0]!='\0')
-			n = find_db(c_info.s_id, c_info.user_id, c_info.p_type, c_info.r_id);
+}
+		if(c_info.user_id[0]!='\0')
+			n = find_db(c_info.user_id, c_info.s_id, c_info.p_type, c_info.r_id);
 		if(n)
 		{
 			#ifdef DEBUG
