@@ -11,16 +11,19 @@ PYTHON = -I/usr/include/python2.6/ -L/usr/lib -lpython2.6
 OBJ = sniff.o net_util.o http_parse.o\
 	  http.o data_send.o user_config.o\
 	  qs_parse.o urlparser.o stringProcess.o\
-	  sqlite.o kw_match.o input.o
+	  sqlite.o kw_match.o flow_hash.o link.o
 
 sniff:$(OBJ) 
-	$(CC) -o sniff $(OBJ) $(GLIB) $(QUEUE) $(SQLITE) $(PTHREAD) $(PYTHON)
+	$(CC) -o sniff $(OBJ) $(GLIB) $(PCAP) $(SQLITE) $(PTHREAD)
 
 sniff.o: sniff.c
-	$(CC) -c $^ $(QUEUE) $(GLIB) $(SQLITE) $(PTHREAD)
-
-input.o: input/input.c
-	$(CC) -c  $^ $(PYTHON)
+	$(CC) -c $^ $(PCAP) $(GLIB) $(SQLITE) $(PTHREAD)
+	
+flow_hash.o: flow_hash.c link.o
+	$(CC) -c $^ $(GLIB) $(PTHREAD)
+	
+link.o: link.c
+	$(CC) -c $<
 
 net_util.o: net_util.c data_send.o sqlite.o kw_match.o
 	$(CC) -c $^ $(GLIB) $(SQLITE) 

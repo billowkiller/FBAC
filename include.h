@@ -5,10 +5,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <netdb.h>
+#include <netinet/tcp.h>
+#include <netinet/ip.h>
+
+
 
 #define FREE(X) if((X)) {free((X)); (X)=NULL;}
 #define PR(X, Y) printf(#X " = " Y "\n", X ) //i=1; PR(i, "%d")
 #define PS(X) printf(#X " = %s\n", X ) //PR(str)
+#define PD(X) printf(#X " = %d\n", X ) //PR(int)
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -22,12 +28,13 @@
 
 #ifndef TCPTYPE
 #define TCPTYPE
-	#define FIRSTSHARK -1
-	#define SECONDSHARK -2
-	#define THIRDSHARK -3
-	#define ACK -4
-	#define GET 1
-	#define POST 3
+	#define FIRSTSHARK 1
+	#define SECONDSHARK 2
+	#define THIRDSHARK 3
+	#define FIN 4
+	#define ACK 5
+	#define GET 6
+	#define POST 7
 #endif
 
 #ifndef HEADCAL
@@ -35,6 +42,7 @@
 	#define TCPHL(X) ((X)->doff * 4)
 	#define IPHL(X) ((X)->ihl * 4)
 	#define IPL(X) (ntohs((X)->tot_len))
+	#define SEQ(X) (ntohl((X)->seq))
 #endif
 
 #ifndef SENDTYPE
