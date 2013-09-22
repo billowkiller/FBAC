@@ -109,40 +109,11 @@ char filter_exp[] = "src host 211.147.4";
 	}
 	printf("Done\n");
 
-	logfile=fopen("log.txt","w");
-	if(logfile==NULL)
-	{
-		printf("Unable to create file.");
-	}
-
 	//Put the device in sniff loop
 	pcap_loop(handle , -1 , process_packet , NULL);
 }
  
-/* 
- * ===  FUNCTION  ======================================================================
- *         Name:  init_sqlite
- *  Description:  
- * =====================================================================================
- */
-int init_sqlite()
-{
-    char* dbpath="/home/wutao/FBAC/config/fbac.db";
-    char *zErrMsg = 0;
-    int rc;
-    //open the database file.If the file is not exist,it will create a file.
-    rc = sqlite3_open(dbpath, &db);
-    if( rc )
-    {
-        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-		sqlite3_close(db);
-        return 0;
-    }
-	return 1;
-}		/* -----  end of function init_sqlite  ----- */
 int main()
 {
-	//init_sqlite();
-	//pipe_config();
 	monitor();
 }

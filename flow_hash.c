@@ -98,7 +98,7 @@ int store_data(const char *data)
 				g_list = g_slist_remove(g_list, tcp_link);
 			}
 			tcp_link = create_TCPLink();
-			insert_packet(tcp_link, iph, tcph, NULL, 0);
+			insert_packet(tcp_link, iph, tcph, NULL, 0, deal_data);
 			g_list = g_list_append(g_list, tcp_link);
 			/* resend */
 			break;
