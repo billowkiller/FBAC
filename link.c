@@ -147,6 +147,10 @@ int *get_next_data(TCPLink link, int self, void (*func)(Node *node))
 	
 	if(ncurr && ncurr->state == CHECK)
 	{
+		if(curr->datalen > 1)
+		{
+			func(curr);
+		}
 		curr = ncurr;
 		ncurr = curr->next;
 	}
@@ -180,11 +184,6 @@ int *get_next_data(TCPLink link, int self, void (*func)(Node *node))
 /* TRUE means the half connection is completed */
 int insert_packet(TCPLink link, struct iphdr *this_iphdr, struct tcphdr *this_tcphdr, char * payload, int datalen, void * reserve, void (*func)(Node *node))
 {  
-	/* refuse seq > fin.seq which means finack */
-	if(link->state != CHECK && link->state != UNCHECK && SEQ(this_tcphdr)>link->state)
-		return FALSE;
-	
-	//print_tcpheader(this_tcphdr);
     Node * curr = link;
     	 
 	Node *new = NEW_NODE();
@@ -215,10 +214,17 @@ int insert_packet(TCPLink link, struct iphdr *this_iphdr, struct tcphdr *this_tc
 		free(new);
     	return FALSE;
     }
-    
-    PD(SEQ(link->tcphdr));
-    /* normal package comes */
+
+
 	long seq = SEQ(this_tcphdr);
+	/* refuse seq > fin.seq which means finack */
+
+	/* refuse seq < link.seq which means duplication*/
+	if(seq < SEQ(link->tcphdr))
+		return FALSE;
+	
+
+    /* normal package comes */
 	Node *ncurr = curr->next;
 	
 	while(TRUE)
@@ -232,7 +238,7 @@ int insert_packet(TCPLink link, struct iphdr *this_iphdr, struct tcphdr *this_tc
 				ncurr = curr->next;
 				_replace_node(curr, new);
 				curr->next = ncurr;
-				
+
 				if(ncurr && seq + datalen == SEQ(ncurr->tcphdr))
 					ncurr->state = CHECK;
 				
@@ -304,7 +310,7 @@ int delete_ack_node(Node *node, long ack_seq)
 
 int FreeNode(Node *node)
 {
-	printf("delete seq %d\n", SEQ(node->tcphdr));
+//	printf("delete seq %d\n", SEQ(node->tcphdr));
 	free(node->iphdr);
 	free(node->tcphdr);
 	if(node->payload) free(node->payload);

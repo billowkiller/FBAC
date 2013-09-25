@@ -30,8 +30,8 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 	if(IPPROTO_TCP == iph->protocol)
 	{
 		//send_data((char *)iph, SEND_UP);
-		//store_data((char *)iph);
-		print_tcp_packet(buffer , size);
+		store_data((char *)iph);
+		//print_tcp_packet(buffer , size);
 	}
 }
 
@@ -65,7 +65,7 @@ void deviceChose(char* devname)
 	//Ask user which device to sniff
 	//printf("Enter the number of the device you want to sniff : ");
 	//scanf("%d" , &n);
-	n=1;
+	n=4;
 	strcpy(devname,devs[n]);
 
 	printf("devname = %s\n",devname);

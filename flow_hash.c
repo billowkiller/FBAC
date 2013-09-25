@@ -58,8 +58,8 @@ TCPLink g_list_lookup(flow_t flow)
 
 void deal_data(Node *node)
 {
-	char *payload;
-	int length;
+	char *payload = node->payload;
+	int length = node->datalen;
 	if(node->reserve)
 	{
 		payload = (char *)(node->reserve);
@@ -75,11 +75,11 @@ void deal_data(Node *node)
 	 * return the string and then check validation
 	 * resent or not
 	 */
-	int i = 1;
-	if(i)
-		send_direct((char *)(node->iphdr));
-	else
-		send_rst((char *)(node->iphdr));
+//	int i = 1;
+//	if(i)
+//		send_direct((char *)(node->iphdr));
+//	else
+//		send_rst((char *)(node->iphdr));
 }
 
 /*	return
@@ -91,13 +91,13 @@ int http_parse(const char *data, char **split)
 {
 	if(strncmp(data, "HTTP", 4))
 		return -1;
-	
-	char * type = strstr(data, "Content-Type") + 13;
+
+
+	char * type = strstr(data, "Content-Type") + 14;
 	if(strncmp(type, "text/html", 9))
 		return 0;
 	
 	*split = strstr(type, "\r\n\r\n") + 4;
-	
 	return 1;
 		
 }
@@ -109,7 +109,7 @@ int store_data(const char *data)
 	flow_t this_flow;
 	TCPLink tcp_link;
 	int datalen;
-	char * payload, reserve = NULL;
+	char * payload, *reserve = NULL;
 	
 	/* fill in the flow_t structure with info that identifies this flow */
 	this_flow.src = ntohl(iph->saddr);
@@ -119,7 +119,6 @@ int store_data(const char *data)
 	
 // 	print_tcpheader(tcph);
 // 	return 0;
-	PD(SEQ(tcph));
 	switch(tcp_type(tcph))
 	{
 		case SECONDSHARK: //start a new process
@@ -134,25 +133,25 @@ int store_data(const char *data)
 			insert_packet(tcp_link, iph, tcph, NULL, 0, (void *)reserve, deal_data);
 			g_list = g_list_append(g_list, tcp_link);
 			
-			send_direct(data);
+//			send_direct(data);
 			break;
 		case FIN:  /* fin can carry data. */
 			printf("FIN\n");
 		default:
 			datalen = IPL(iph) - IPHL(iph) - TCPHL(tcph);
-			//debug me, if ack
 			payload = data + TCPHL(tcph) + IPHL(iph);
 			tcp_link = g_list_lookup(this_flow);
 			
 			if(!tcp_link)
 			{
-				send_direct(data);
+//				send_direct(data);
 				return;
 			}
 			
-			if(datalen && !http_parse(data, &reserve))
+			//exclude pic js css...
+			if(datalen && !http_parse(payload, &reserve))
 			{
-				send_direct(data);
+//				send_direct(data);
 				printf("remove list\n");
 				FreeLink(tcp_link);
 				g_list = g_slist_remove(g_list, tcp_link);
@@ -165,5 +164,6 @@ int store_data(const char *data)
 				FreeLink(tcp_link);
 				g_list = g_slist_remove(g_list, tcp_link);
 			}
+//			else print_link(tcp_link);
 	}
 }
