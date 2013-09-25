@@ -30,7 +30,8 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 	if(IPPROTO_TCP == iph->protocol)
 	{
 		//send_data((char *)iph, SEND_UP);
-		store_data((char *)iph);
+		//store_data((char *)iph);
+		print_tcp_packet(buffer , size);
 	}
 }
 
@@ -116,4 +117,119 @@ char filter_exp[] = "src host 211.147.4";
 int main()
 {
 	monitor();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void print_ip_header(const u_char * Buffer, int Size)
+{
+        struct sockaddr_in source,dest;
+
+        unsigned short iphdrlen;
+
+        struct iphdr *iph = (struct iphdr *)(Buffer  + sizeof(struct ethhdr));
+        iphdrlen =iph->ihl*4;
+
+        memset(&source, 0, sizeof(source));
+        source.sin_addr.s_addr = iph->saddr;
+
+        memset(&dest, 0, sizeof(dest));
+        dest.sin_addr.s_addr = iph->daddr;
+
+        printf("\n");
+        printf("IP Header\n");
+        printf("   |-IP Version        : %d\n",(unsigned int)iph->version);
+        printf("   |-IP Header Length  : %d DWORDS or %d Bytes\n",(unsigned int)iph->ihl,((unsigned int)(iph->ihl))*4);
+        printf("   |-Type Of Service   : %d\n",(unsigned int)iph->tos);
+        printf("   |-IP Total Length   : %d  Bytes(Size of Packet)\n",ntohs(iph->tot_len));
+        printf("   |-Identification    : %d\n",ntohs(iph->id));
+        //printf("   |-Reserved ZERO Field   : %d\n",(unsigned int)iphdr->ip_reserved_zero);
+        //printf("   |-Dont Fragment Field   : %d\n",(unsigned int)iphdr->ip_dont_fragment);
+        //printf("   |-More Fragment Field   : %d\n",(unsigned int)iphdr->ip_more_fragment);
+        printf("   |-TTL      : %d\n",(unsigned int)iph->ttl);
+        printf("   |-Protocol : %d\n",(unsigned int)iph->protocol);
+        printf("   |-Checksum : %d\n",ntohs(iph->check));
+        printf("   |-Source IP        : %s\n" , inet_ntoa(source.sin_addr) );
+        printf("   |-Destination IP   : %s\n" , inet_ntoa(dest.sin_addr) );
+}
+
+void print_tcp_packet(const u_char * Buffer, int Size)
+{
+
+        unsigned short iphdrlen;
+
+        struct iphdr *iph = (struct iphdr *)( Buffer  + sizeof(struct ethhdr));
+        iphdrlen = iph->ihl*4;
+
+        struct tcphdr *tcph=(struct tcphdr*)(Buffer + iphdrlen + sizeof(struct ethhdr));
+
+        int header_size =  sizeof(struct ethhdr) + iphdrlen + tcph->doff*4;
+
+        if(Size - header_size)
+    {
+        printf("\n\n***********************TCP Packet*************************\n");
+
+        print_ip_header(Buffer,Size);
+
+        printf("\n");
+        printf("TCP Header\n");
+        printf("   |-Source Port      : %u\n",ntohs(tcph->source));
+        printf("   |-Destination Port : %u\n",ntohs(tcph->dest));
+        printf("   |-Sequence Number    : %u\n",ntohl(tcph->seq));
+        printf("   |-Acknowledge Number : %u\n",ntohl(tcph->ack_seq));
+        printf("   |-Header Length      : %d DWORDS or %d BYTES\n" ,(unsigned int)tcph->doff,(unsigned int)tcph->doff*4);
+        //printf("   |-CWR Flag : %d\n",(unsigned int)tcph->cwr);
+        //printf("   |-ECN Flag : %d\n",(unsigned int)tcph->ece);
+        printf("   |-Urgent Flag          : %d\n",(unsigned int)tcph->urg);
+        printf("   |-Acknowledgement Flag : %d\n",(unsigned int)tcph->ack);
+        printf("   |-Push Flag            : %d\n",(unsigned int)tcph->psh);
+        printf("   |-Reset Flag           : %d\n",(unsigned int)tcph->rst);
+        printf("   |-Synchronise Flag     : %d\n",(unsigned int)tcph->syn);
+        printf("   |-Finish Flag          : %d\n",(unsigned int)tcph->fin);
+        printf("   |-Window         : %d\n",ntohs(tcph->window));
+        printf("   |-Checksum       : %d\n",ntohs(tcph->check));
+        printf("   |-Urgent Pointer : %d\n",tcph->urg_ptr);
+        printf("\n");
+        printf("                        DATA Dump                         ");
+        printf("\n");
+
+        printf("Data Payload\n");
+        PrintData(Buffer + header_size , Size - header_size);
+
+                if(80 == (int)ntohs(tcph->source))
+                {
+                        //printf("size:%d\n", Size - header_size);
+                        //processhttp(logfile, Buffer+header_size, Size-header_size);
+                }
+        printf("\n###########################################################");
+    }
+}
+
+void PrintData (const u_char * data , int Size)
+{
+        int i,j;
+        for(i=0 ; i < Size ; i++)
+        {
+                if(i%16==0) printf("\n   ");
+                printf(" %02X",(unsigned int)data[i]);
+        }
+
+        printf("\n");
+
+        for(i=0; i<Size; i++)
+        {
+                printf("%c",(data[i]));
+        }
+        //printf(logfile, "\n");
 }

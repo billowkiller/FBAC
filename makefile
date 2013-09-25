@@ -17,7 +17,7 @@ sniff:$(OBJ)
 sniff.o: sniff.c
 	$(CC) -c $^ $(PCAP) $(GLIB) $(PTHREAD)
 	
-flow_hash.o: flow_hash.c link.o
+flow_hash.o: flow_hash.c link.o data_send.o
 	$(CC) -c $^ $(GLIB) $(PTHREAD)
 	
 link.o: link.c

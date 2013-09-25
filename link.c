@@ -133,13 +133,13 @@ void _replace_node(Node * curr, Node * new)
  * cant delete the first node until last
  * using replace
  */
-int *get_next_data(TCPLink link, int self, void (*func)(int length, char * data))
+int *get_next_data(TCPLink link, int self, void (*func)(Node *node))
 {
 	
 	//duplicate ack
 	if(self && link->payload)
 	{
-		func(link->datalen, link->payload);
+		func(link);
 	}
 	
 	Node * curr = link;
@@ -157,7 +157,7 @@ int *get_next_data(TCPLink link, int self, void (*func)(int length, char * data)
 	{
 		if(curr->datalen > 1)
 		{
-			func(link->datalen, link->payload);
+			func(curr);
 		}
 		FreeNode(curr);
 		curr = ncurr;
@@ -169,7 +169,7 @@ int *get_next_data(TCPLink link, int self, void (*func)(int length, char * data)
 	{	
 		if(link->datalen > 1)
 		{
-			func(link->datalen, link->payload);
+			func(link);
 		}
 		return TRUE;
 	}
@@ -178,7 +178,7 @@ int *get_next_data(TCPLink link, int self, void (*func)(int length, char * data)
 }
 
 /* TRUE means the half connection is completed */
-int insert_packet(TCPLink link, struct iphdr *this_iphdr, struct tcphdr *this_tcphdr, char * payload, int datalen, void (*func)(int length, char * data))
+int insert_packet(TCPLink link, struct iphdr *this_iphdr, struct tcphdr *this_tcphdr, char * payload, int datalen, void * reserve, void (*func)(Node *node))
 {  
 	/* refuse seq > fin.seq which means finack */
 	if(link->state != CHECK && link->state != UNCHECK && SEQ(this_tcphdr)>link->state)
@@ -193,6 +193,8 @@ int insert_packet(TCPLink link, struct iphdr *this_iphdr, struct tcphdr *this_tc
 
     new->tcphdr = (struct tcphdr *)malloc((unsigned int)this_tcphdr->doff*4);
     memcpy(new->tcphdr, this_tcphdr, (unsigned int)this_tcphdr->doff*4);
+	
+	new->reserve = reserve;
 	
 	if(datalen)
 	{

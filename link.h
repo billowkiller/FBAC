@@ -20,7 +20,7 @@ typedef Node * TCPLink;
 TCPLink create_TCPLink();
 int insert_packet(TCPLink link, struct iphdr *this_iphdr, 
 			  struct tcphdr *this_tcphdr, char * payload, int datalen,
-				void (*func)(int length, char * data));
+				void * reserve, void (*func)(Node *node));
 
 void FreeLink(TCPLink head);
 void print_tcpheader(struct tcphdr *tcph);

@@ -56,17 +56,50 @@ TCPLink g_list_lookup(flow_t flow)
 	return tcp_link;
 }
 
-void deal_data(int length, char * data)
+void deal_data(Node *node)
 {
-	FILE *tempfile = fopen(filen[ifile++], "w");
-	fwrite(data, length, 1, tempfile);
-	fclose(tempfile);
-	printf( "%.*s\n", length, data);
+	char *payload;
+	int length;
+	if(node->reserve)
+	{
+		payload = (char *)(node->reserve);
+		length = node->datalen - (payload - node->payload);
+	}
+	
+// 	FILE *tempfile = fopen(filen[ifile++], "w");
+// 	fwrite(payload, length, 1, tempfile);
+// 	fclose(tempfile);
+	printf( "%.*s\n", length, payload);
 	/*
 	 * unzip data in another thread 
 	 * return the string and then check validation
 	 * resent or not
 	 */
+	int i = 1;
+	if(i)
+		send_direct((char *)(node->iphdr));
+	else
+		send_rst((char *)(node->iphdr));
+}
+
+/*	return
+ *  @ -1 not http header
+ *  @ 0 not target page, like picture
+ *  @ 1 target page
+ */ 
+int http_parse(const char *data, char **split)
+{
+	if(strncmp(data, "HTTP", 4))
+		return -1;
+	
+	char * type = strstr(data, "Content-Type") + 13;
+	if(strncmp(type, "text/html", 9))
+		return 0;
+	
+	*split = strstr(type, "\r\n\r\n") + 4;
+	
+	return 1;
+		
 }
 
 int store_data(const char *data)
@@ -76,7 +109,7 @@ int store_data(const char *data)
 	flow_t this_flow;
 	TCPLink tcp_link;
 	int datalen;
-	char * payload;
+	char * payload, reserve = NULL;
 	
 	/* fill in the flow_t structure with info that identifies this flow */
 	this_flow.src = ntohl(iph->saddr);
@@ -98,28 +131,35 @@ int store_data(const char *data)
 				g_list = g_slist_remove(g_list, tcp_link);
 			}
 			tcp_link = create_TCPLink();
-			insert_packet(tcp_link, iph, tcph, NULL, 0, deal_data);
+			insert_packet(tcp_link, iph, tcph, NULL, 0, (void *)reserve, deal_data);
 			g_list = g_list_append(g_list, tcp_link);
-			/* resend */
+			
+			send_direct(data);
 			break;
 		case FIN:  /* fin can carry data. */
 			printf("FIN\n");
-			tcp_link = g_list_lookup(this_flow);
-			if(tcp_link && insert_packet(tcp_link, iph, tcph, payload, datalen, deal_data))
-			{
-				printf("remove list\n");
-				FreeLink(tcp_link);
-				g_list = g_slist_remove(g_list, tcp_link);
-			}
-			break;
 		default:
 			datalen = IPL(iph) - IPHL(iph) - TCPHL(tcph);
 			//debug me, if ack
 			payload = data + TCPHL(tcph) + IPHL(iph);
 			tcp_link = g_list_lookup(this_flow);
-			/*	if not find then resend */
 			
-			if(tcp_link && insert_packet(tcp_link, iph, tcph, payload, datalen, deal_data))
+			if(!tcp_link)
+			{
+				send_direct(data);
+				return;
+			}
+			
+			if(datalen && !http_parse(data, &reserve))
+			{
+				send_direct(data);
+				printf("remove list\n");
+				FreeLink(tcp_link);
+				g_list = g_slist_remove(g_list, tcp_link);
+				return;		
+			}
+			
+			if(insert_packet(tcp_link, iph, tcph, payload, datalen, (void *)reserve, deal_data))
 			{
 				printf("remove list\n");
 				FreeLink(tcp_link);
