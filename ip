@@ -1,551 +1,0 @@
-Finding available devices ... Done
-Available Devices are :
-1. eth0 - (null)
-2. ppp0 - (null)
-3. any - Pseudo-device that captures on all interfaces
-4. lo - (null)
-devname = eth0
-Opening device eth0 for sniffing ... devname = eth0
-Done
-host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /gisella.milito.9/photos: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yK/r/1oQoQfSEw9r.css: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/y9/r/teKqXEw-9B4.css: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yD/r/W4bLHCCJiZ3.css: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yc/r/mC1agCxAiTS.css: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/y0/r/Lixeij_P5-t.css: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yo/r/46lRCi0U2S2.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yG/r/IlDlt0IRdnt.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net: host: static.ak.fbcdn.net: host: www.facebook.com
-Co: host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yD/r/OWwnO_yMqhK.css: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yb/r/GsNJNwuI-UM.gif: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/y9/r/jKEcVPZFk-2.gif: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yk/r/LOOn0JtHNzb.gif: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net: host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.74
-url: /hprofile-ak-prn2/c39.39.486.486/s160x160/992823_144026965796055_1244522563_n.jpg: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net: host: www.facebook.com
-Co: host: static.ak.fbcdn.net: host: sphotos-a.ak.fbcdn.n:    |-Destination IP   : 198.87.182.219
-url: /hphotos-ak-ash3/942866_130276187171133_545581940_n.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.74
-url: /hprofile-ak-prn1/50081_100005901611765_1303853177_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash3/41656_534304418_191_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn2/186908_708908382_1840702506_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/27370_516883156_833106346_q.jpg: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net: host: static.ak.fbcdn.net: host: www.facebook.com
-Co: host: static.ak.fbcdn.net: host: sphotos-a.ak.fbcdn.n: host: profile.ak.fbcdn.net: host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yk/r/WQxoWb6UmTK.css: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yY/r/QBW0YR20C7k.css: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/y4/r/-PAXP-deijE.gif: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net: host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yv/r/51qY_FXektw.css: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yy/r/GjiJIZtnlhY.css: *************SEND_GET FINISH***************
-host: sphotos-a.ak.fbcdn.n:    |-Destination IP   : 198.87.182.219
-url: /hphotos-ak-prn2/p206x206/1075629_144366992428719_144264787_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-g.ak.fbcdn.n:    |-Destination IP   : 210.155.101.246
-url: /hphotos-ak-prn2/p206x206/992823_144026965796055_1244522563_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-h.ak.fbcdn.n:    |-Destination IP   : 210.155.101.175
-url: /hphotos-ak-prn2/p206x206/1069922_144021259129959_1959929444_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-d.ak.fbcdn.n:    |-Destination IP   : 118.155.230.27
-url: /hphotos-ak-ash3/p206x206/1005201_143859422479476_645718687_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-f.ak.fbcdn.n:    |-Destination IP   : 210.155.101.153
-url: /hphotos-ak-ash4/p206x206/221598_143859175812834_1128177192_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-c.ak.fbcdn.n:    |-Destination IP   : 118.155.230.50
-url: /hphotos-ak-ash3/p206x206/36562_142783879253697_1476421430_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-e.ak.fbcdn.n:    |-Destination IP   : 210.155.101.138
-url: /hphotos-ak-ash3/p206x206/1069179_142517695946982_435888351_n.jpg: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net: host: static.ak.fbcdn.net: host: sphotos-h.ak.fbcdn.n:    |-Destination IP   : 210.155.101.175
-url: /hphotos-ak-ash3/p206x206/945075_142349082630510_1158302841_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-h.ak.fbcdn.n:    |-Destination IP   : 210.155.101.175
-url: /hphotos-ak-prn1/p206x206/1044624_141122952753123_1592688324_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-e.ak.fbcdn.n:    |-Destination IP   : 210.155.101.138
-url: /hphotos-ak-ash3/p206x206/1013449_141574636041288_1739930834_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-g.ak.fbcdn.n:    |-Destination IP   : 210.155.101.246
-url: /hphotos-ak-ash3/p206x206/164904_143803235818428_1201938048_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-g.ak.fbcdn.n:    |-Destination IP   : 210.155.101.246
-url: /hphotos-ak-prn2/p206x206/1070112_142332105965541_2028228830_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-g.ak.fbcdn.n:    |-Destination IP   : 210.155.101.246
-url: /hphotos-ak-ash3/p206x206/942337_139972159534869_1028801170_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-c.ak.fbcdn.n:    |-Destination IP   : 118.155.230.50
-url: /hphotos-ak-frc3/p206x206/996510_141574729374612_1578057508_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-d.ak.fbcdn.n:    |-Destination IP   : 118.155.230.27
-url: /hphotos-ak-prn1/p206x206/1045183_139973102868108_523913017_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-f.ak.fbcdn.n:    |-Destination IP   : 210.155.101.153
-url: /hphotos-ak-prn2/p206x206/969866_139972202868198_911084852_n.jpg: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net: host: sphotos-h.ak.fbcdn.n: host: sphotos-e.ak.fbcdn.n: host: sphotos-a.ak.fbcdn.n:    |-Destination IP   : 198.87.182.219
-url: /hphotos-ak-prn1/p206x206/68210_142857775912974_1537206488_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-g.ak.fbcdn.n: host: sphotos-b.ak.fbcdn.n:    |-Destination IP   : 198.87.182.240
-url: /hphotos-ak-ash3/p206x206/1010046_143993635799388_1768703691_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-d.ak.fbcdn.n: host: sphotos-a.ak.fbcdn.n:    |-Destination IP   : 198.87.182.219
-url: /hphotos-ak-ash4/p206x206/999043_142249039307181_345338738_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-a.ak.fbcdn.n:    |-Destination IP   : 198.87.182.219
-url: /hphotos-ak-ash3/p206x206/941632_133105293554889_1910717758_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-g.ak.fbcdn.n: host: sphotos-d.ak.fbcdn.n: host: sphotos-a.ak.fbcdn.n: host: sphotos-h.ak.fbcdn.n: host: creative.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.59
-url: /hads-ak-prn1/s110x80/735337_6009096698960_14116_n.png: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash4/211208_53099197717_1643809224_s.jpg: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yA/r/IeZLdL-_GP5.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yF/r/zYEdmWsBZu9.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/y4/r/VctjjLR0rnO.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yi/r/0ghTK-cSruo.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yp/r/ORc-Xt7om9y.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yY/r/L36jdmRhTUA.js: *************SEND_GET FINISH***************
-host: creative.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.59
-url: /hads-ak-prn1/s110x80/735350_6010549020435_802799546_n.png: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yw/r/HoYbyTMMIv1.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yx/r/tGKfLoiycbQ.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yW/r/MSxWZAAcbv3.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yj/r/eOZhH3uxGT0.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yk/r/TGnYmBByZma.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yF/r/vtGrJTvpMbm.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yY/r/iMvM6CA48tP.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yk/r/mvmvxDKTeL4.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yy/r/31rTHmd9vzc.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yF/r/DSmCI6MjWV5.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/y9/r/4NCTGVItHQV.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yt/r/7wZZLijcsk7.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yq/r/geO23jfvqZI.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yE/r/onQcdWQ7BNm.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yD/r/w1e1Im8KlN4.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yN/r/YtoT_1-4HFd.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/ys/r/ua6wPSRDjPv.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yT/r/xv70er5gX2d.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/y1/r/DWUX2dQ1smp.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yA/r/tUzzVQpjqjU.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yp/r/V3KuInhXZON.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/ye/r/0IkhsvRnknh.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/ys/r/hXdibVSGozY.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net: host: static.ak.fbcdn.net: host: static.ak.fbcdn.net: host: creative.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.57
-url: /hads-ak-ash3/s110x80/735294_6008027191275_1508261532_n.png: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net: host: creative.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.57
-url: /hads-ak-ash3/s110x80/735325_6008866051683_1677170636_n.png: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net: host: static.ak.fbcdn.net: host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yw/r/drP8vlvSl_8.gif: *************SEND_GET FINISH***************
-host: creative.ak.fbcdn.ne: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/typeahead/search/facebar/config.php?version=5b97c667c30986df1f8c2bad48d8e043621441af&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmumdDgDxqjEHznw&__req=1: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/browse/null_state.php?grammar_version=5b97c667c30986df1f8c2bad48d8e043621441af&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmumdDgDxqjEHznw&__req=2: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/typeahead/search/facebar/bootstrap/?filter[0]=app&filter[1]=page&filter[2]=group&filter[3]=friendlist&context=facebar&viewer=100000179669235&token=v7&lazy=1&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmumdDgDxqjEHznw&__req=3: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/typeahead/search/facebar/bootstrap/?filter[0]=user&context=facebar&viewer=100000179669235&token=v7&lazy=1&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmumdDgDxqjEHznw&__req=4: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/browse/nux.php: body : __user=100000179669235&__a=1&__dyn=7n8ahyj2qmumdDgDxqjEHznw&__req=5&fb_dtsg=AQALJA9a&phstamp=1658165767465579784
-*************SEND_GET FINISH***************
-host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/chat/imps_logging.php: body : source=periodical_imps&sorted_list=534304418%2C708908382%2C722691910%2C516883156%2C100002445271530&list_availability=3%2C3%2C3%2C3%2C3&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmumdDgDxqjEHznw&__req=6&fb_dtsg=AQALJA9a&phstamp=16581657674655797219«#–AqÈ”ëÈ_6¶≠@"öiÚ)ÁG±{ïöÍÜ*?jbJí¢k˝5ëYo43Îı–ËO∑Jã]jx°˙äÆ
-*************SEND_GET FINISH***************
-host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yv/r/O7ihJIPh_G0.gif: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/ye/r/NNg0bu4GBuz.png: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co: host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yW/r/F7kk7-cjEKk.png: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yl/r/piHQSoNgZ6v.css: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yY/r/cGLwgTkuhh2.css: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /?ref=logo&ajaxpipe=1&ajaxpipe_token=AXi9KQV4o_mODy55&quickling[version]=882277%3B0%3B1%3B0&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmumdDgDxqjEHznw&__req=jsonp_2&__adt=2: *************SEND_GET FINISH***************
-host: 6-pct.channel.facebo:    |-Destination IP   : 69.171.235.16
-url: /pull?channel=p_100000179669235&seq=5&partition=141&clientid=673f200f&cb=34va&idle=0&cap=0&state=active: *************SEND_GET FINISH***************
-host: 6-pct.channel.facebo: host: www.facebook.com
-Co: host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn2/1076444_100000976970540_783836527_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash3/260894_100000379854033_1610799935_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn2/274385_100001719979440_947033107_q.jpg: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/typeahead/search/facebar/query/?value=[%22my%20friends%20who%20work%20at%20%22%2C%7B%22uid%22%3A%226391532964%22%2C%22type%22%3A%22page%22%2C%22text%22%3A%22California%20Institute%20of%20Technology%22%7D]&context=facebar&grammar_version=5b97c667c30986df1f8c2bad48d8e043621441af&viewer=100000179669235&rsp=search&qid=0&see_more=false&max_results=8&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=8: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/chat/user_info.php?__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=9&ids[0]=516883156&ids[1]=534304418&ids[2]=708908382: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/home/generic.php?ajaxpipe=1&ajaxpipe_token=AXi9KQV4o_mODy55&sidecol=true&path=%2F&sk=nf&key=nf&ref=tn_tnmn&endpoint=%2Fajax%2Fhome%2Fgeneric.php&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=jsonp_3&__adt=3: *************SEND_GET FINISH***************
-host: pct.channel.facebook:    |-Destination IP   : 69.171.235.16
-url: /probe?mode=stream&format=json: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn2/260880_100005472271571_1814277855_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/41409_100002345264543_326473054_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/173186_100001949436894_48911194_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.74
-url: /hprofile-ak-prn2/1076135_100001386806844_1673139685_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: pct.channel.facebook: host: profile.ak.fbcdn.net: host: pct.channel.facebook: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/bz: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/hovercard/user.php?id=100005662568817&extragetparams=%7B%22hc_location%22%3A%22stream%22%7D&endpoint=%2Fajax%2Fhovercard%2Fuser.php%3Fid%3D100005662568817%26extragetparams%3D%257B%2522hc_location%2522%253A%2522stream%2522%257D&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=d: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash3/s32x32/174233_510900122_652577237_q.jpg: *************SEND_GET FINISH***************
-host: external.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.48
-url: /safe_image.php?d=AQCHgffiEpRCcm__&w=154&h=154&url=http%3A%2F%2Fi2.wp.com%2Fs3-ec.buzzfed.com%2Fstatic%2Fenhanced%2Fweb05%2F2012%2F6%2F20%2F11%2Fenhanced-buzz-2867-1340206104-3.jpg%3Ffit%3D1000%252C1000&cfs=1: *************SEND_GET FINISH***************
-host: pixel.facebook.com
-:    |-Destination IP   : 31.13.82.1
-url: /ajax/hovercard/shown.php?asyncSignal=9227&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=e&fb_dtsg=AQALJA9a: *************SEND_GET FINISH***************
-host: external.ak.fbcdn.ne: host: sphotos-g.ak.fbcdn.n:    |-Destination IP   : 210.155.101.246
-url: /hphotos-ak-frc1/p320x320/1003313_10151740570649419_1865090181_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-d.ak.fbcdn.n:    |-Destination IP   : 118.155.230.27
-url: /hphotos-ak-ash3/s403x403/943633_10151740487079419_1721927466_n.jpg: *************SEND_GET FINISH***************
-host: external.ak.fbcdn.ne: host: www.facebook.com
-Co: host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn2/s32x32/203210_100003149916242_51856904_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/s32x32/157260_100003796415371_753736425_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash3/s32x32/572322_63101592_1630590163_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.74
-url: /hprofile-ak-ash3/s32x32/275367_1494870467_817226340_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash4/s32x32/371693_100000213549035_1034462001_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash2/s32x32/274256_12707679_890451375_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/s32x32/173766_728551075_1220445206_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.74
-url: /hprofile-ak-prn1/s32x32/41502_596762651_8151_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/s32x32/70287_1121044427_856753765_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/s32x32/173589_12710845_1575278889_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/s32x32/573523_1169910916_69873438_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-frc1/s32x32/372582_100000030798479_30657621_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: www.facebook.com
-Co: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash3/c221.41.518.518/s160x160/482477_110417369164983_80258822_n.jpg: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yI/r/hNq4PuyqUnX.png: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net: host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yj/r/wg4fxq7ukeU.css: *************SEND_GET FINISH***************
-host: sphotos-h.ak.fbcdn.n:    |-Destination IP   : 210.155.101.175
-url: /hphotos-ak-prn2/p480x480/1069364_135776513295735_1203719134_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-g.ak.fbcdn.n:    |-Destination IP   : 210.155.101.246
-url: /hphotos-ak-prn1/q74/s320x320/1016704_135774799962573_329463748_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-a.ak.fbcdn.n:    |-Destination IP   : 198.87.182.219
-url: /hphotos-ak-ash4/q73/s320x320/1000403_135775789962474_2033896455_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-b.ak.fbcdn.n:    |-Destination IP   : 198.87.182.240
-url: /hphotos-ak-frc1/q71/s320x320/1004060_135775866629133_407781437_n.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash3/c14.0.47.47/s32x32/600249_1002029915098_1903163647_t.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/s32x32/50081_100005901611765_1303853177_q.jpg: *************SEND_GET FINISH***************
-host: sphotos-h.ak.fbcdn.n: host: sphotos-a.ak.fbcdn.n: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash3/c34.0.113.113/s100x100/600249_1002029915098_1903163647_a.jpg: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yw/r/3LFVMmKZeUX.png: *************SEND_GET FINISH***************
-host: external.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.48
-url: /safe_image.php?d=AQC6q3r9pb6QbUpN&w=180&h=540&url=http%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2Fd%2Fdd%2FBeijing_montage.png%2F720px-Beijing_montage.png&fallback=hub_city&prefix=d: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/c248.37.465.465/s100x100/1016502_1379436088940051_1966483571_n.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash3/c13.12.155.155/s100x100/944276_174160312749447_664598823_a.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/s100x100/13540_193380809418_7586333_s.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.74
-url: /hprofile-ak-prn1/c27.10.127.127/s100x100/541401_108690669329220_1835129818_a.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash4/c32.9.117.117/s100x100/1009741_345321748904856_66201538_a.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash3/c0.64.180.180/s100x100/601693_373612049405886_327236721_a.jpg: *************SEND_GET FINISH***************
-host: external.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.48
-url: /safe_image.php?d=AQCbx8TTO8NJZIjg&url=http%3A%2F%2Ffb.ecn.api.tiles.virtualearth.net%2Fapi%2FGetMap.ashx%3Fb%3Dr%252Cmkt.en-US%252Cstl.fb%26key%3DAqSHdMNkhSvgWwMhbqyiqgW1IhMNeV56Gb0WkfgEDm6jSsfX9gDGmlOUEt3i44Jk%26td%3DD1%26c%3D39.938380401225%252C116.3331611922%26h%3D64%26w%3D64%26ppl%3D37%252C%252C39.9384%252C116.3332%26z%3D10&jq=100: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/c32.9.117.117/s100x100/163608_185651731450814_7562905_a.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: external.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.48
-url: /safe_image.php?d=AQAZW_WC3kuHvRQO&w=103&h=103&url=http%3A%2F%2Fprofile.ak.fbcdn.net%2Fhprofile-ak-ash4%2F373017_460471244042987_617992999_n.jpg&cfs=1&upscale: *************SEND_GET FINISH***************
-host: external.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.48
-url: /safe_image.php?d=AQDnFTXhuqy4mhN-&w=103&h=103&url=http%3A%2F%2Fa3.ec-images.myspacecdn.com%2Fprofile01%2F113%2F20642c46593d4b5dba0debb96f32459e%2Fp.jpg&crop: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: external.ak.fbcdn.ne: host: external.ak.fbcdn.ne: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net: host: external.ak.fbcdn.ne: host: external.ak.fbcdn.ne: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /images/profile/timeline/app_icons/places_24.png: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /images/profile/timeline/app_icons/groups_24.png: *************SEND_GET FINISH***************
-host: sphotos-h.ak.fbcdn.n:    |-Destination IP   : 210.155.101.175
-url: /hphotos-ak-prn2/p206x206/1069364_135776513295735_1203719134_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-b.ak.fbcdn.n:    |-Destination IP   : 198.87.182.240
-url: /hphotos-ak-frc1/p206x206/1004060_135775866629133_407781437_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-a.ak.fbcdn.n:    |-Destination IP   : 198.87.182.219
-url: /hphotos-ak-ash4/p206x206/1000403_135775789962474_2033896455_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-g.ak.fbcdn.n:    |-Destination IP   : 210.155.101.246
-url: /hphotos-ak-prn1/p206x206/1016704_135774799962573_329463748_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-h.ak.fbcdn.n:    |-Destination IP   : 210.155.101.175
-url: /hphotos-ak-ash3/p206x206/482477_110417369164983_80258822_n.jpg: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/pagelet/generic.php/FriendsAppSectionPagelet?data=%7B%22sk%22%3A%22friends%22%2C%22tab_key%22%3A%22photos%22%2C%22profile_id%22%3A100005901611765%2C%22overview%22%3Atrue%7D&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=i: *************SEND_GET FINISH***************
-host: sphotos-h.ak.fbcdn.n: host: sphotos-a.ak.fbcdn.n: host: sphotos-h.ak.fbcdn.n: host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/y9/r/KqO-Frtj2Vz.css: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yq/r/OmNRx83ejGe.js: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /?ref=tn_tnmn&ajaxpipe=1&ajaxpipe_token=AXi9KQV4o_mODy55&quickling[version]=882277%3B0%3B1%3B0&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=jsonp_7&__adt=7: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn2/211587_1536849200_1509632899_q.jpg: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co: host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.74
-url: /hprofile-ak-ash4/186082_100000312307178_1062203013_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash3/623942_100001119656532_811277300_q.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net: host: www.facebook.com
-Co: host: profile.ak.fbcdn.net: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/like/tooltip.php?comment_fbid=144796109052474&comment_from=100000179669235&seen_user_fbids=true: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/hovercard/user.php?id=708908382&endpoint=%2Fajax%2Fhovercard%2Fuser.php%3Fid%3D708908382&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=m: *************SEND_GET FINISH***************
-host: sphotos-d.ak.fbcdn.n:    |-Destination IP   : 118.155.230.27
-url: /hphotos-ak-ash3/p370x247/536755_10150807318018383_1853721959_n.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.74
-url: /hprofile-ak-ash3/s100x100/563827_10151603253748383_309163558_s.jpg: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co: host: pixel.facebook.com
-:    |-Destination IP   : 31.13.82.1
-url: /ajax/hovercard/shown.php?asyncSignal=9625&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=n&fb_dtsg=AQALJA9a: *************SEND_GET FINISH***************
-host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: sphotos-d.ak.fbcdn.n:    |-Destination IP   : 118.155.230.27
-url: /hphotos-ak-ash3/536755_10150807318018383_1853721959_n.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.74
-url: /hprofile-ak-ash3/s160x160/563827_10151603253748383_309163558_a.jpg: *************SEND_GET FINISH***************
-host: sphotos-d.ak.fbcdn.n: host: sphotos-d.ak.fbcdn.n: host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.74
-url: /hprofile-ak-ash4/c8.8.107.107/s100x100/379596_10200708915758801_582103514_s.jpg: *************SEND_GET FINISH***************
-host: sphotos-c.ak.fbcdn.n:    |-Destination IP   : 118.155.230.50
-url: /hphotos-ak-prn2/s200x200/992877_587175804660002_1051035529_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-e.ak.fbcdn.n:    |-Destination IP   : 210.155.101.138
-url: /hphotos-ak-ash3/p118x118/17498_589063951134087_324518491_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-f.ak.fbcdn.n:    |-Destination IP   : 210.155.101.153
-url: /hphotos-ak-ash3/p118x118/479709_10200952724800098_1045422636_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-b.ak.fbcdn.n:    |-Destination IP   : 198.87.182.240
-url: /hphotos-ak-ash4/s160x160/296308_10101122493610719_385910284_n.jpg: *************SEND_GET FINISH***************
-host: external.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.48
-url: /safe_image.php?d=AQAQYPudCU0kXDG_&url=http%3A%2F%2Ffb.ecn.api.tiles.virtualearth.net%2Fapi%2FGetMap.ashx%3Fb%3Dr%252Cmkt.en-US%252Cstl.fb%26key%3DAqSHdMNkhSvgWwMhbqyiqgW1IhMNeV56Gb0WkfgEDm6jSsfX9gDGmlOUEt3i44Jk%26td%3DD1%26c%3D34.824286278278%252C-82.295671009799%26h%3D64%26w%3D64%26ppl%3D37%252C%252C34.8243%252C-82.2957%26z%3D10&jq=100: *************SEND_GET FINISH***************
-host: photos-b.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.82
-url: /hphotos-ak-ash4/p110x80/229007_10151791743338383_1329550115_a.jpg: *************SEND_GET FINISH***************
-host: photos-a.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.83
-url: /hphotos-ak-ash3/p110x80/945664_566808983371092_633892181_a.jpg: *************SEND_GET FINISH***************
-host: photos-g.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.83
-url: /hphotos-ak-ash3/p110x80/1001303_566805886704735_1670317514_a.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net: host: external.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.48
-url: /safe_image.php?d=AQAhniH6A7S6T_x3&url=http%3A%2F%2Ffb.ecn.api.tiles.virtualearth.net%2Fapi%2FGetMap.ashx%3Fb%3Dr%252Cmkt.en-US%252Cstl.fb%26key%3DAqSHdMNkhSvgWwMhbqyiqgW1IhMNeV56Gb0WkfgEDm6jSsfX9gDGmlOUEt3i44Jk%26td%3DD1%26c%3D37.345894723812%252C-81.059132370929%26h%3D64%26w%3D64%26ppl%3D37%252C%252C37.3459%252C-81.0591%26z%3D10&jq=100: *************SEND_GET FINISH***************
-host: external.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.48
-url: /safe_image.php?d=AQDZCixsPNP9-TN9&w=180&h=540&url=http%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2Fc%2Fc9%2FGreenvillenightskyline.jpg%2F720px-Greenvillenightskyline.jpg&fallback=hub_city&prefix=d: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash3/c12.17.156.156/s100x100/601817_10151407926226811_2059028760_a.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash4/c13.19.155.155/s100x100/247472_4917030843900_488650009_a.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/c32.9.117.117/s100x100/556561_10152086186070386_2046686629_a.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn2/c9.9.113.113/s100x100/969690_198414516976127_1768651879_s.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash3/c9.9.113.113/s100x100/1013061_10200572835457156_1876499043_s.jpg: *************SEND_GET FINISH***************
-host: sphotos-c.ak.fbcdn.n:    |-Destination IP   : 118.155.230.50
-url: /hphotos-ak-ash4/p118x118/301693_10200953718224933_1203846790_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-f.ak.fbcdn.n: host: external.ak.fbcdn.ne: host: external.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.48
-url: /safe_image.php?d=AQDNG1k--4kUXXwA&url=http%3A%2F%2Ffb.ecn.api.tiles.virtualearth.net%2Fapi%2FGetMap.ashx%3Fb%3Dr%252Cmkt.en-US%252Cstl.fb%26key%3DAqSHdMNkhSvgWwMhbqyiqgW1IhMNeV56Gb0WkfgEDm6jSsfX9gDGmlOUEt3i44Jk%26td%3DD1%26c%3D34.827743412181%252C-82.302060135392%26h%3D64%26w%3D64%26ppl%3D37%252C%252C34.8277%252C-82.3021%26z%3D10&jq=100: *************SEND_GET FINISH***************
-host: sphotos-c.ak.fbcdn.n:    |-Destination IP   : 118.155.230.42
-url: /hphotos-ak-ash3/s160x160/577739_10151536906208383_527987379_n.jpg: *************SEND_GET FINISH***************
-host: external.ak.fbcdn.ne: host: photos-a.ak.fbcdn.ne: host: external.ak.fbcdn.ne: host: profile.ak.fbcdn.net: host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.74
-url: /hprofile-ak-ash3/c38.8.104.104/s100x100/564123_3730047138437_1605106624_a.jpg: *************SEND_GET FINISH***************
-host: sphotos-c.ak.fbcdn.n: host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-ash4/c12.12.156.156/s100x100/3457_4182154826095_1160898651_a.jpg: *************SEND_GET FINISH***************
-host: profile.ak.fbcdn.net:    |-Destination IP   : 118.155.230.51
-url: /hprofile-ak-prn1/c9.9.113.113/s100x100/150947_10200158785671827_729518277_s.jpg: *************SEND_GET FINISH***************
-host: sphotos-c.ak.fbcdn.n: host: sphotos-c.ak.fbcdn.n: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/photos/logging/everstore_logging.php: body : loggedUrls=[%22http%3A%2F%2Fsphotos-c.ak.fbcdn.net%2Fhphotos-ak-prn2%2Fs200x200%2F992877_587175804660002_1051035529_n.jpg%22]&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=p&fb_dtsg=AQALJA9a&phstamp=16581657674655797211
-…<Û∫_BdtA¡N¯'—æÇ/Ã~≠á™bä˚Rp≤Úü=Ò:è~ò¬I_âè‰πx≈›±€0∑N‰IOç“«ùPå%“œNî©Ωàa["Cüµxƒ;%QÊR}≥’<µÙ€ï
-+4´k∞–£˛˙cä‡
-pÚó—tÇ^‡ñj:™"áY9∏ﬁt-]∑ó√∑}ÅB´aË⁄0˙ñÏƒò™–ôEYµW≈Ωœ»<*aîâ2ìÁôìw&àú$˘ÁI¿G70≤Ω›PîÛE˘uDnÅÚ–éP›
-*************SEND_GET FINISH***************
-host: www.facebook.com
-Co: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/timeline/collections/nav_light_dropdown_menu/?profileid=708908382&offset=3: body : pmid=58&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=q&fb_dtsg=AQALJA9a&phstamp=1658165767465579793Q¿7Rs	≈‹›>=b›fˆıX%“r√çÉ0Ì"œöá⁄˜ªö2‰†∫nÇ‚Hë–´ÔMo£YŸÃàæH∞·‹\Ö±ÖúU]sè_`òÊSÔûÕ¥Õ!¶ùıŒQ@≈âœãõŸ¡≈9≠¸YŒ9ŸY“`>ﬁ“∂ΩD2ÔØ{®…PWÛÜà6›Ÿ™˘m5Ñ’±#dÄ∏|.	L7˘,…ÓjP¨á\]äÉ–!BK¿fèë˙˚J1û.ã?22a„.)kî7¶ızWstˆ¨“îg4Ë#YFM‚⁄ ÎÏèD˜væè?kH0€9#ªú∫¶I°Jı#0ª;Ñ\î
-*************SEND_GET FINISH***************
-host: 6-pct.channel.facebo: host: www.colorcombos.com: host: p.api.pc120.com
-Use: host: p.api.pc120.com
-Use: host: www.colorcombos.com: host: www.colorcombos.com: host: p.api.pc120.com
-Use: host: www.facebook.com
-Co: host: p.api.pc120.com
-Use: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: photos-b.ak.fbcdn.ne:    |-Destination IP   : 118.155.230.82
-url: /hphotos-ak-prn1/p24x24/851558_556661024357098_1093195707_n.png: *************SEND_GET FINISH***************
-host: www.colorcombos.com: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/pagelet/generic.php/TimelineAppSectionPagelet?data=%7B%22sk%22%3A%22app_instapp%22%2C%22tab_key%22%3A%22notes%22%2C%22profile_id%22%3A708908382%2C%22overview%22%3Atrue%7D&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=t: *************SEND_GET FINISH***************
-host: www.colorcombos.com: host: www.colorcombos.com: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: www.facebook.com
-Co: host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.59
-url: /rsrc.php/v2/yv/r/2ivxQIMCBPs.css: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net:    |-Destination IP   : 118.155.230.40
-url: /rsrc.php/v2/yx/r/3VuF_QRyB9f.js: *************SEND_GET FINISH***************
-host: sphotos-g.ak.fbcdn.n:    |-Destination IP   : 210.155.101.246
-url: /hphotos-ak-prn2/s200x200/1069311_10151784302738383_511102309_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-b.ak.fbcdn.n:    |-Destination IP   : 198.87.182.240
-url: /hphotos-ak-ash3/s200x200/600180_10151753884558383_1306534953_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-d.ak.fbcdn.n:    |-Destination IP   : 118.155.230.27
-url: /hphotos-ak-ash4/s200x200/1044278_10151743111893383_1202719825_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-e.ak.fbcdn.n:    |-Destination IP   : 210.155.101.138
-url: /hphotos-ak-ash4/s200x200/1002734_10151734050723383_2066396458_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-c.ak.fbcdn.n:    |-Destination IP   : 118.155.230.50
-url: /hphotos-ak-prn1/s200x200/945655_10151702903403383_540212526_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-f.ak.fbcdn.n:    |-Destination IP   : 210.155.101.153
-url: /hphotos-ak-ash4/s200x200/485518_10151647417593383_1134157460_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-a.ak.fbcdn.n:    |-Destination IP   : 198.87.182.219
-url: /hphotos-ak-ash3/s200x200/945383_10151633416413383_1085116046_n.jpg: *************SEND_GET FINISH***************
-host: sphotos-e.ak.fbcdn.n:    |-Destination IP   : 210.155.101.138
-url: /hphotos-ak-ash3/s200x200/946795_10151667117028383_1930095944_n.jpg: *************SEND_GET FINISH***************
-host: static.ak.fbcdn.net: host: sphotos-e.ak.fbcdn.n: host: sphotos-b.ak.fbcdn.n: host: static.ak.fbcdn.net: host: sphotos-b.ak.fbcdn.n: host: static.ak.fbcdn.net: host: mscrl.microsoft.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: cdn.fastclick.net
-U: host: cdn.fastclick.net
-U: host: platform.twitter.com: host: www.colorcombos.com: host: www.colorcombos.com: host: resources.infolinks.: host: s7.addthis.com
-User: host: mscrl.microsoft.com: host: www.colorcombos.com: host: platform.twitter.com: host: www.colorcombos.com: host: mscrl.microsoft.com: host: www.colorcombos.com: host: www.colorcombos.com: host: platform.twitter.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: assets.pinterest.com: host: mscrl.microsoft.com: host: www.colorcombos.com: host: assets.pinterest.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: assets.pinterest.com: host: mscrl.microsoft.com: host: s7.addthis.com
-User: host: www.colorcombos.com: host: www.colorcombos.com: host: assets.pinterest.com: host: www.colorcombos.com: host: mscrl.microsoft.com: host: s7.addthis.com
-User: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com:    |-Destination IP   : 69.163.242.145
-url: /images/colors/hex-codes/C0C0C0.png: *************SEND_GET FINISH***************
-host: www.colorcombos.com: host: www.colorcombos.com: host: mscrl.microsoft.com: host: s7.addthis.com
-User: host: www.colorcombos.com: host: www.colorcombos.com: host: mscrl.microsoft.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: media.fastclick.net: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: media.fastclick.net: host: www.colorcombos.com: host: googleads.g.doublecl: host: www.colorcombos.com: host: www.colorcombos.com: host: googleads.g.doublecl: host: www.colorcombos.com: host: www.colorcombos.com: host: googleads.g.doublecl: host: www.colorcombos.com: host: www.colorcombos.com: host: googleads.g.doublecl: host: www.colorcombos.com: host: www.colorcombos.com: host: d.api.pc120.com
-Con: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: www.colorcombos.com: host: s7.addthis.com
-User: host: s7.addthis.com
-User: host: www.colorcombos.com: host: www.colorcombos.com: host: rd.apmebf.com
-User-: host: media.fastclick.net: host: p.api.pc120.com
-Use: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /ajax/notifications/get.php?time=1374407831&user=100000179669235&version=2&locale=en_US&earliest_time=1373845034&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=u: *************SEND_GET FINISH***************
-host: cdn.fastclick.net
-U: host: cdn.fastclick.net
-U: host: cdn.fastclick.net
-U: host: p.api.pc120.com
-Use: host: cdn.fastclick.net
-U: host: cdn.fastclick.net
-U: host: www.facebook.com
-Co:    |-Destination IP   : 31.13.82.1
-url: /?ref=tn_tnmn&ajaxpipe=1&ajaxpipe_token=AXi9KQV4o_mODy55&quickling[version]=882277%3B0%3B1%3B0&__user=100000179669235&__a=1&__dyn=7n8ahyj2qmpnzpQ9UmAWaURVo&__req=jsonp_11&__adt=11: *************SEND_GET FINISH***************
-host: cdn.fastclick.net
-U: host: cdn.fastclick.net
-U: host: choices.truste.com
-: host: ak.imgfarm.com
-User: host: ak.imgfarm.com
-User: host: ak.imgfarm.com
-User: host: ak.imgfarm.com
-User: host: ak.imgfarm.com
-User: host: ak.imgfarm.com
-User: host: ak.imgfarm.com
-User: host: ak.imgfarm.com
-User: host: ak.imgfarm.com
-User: host: ak.imgfarm.com
-User: host: ak.imgfarm.com
-User: host: ak.imgfarm.com
-User: host: ak.imgfarm.com
-User: host: ak.imgfarm.com
-User: host: www.facebook.com
-Co: host: www.colorcombos.com: host: media.fastclick.net: host: media.fastclick.net: host: media.fastclick.net: host: media.fastclick.net: host: ad.yieldmanager.com: host: media.fastclick.net: host: www.colorcombos.com: host: media.fastclick.net: host: me: raptor0035.rm.kr: host: media.fastclick.net: host: choices.truste.com
-: host: ib.adnxs.com
-User-A: host: www.colorcombos.com: host: ib.adnxs.com
-User-A: host: tags.bluekai.com
-Us: host: ad.yieldmanager.com: host: www.colorcombos.com: host: dpm.demdex.net
-User: host: ib.adnxs.com
-User-A: host: dpm.demdex.net
-User: host: cm.g.doubleclick.net: host: www.colorcombos.com: host: p.api.pc120.com
-Use: host: cookex.amp.yahoo.com: host: csp.fastclick.net
-U: host: dpm.demdex.net
-User: host: sync.fastclick.net
-: host: me: rap
