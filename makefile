@@ -8,49 +8,6 @@ SQLITE = -lsqlite3
 QUEUE = -lnetfilter_queue
 GLIB = `pkg-config --cflags --libs glib-2.0` 
 PYTHON = -I/usr/include/python2.6/ -L/usr/lib -lpython2.6
-OBJ = sniff.o net_util.o http_parse.o\
-	  http.o data_send.o user_config.o\
-	  qs_parse.o urlparser.o stringProcess.o\
-	  sqlite.o kw_match.o input.o
 
-sniff:$(OBJ) 
-	$(CC) -o sniff $(OBJ) $(GLIB) $(QUEUE) $(SQLITE) $(PTHREAD) $(PYTHON)
-
-sniff.o: sniff.c
-	$(CC) -c $^ $(QUEUE) $(GLIB) $(SQLITE) $(PTHREAD)
-
-input.o: input/input.c
-	$(CC) -c  $^ $(PYTHON)
-
-net_util.o: net_util.c data_send.o sqlite.o kw_match.o
-	$(CC) -c $^ $(GLIB) $(SQLITE) 
-
-sqlite.o: sqlite.c
-	$(CC) -c  $< $(SQLITE)
-
-kw_match.o: kw_match.c
-	$(CC) -c  $< $(GLIB)
-
-http_parse.o: http_parse.c http.o qs_parse.o urlparser.o stringProcess.o
-	$(CC) -c $^ 
-
-http.o: http.c
-	$(CC) -c  $<
-
-urlparser.o: urlparser.c
-	$(CC) -Wall -pedantic -g -c -o $@ $<
-
-qs_parse.o: qs_parse.c
-	$(CC) -c $<
-
-stringProcess.o: stringProcess.c
-	$(CC) -c $<
-
-data_send.o: data_send.c
-	$(CC) -c $< 
-
-user_config.o: config/user_config.c
-	$(CC) -c $< $(GLIB)
-
-clean:
-	rm -f sniff $(OBJ)
+sniff: sniff.c data_send.c
+	$(CC) $^ $(QUEUE) -o sniff

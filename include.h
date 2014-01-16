@@ -5,58 +5,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <sys/socket.h>
+#include <arpa/inet.h> // for inet_ntoa()
+#include <net/ethernet.h>
+#include <netinet/ip_icmp.h>	//Provides declarations for icmp header
+#include <netinet/udp.h>	//Provides declarations for udp header
+#include <netinet/tcp.h>	//Provides declarations for tcp header
+#include <netinet/ip.h>	//Provides declarations for ip header
+#include <linux/netfilter.h>		/* for NF_ACCEPT */
+#include <errno.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-#define FREE(X) if((X)) {free((X)); (X)=NULL;}
-#define PR(X, Y) printf(#X " = " Y "\n", X ) //i=1; PR(i, "%d")
-#define PS(X) printf(#X " = %s\n", X ) //PR(str)
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-
-#ifndef	FALSE
-#define	FALSE	(0)
-#endif
-
-#ifndef	TRUE
-#define	TRUE	(!FALSE)
-#endif
-
-#ifndef TCPTYPE
-#define TCPTYPE
-	#define FIRSTSHARK -1
-	#define SECONDSHARK -2
-	#define THIRDSHARK -3
-	#define ACK -4
-	#define GET 1
-	#define POST 3
-#endif
-
-#ifndef HEADCAL
-#define HEADCAL
-	#define TCPHL(X) ((X)->doff * 4)
-	#define IPHL(X) ((X)->ihl * 4)
-	#define IPL(X) (ntohs((X)->tot_len))
-#endif
-
-#ifndef SENDTYPE
-#define SENDTYPE
-	#define SEND_DIRECT 0
-	#define SEND_UP 1
-#endif
-
-#ifndef WEBTYPE
-#define WEBTYPE
-	#define FRIEND 1
-	#define STATUS 2
-	#define NOTE 3
-	#define COMMENT 4
-	#define PHOTO 5
-	#define MEDIA_SET 6
-	#define ADD_FRIEND 7
-	#define EDIT_NOTE 8
-#endif
-
-#ifndef STRUCT
-#define STRUCT
+#define TCPH(X) ((char *)(X)+IPHL(X)) //ip jump to tcp
+#define TCPHL(X) (((struct tcphdr *)(X))->doff * 4) //tcp header length
+#define IPHL(X) (((struct iphdr *)(X))->ihl * 4)  //ip header length
+#define IPL(X) (ntohs(((struct iphdr *)(X))->tot_len)) //ip length
+#define PAYLOAD(X) ((char *)(X)+IPHL(X)+TCPHL(TCPH(X))) //payload length
+#define PAYLOADL(X) (IPL(X)-IPHL(X)-TCPHL(TCPH(X))) //payload length
+#define SEQ(X) (ntohl(((struct tcphdr *)(X))->seq)) //tcp seq number
 
 struct HTTP{
 	unsigned char method;
@@ -73,4 +40,3 @@ struct connection_info{
 	char r_id[52]; /* resource id */
 	char comment[100]; /* post content */
 };
-#endif

@@ -19,6 +19,7 @@
 
 #define PSEUDO_SIZE (sizeof(struct pseudo_hdr))
 
+//checksum algo.
 inline u_short in_cksum(u_short *addr, int len)
 {
     register int nleft = len;
@@ -48,6 +49,7 @@ inline u_short in_cksum(u_short *addr, int len)
      return(answer);
 }
 
+//recaculate ip and tcp checksum
 int _recal_cksum(char *data)
 {
 	struct iphdr *iph = (struct iphdr *)data;
@@ -74,18 +76,21 @@ int _recal_cksum(char *data)
    	return ntohs(iph->tot_len);
 }
 
+//directly send original ip packet
 int send_direct(char *data)
 {
 	_send_data(data, 0);
 	return 1;
 }
 
+//send modified ip packet
 int send_filter(char *data)
 {
 	_send_data(data, 1);
 	return 1;
 }
 
+//send rst
 int send_rst(char *data)
 {
 	struct iphdr *iph = (struct iphdr *)data;
@@ -117,6 +122,7 @@ int send_rst(char *data)
 	free(pack_msg);
 }
 
+//send pack handler
 int _send_data(char *data, int flag)
 {
 	struct iphdr *iph = (struct iphdr *)data;

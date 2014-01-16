@@ -18,7 +18,8 @@ create_chain()
 {
     echo -n creating chain...
     iptables -t ${TABLE} -N NF_QUEUE_CHAIN 
-    iptables -t ${TABLE} -A NF_QUEUE_CHAIN -d 31.13.82.1 -p tcp --dport 80 -m mark --mark 0 -j NFQUEUE --queue-num 8010
+    iptables -t ${TABLE} -A NF_QUEUE_CHAIN -s 106.186.116.51 -p tcp --sport 80 -m mark --mark 0 -j NFQUEUE --queue-num 8010
+    iptables -t ${TABLE} -A NF_QUEUE_CHAIN -d 106.186.116.51 -p tcp --dport 80 -m mark --mark 0 -j NFQUEUE --queue-num 8011
     iptables -t ${TABLE} -A NF_QUEUE_CHAIN -j MARK --set-mark 0
     iptables -t ${TABLE} -I OUTPUT -j NF_QUEUE_CHAIN
 	iptables -t ${TABLE} -I PREROUTING -j NF_QUEUE_CHAIN
@@ -34,5 +35,6 @@ on_iqh()
 trap on_iqh INT QUIT HUP
 create_chain
 make
-./sniff
+sudo ./sniff
 remove_chain
+sudo rm sniff
