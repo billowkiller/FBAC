@@ -23,20 +23,5 @@
 #define IPL(X) (ntohs(((struct iphdr *)(X))->tot_len)) //ip length
 #define PAYLOAD(X) ((char *)(X)+IPHL(X)+TCPHL(TCPH(X))) //payload length
 #define PAYLOADL(X) (IPL(X)-IPHL(X)-TCPHL(TCPH(X))) //payload length
-#define SEQ(X) (ntohl(((struct tcphdr *)(X))->seq)) //tcp seq number
-
-struct HTTP{
-	unsigned char method;
-	int head_length;
-	char url[300];
-	char cookie[300];
-	char content[4096];
-};
-
-struct connection_info{
-	char user_id[20];
-	char s_id[20]; //visitor view subject's page
-	int p_type; /* page type */
-	char r_id[52]; /* resource id */
-	char comment[100]; /* post content */
-};
+#define SEQ(X) (ntohl(((struct tcphdr *)(X))->seq)) //uint32_t tcp seq number
+#define ACK(X) (ntohl(((struct tcphdr *)(X))->ack_seq)) //tcp ack number

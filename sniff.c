@@ -20,21 +20,23 @@
  */
 
 #include "include.h"
+#include <glib.h>
 #include <limits.h>
 #include <libnetfilter_queue/libnetfilter_queue.h>
+
+extern int seq_register(uint32_t seq, int size);
+extern int session_maintain(char **d, int from_dest);
 
 char *CONTENTLENGTH = "Content-Length";
 const char *PAGEJUMP = "<meta http-equiv=\"refresh\" content=\"0;url=http://www.baidu.com\">";
 FILE *output;
 int num_tcp2last = -1;
-long last_seq = ULONG_MAX;
-
 
 /*
  * @i 1 source-->dest
  *    0 dest-->source
  */
-void print_packet_info(char *data, int i)
+void print_packet_info(void *data, int i)
 {
     struct tcphdr *tcph = (struct tcphdr *)TCPH(data);
     fprintf(output, "\n");
@@ -53,17 +55,10 @@ void print_packet_info(char *data, int i)
 
 int handle_packet(char **d)
 {
-    if(SEQ(TCPH(*d)) > last_seq)
-    {
-        struct tcphdr *tcph = (struct tcphdr *)TCPH(*d);
-        printf("before modify seq = %d\n", SEQ(tcph));
-        tcph->seq = htonl(SEQ(tcph)+strlen(PAGEJUMP));
-        printf("after modify seq = %d\n", SEQ(tcph));
-        _recal_cksum(*d);
-        return 0;
-    }
-    if(PAYLOADL(*d)==0)
-        return 0;
+	session_maintain(d, 1);
+
+	if(PAYLOADL(*d)==0) return 0;
+
     if(!strncmp(PAYLOAD(*d), "HTTP", 4))
     {
         return handle_http_head(d, strlen(PAGEJUMP));
@@ -79,30 +74,21 @@ int handle_packet(char **d)
         memcpy(payload, PAGEJUMP, strlen(PAGEJUMP));
 
         iph->tot_len = htons(IPL(data)+strlen(PAGEJUMP));
-        _recal_cksum(data);
         
         *d = data;
-        last_seq = SEQ(TCPH(data));
+        seq_register(SEQ(TCPH(*d)), strlen(PAGEJUMP));
         print_packet_info(*d, NULL);
-        return strlen(PAGEJUMP);
+        return 1;
     }
     return 0;
 }
 
 int handle_packet2(char **d)
 {
-    struct tcphdr *tcph = (struct tcphdr *)TCPH(*d);
-    uint32_t ack_seq = ntohl(tcph->ack_seq); 
-    if(ack_seq > last_seq)
-    {
-        printf("before modify ack= %u\n", ntohl(tcph->ack_seq));
-        tcph->ack_seq = htonl(ack_seq-strlen(PAGEJUMP));
-        printf("after modify ack= %u\n", ntohl(tcph->ack_seq));
-        _recal_cksum(*d);
-        return 0;
-    }
+	return session_maintain(d, 0);
 }
 
+//return integer figures
 int leng(int a)
 {
     int flag=1;
@@ -134,10 +120,9 @@ int handle_http_head(char **d, int len)
     num_tcp2last = (origin_len-remain)/1436;
 
     memcpy(conlen, temp, leng(final_len));
-    _recal_cksum(*d);
 
     printf("make change http head\n");
-    return 0;
+    return 1;
 }
 
 /*
@@ -196,12 +181,12 @@ int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 	if(pdata_len == -1){
 		pdata_len = 0;
 	}
-	
     
-    pdata_len += handle_packet((char**)&pdata);
+    if(handle_packet((char**)&pdata))
+		_recal_cksum((char**)&pdata);
 	
     print_packet_info(pdata, 0);
-	return nfq_set_verdict_mark(qh, id, NF_REPEAT, 1, (u_int32_t)pdata_len, pdata);
+	return nfq_set_verdict_mark(qh, id, NF_REPEAT, 1, IPL(pdata), pdata);
 }
 
 /*

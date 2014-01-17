@@ -50,8 +50,9 @@ inline u_short in_cksum(u_short *addr, int len)
 }
 
 //recaculate ip and tcp checksum
-int _recal_cksum(char *data)
+int _recal_cksum(char **d)
 {
+	char *data = *d;
 	struct iphdr *iph = (struct iphdr *)data;
 	struct tcphdr *tcph = (struct tcphdr *)(data + IPHL(iph));
 	int datalen = ntohs(iph->tot_len) - IPHL(iph) - TCPHL(tcph);
@@ -75,84 +76,3 @@ int _recal_cksum(char *data)
    	//end
    	return ntohs(iph->tot_len);
 }
-
-//directly send original ip packet
-int send_direct(char *data)
-{
-	_send_data(data, 0);
-	return 1;
-}
-
-//send modified ip packet
-int send_filter(char *data)
-{
-	_send_data(data, 1);
-	return 1;
-}
-
-//send rst
-int send_rst(char *data)
-{
-	struct iphdr *iph = (struct iphdr *)data;
-	struct tcphdr *tcph = (struct tcphdr *)(data + iph->ihl * 4);
-
-	char * pack_msg = (char *)malloc(TCPHL(tcph) + IPHL(iph));
-	memcpy(pack_msg, data, TCPHL(tcph) + IPHL(iph));
-	
-	struct iphdr * this_iph = (struct iphdr *)pack_msg;
-	struct tcphdr *this_tcph = (struct tcphdr *)(pack_msg + IPHL(iph));
-	unsigned long seq = ntohl(this_tcph->seq);
-
-	this_iph->tot_len = htons(TCPHL(tcph)+IPHL(iph));	//payload empty
-	this_tcph->rst = 1;
-
-	_send_data(pack_msg, 1);	//to server
-
-	this_iph->saddr = iph->daddr;  //from client
-	this_iph->daddr = iph->saddr;
-	this_tcph->dest = tcph->source;
-	this_tcph->source = tcph->dest;
-	this_tcph->ack = 1;
-	this_tcph->psh = 1;
-	this_tcph->rst = 1;
-	this_tcph->seq = this_tcph->ack_seq;
-	this_tcph->ack_seq = htonl(seq+1);
-
-	_send_data(pack_msg, 1);
-	free(pack_msg);
-}
-
-//send pack handler
-int _send_data(char *data, int flag)
-{
-	struct iphdr *iph = (struct iphdr *)data;
-	struct tcphdr *tcph = (struct tcphdr *)(data + iph->ihl * 4);
-	//set dest address
-	bzero(&sa, sizeof(sa));
-	sa.sin_family = AF_INET;
-	sa.sin_addr.s_addr = iph->daddr;
-	sa.sin_port = ntohs(tcph->dest);
-
-	if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_TCP)) < 0) {
-		perror("create socket error!");
-		return 0;
-	}
-
-	setsockopt(fd, IPPROTO_IP, IP_HDRINCL, (char*)&optval, sizeof(optval));
-
-	if(flag)
-		_recal_cksum(data);
-
-//	printf("%d\n",ntohs(iph->tot_len));
-	if(sendto(fd, data, ntohs(iph->tot_len), 0, (struct sockaddr *)&sa, sizeof(sa))<0)
-	{
-		perror("tcp error");
-		printf("%ip packet length = d\n",ntohs(iph->tot_len));
-		printf("content:%s\n", tcph + TCPHL(tcph));
-
-		return 0;
-	}
-	close(fd);	
-	return 1;
-}
-
