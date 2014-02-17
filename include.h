@@ -1,5 +1,5 @@
 //#define DEBUG   //define debug print
-#define NDEBUG   //shutdown assert
+//#define NDEBUG   //shutdown assert
 
 #include <stdio.h>
 #include <stdlib.h>

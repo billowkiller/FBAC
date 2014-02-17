@@ -24,10 +24,12 @@
 #include <limits.h>
 #include <libnetfilter_queue/libnetfilter_queue.h>
 
+//size --> seq change, allow +/-
 extern int seq_register(uint32_t seq, int size);
 extern int session_maintain(char **d, int from_dest);
 
 char *CONTENTLENGTH = "Content-Length";
+const char *TRANSFER_ENCODING = "Transfer-Encoding: chunked";
 const char *PAGEJUMP = "<meta http-equiv=\"refresh\" content=\"0;url=http://www.baidu.com\">";
 FILE *output;
 int num_tcp2last = -1;
@@ -53,6 +55,19 @@ void print_packet_info(void *data, int i)
     fprintf(output, "\n");
 }
 
+int modify_pack(char **d, char *data, int len)
+{
+	//printf("%*.s", len ,data);
+	int tot_head_len = IPHL(*d)+TCPHL(TCPH(*d));
+	void * new_ip_pack = malloc(tot_head_len+len) ;
+	memcpy(new_ip_pack, *d, tot_head_len);
+	memcpy(new_ip_pack+tot_head_len, data, len);
+	
+    struct iphdr *iph = (struct iphdr *)new_ip_pack;
+	iph->tot_len = htons(tot_head_len+len);
+	*d = new_ip_pack;
+}
+
 int handle_packet(char **d)
 {
 	session_maintain(d, 1);
@@ -61,22 +76,20 @@ int handle_packet(char **d)
 
     if(!strncmp(PAYLOAD(*d), "HTTP", 4))
     {
-        return handle_http_head(d, strlen(PAGEJUMP));
+        return handle_http_head(d);
     }
 
     if(!num_tcp2last--)
     {
         print_packet_info(*d, NULL);
-        char *data = (char *)malloc(IPL(*d)+strlen(PAGEJUMP));
-        memcpy(data, *d, IPL(*d));
-        struct iphdr *iph = (struct iphdr *)data;
-        char *payload = PAYLOAD(data)+PAYLOADL(data);
-        memcpy(payload, PAGEJUMP, strlen(PAGEJUMP));
+		char *add_content = "\r\n0\r\n\r\n";
+        char *data = (char *)malloc(PAYLOADL(*d)+strlen(add_content));
+        memcpy(data, PAYLOAD(data), PAYLOADL(data));
+        memcpy(data+PAYLOADL(data), add_content, strlen(add_content));
 
-        iph->tot_len = htons(IPL(data)+strlen(PAGEJUMP));
-        
-        *d = data;
-        seq_register(SEQ(TCPH(*d)), strlen(PAGEJUMP));
+		modify_pack(d, data, PAYLOADL(*d)+strlen(add_content));
+
+        seq_register(SEQ(TCPH(*d)), strlen(add_content));
         print_packet_info(*d, NULL);
         return 1;
     }
@@ -100,65 +113,58 @@ int leng(int a)
  * nogzip, nochuncked
  * increase content length
  */
-int handle_http_head(char **d, int len)
+int handle_http_head(char **d)
 {
     char *data = PAYLOAD(*d);
-    char *conlen = strstr(data, CONTENTLENGTH);
-    if(!conlen)
-        return 0;
-    conlen += strlen(CONTENTLENGTH)+2;
-    
-    int data_len = IPL(data);
-    int origin_len = atoi(conlen);
-    int final_len = len+origin_len;
-    int len_gap = leng(final_len)-leng(origin_len); 
-    int con_gap = conlen-data;
-    char temp[10];
-    sprintf(temp, "%d\r\n", final_len);
-    
-    int remain = PAYLOADL(*d)-(strstr(conlen, "\r\n\r\n")+4-data);
-    num_tcp2last = (origin_len-remain)/1436;
+	char *replace_data = NULL;
 
-    memcpy(conlen, temp, leng(final_len));
+	int modify_length = chunck_pack(data, PAYLOADL(*d), &replace_data);
+	modify_pack(d, replace_data, modify_length+PAYLOADL(*d));
+    seq_register(SEQ(TCPH(*d)), modify_length);
 
-    printf("make change http head\n");
+	printf("make change http head\n");
+
     return 1;
 }
 
 /*
  * chunked packet 
+ *
  */
-char *chunck_pack(char *data, int data_len, int len, char *space)
+int chunck_pack(char *data, int data_len, char **space)
 {
-    assert(data&&len);
-    char *conlen = strstr(data, CONTENTLENGTH);
-    if(!conlen)
+	//fprintf(output, "\n%.*s", data_len, data);
+    char *con = strstr(data, CONTENTLENGTH);
+    if(!con)
         return 0;
-    conlen += strlen(CONTENTLENGTH);
-    
-    int origin_len = atoi(conlen+1);
-    int final_len = len+origin_len;
-    int len_gap = leng(final_len)-leng(origin_len); 
-    int con_gap = conlen-data+1;
+	
+    int http_len = atoi(strlen(CONTENTLENGTH)+2+con);
+	int conlen = strchr(con, '\r') - con;
+	int head_len = strstr(con, "\r\n\r\n")+4-data;
+	int modify_length = 2+leng(http_len)+strlen(TRANSFER_ENCODING)-conlen;
+
+	*space = (char *)malloc(data_len+modify_length);
+
+	int space_point = 0;
+	memcpy(*space, data, con-data);
+	space_point = con-data;
+
+	memcpy(*space+space_point, TRANSFER_ENCODING, strlen(TRANSFER_ENCODING));
+	space_point += strlen(TRANSFER_ENCODING);
+
+	memcpy(*space+space_point, con+conlen, head_len-(con-data)-conlen);
+	space_point += head_len-(con-data)-conlen;
+
     char temp[10];
-    sprintf(temp, "%d\r\n", final_len);
+    sprintf(temp, "%d", http_len);
+	memcpy(*space+space_point, temp, leng(http_len));
+	space_point += leng(http_len);
 
-    space = malloc(data_len+len_gap+leng(final_len)+2);
+	if(data_len > head_len)
+		memcpy(*space+space_point, data+head_len, data_len-head_len);
 
-    if(len_gap == 0)
-    {
-        memcpy(space, data, data_len);
-    }
-    else
-    {
-        memcpy(space, data, con_gap);
-        memcpy(space+con_gap+leng(final_len), data+con_gap+leng(origin_len), data_len-con_gap-leng(origin_len));
-    }
-
-    memcpy(space+con_gap, temp, leng(final_len));
-    memcpy(space+data_len+len_gap, temp, 2+leng(final_len));
-   
-    return (char *)space;
+	//fprintf(output, "\n%.*s", data_len, *space);
+	return modify_length;
 }
 
 /*

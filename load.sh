@@ -34,7 +34,7 @@ on_iqh()
 
 trap on_iqh INT QUIT HUP
 create_chain
+sudo rm sniff
 make
 sudo ./sniff
 remove_chain
-sudo rm sniff
