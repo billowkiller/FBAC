@@ -114,7 +114,7 @@ int handle_packet(char **d)
 
 		modify_pack(d, data, PAYLOADL(*d)+strlen(add_content));
 
-        seq_register(SEQ(TCPH(*d)), strlen(add_content));
+        seq_register(SEQ(TCPH(*d)), payload_cache.len+strlen(add_content));
         print_packet_info(*d, NULL);
         return 1;
     }
