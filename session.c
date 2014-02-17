@@ -1,15 +1,18 @@
 #include <glib.h>
 #include "include.h"
 
-GSList* list = NULL;
-
 typedef struct{
     uint32_t seq;
     int size;
 }seq_unit;
 
+GSList* list = NULL;
+SessionData *session_data;
+
 int seq_register(uint32_t seq, int size)
 {
+    if(0==size) return;
+
     GSList *iterator = NULL;
     seq_unit* unit = (seq_unit *)malloc(sizeof(seq_unit));
     unit->seq = seq;

@@ -19,9 +19,17 @@
 
 #define TCPH(X) ((char *)(X)+IPHL(X)) //ip jump to tcp
 #define TCPHL(X) (((struct tcphdr *)(X))->doff * 4) //tcp header length
+#define OPTIONL(X) (TCPHL(X)-20)
 #define IPHL(X) (((struct iphdr *)(X))->ihl * 4)  //ip header length
 #define IPL(X) (ntohs(((struct iphdr *)(X))->tot_len)) //ip length
 #define PAYLOAD(X) ((char *)(X)+IPHL(X)+TCPHL(TCPH(X))) //payload length
 #define PAYLOADL(X) (IPL(X)-IPHL(X)-TCPHL(TCPH(X))) //payload length
 #define SEQ(X) (ntohl(((struct tcphdr *)(X))->seq)) //uint32_t tcp seq number
 #define ACK(X) (ntohl(((struct tcphdr *)(X))->ack_seq)) //tcp ack number
+
+typedef struct{
+    int http_len;  //origin http length
+    int head_len;  //response header length
+    int MSS;
+    int num_tcp2last;
+}SessionData;

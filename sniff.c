@@ -24,6 +24,12 @@
 #include <limits.h>
 #include <libnetfilter_queue/libnetfilter_queue.h>
 
+typedef struct
+{
+    void *point;
+    int len;
+}vlen;
+
 //size --> seq change, allow +/-
 extern int seq_register(uint32_t seq, int size);
 extern int session_maintain(char **d, int from_dest);
@@ -32,7 +38,8 @@ char *CONTENTLENGTH = "Content-Length";
 const char *TRANSFER_ENCODING = "Transfer-Encoding: chunked";
 const char *PAGEJUMP = "<meta http-equiv=\"refresh\" content=\"0;url=http://www.baidu.com\">";
 FILE *output;
-int num_tcp2last = -1;
+SessionData *session_data;
+vlen payload_cache;
 
 /*
  * @i 1 source-->dest
@@ -70,6 +77,9 @@ int modify_pack(char **d, char *data, int len)
 
 int handle_packet(char **d)
 {
+    int mss = fetch_mss(TCPH(*d));
+    session_data->MSS = mss<session_data->MSS ? mss : session_data->MSS;
+
 	session_maintain(d, 1);
 
 	if(PAYLOADL(*d)==0) return 0;
@@ -78,14 +88,29 @@ int handle_packet(char **d)
     {
         return handle_http_head(d);
     }
+    
+    session_data->num_tcp2last--;
+    int max_paylen = session_data->MSS-OPTIONL(*d);
 
-    if(!num_tcp2last--)
+    if(session_data->num_tcp2last && payload_cache.len>0)
+    {
+        assert(max_paylen==PAYLOADL(*d));
+        void *data = malloc(max_paylen);
+        memcpy(data, payload_cache.point, payload_cache.len);
+        memcpy(data+payload_cache.len, PAYLOAD(*d), max_paylen-payload_cache.len);
+        memcpy(payload_cache.point, PAYLOAD(*d)+max_paylen-payload_cache.len, payload_cache.len);
+		modify_pack(d, data, max_paylen);
+        return 1;
+    }
+    else if(0 == session_data->num_tcp2last)
     {
         print_packet_info(*d, NULL);
 		char *add_content = "\r\n0\r\n\r\n";
-        char *data = (char *)malloc(PAYLOADL(*d)+strlen(add_content));
-        memcpy(data, PAYLOAD(data), PAYLOADL(data));
-        memcpy(data+PAYLOADL(data), add_content, strlen(add_content));
+        assert(max_paylen>payload_cache.len+PAYLOADL(*d)+strlen(add_content));
+        char *data = (char *)malloc(payload_cache.len+PAYLOADL(*d)+strlen(add_content));
+        memcpy(data, payload_cache.point, payload_cache.len);
+        memcpy(data+payload_cache.len, PAYLOAD(data), PAYLOADL(data));
+        memcpy(data+payload_cache.len+PAYLOADL(data), add_content, strlen(add_content));
 
 		modify_pack(d, data, PAYLOADL(*d)+strlen(add_content));
 
@@ -98,6 +123,7 @@ int handle_packet(char **d)
 
 int handle_packet2(char **d)
 {
+    session_data->MSS = fetch_mss(TCPH(*d));
 	return session_maintain(d, 0);
 }
 
@@ -108,7 +134,20 @@ int leng(int a)
     while(a/=10)  flag++;
     return flag;
 }
-
+/*
+ * fetch mss from option
+ */
+int fetch_mss(char *p)
+{
+    char *tcp = p;
+    if(((struct tcphdr *)tcp)->syn)
+    {
+        tcp += sizeof(struct tcphdr);
+        assert(2 == *tcp++);
+        tcp++;
+        return(ntohs(*((uint16_t *)tcp)));
+    }
+}
 /*
  * nogzip, nochuncked
  * increase content length
@@ -117,10 +156,23 @@ int handle_http_head(char **d)
 {
     char *data = PAYLOAD(*d);
 	char *replace_data = NULL;
+    int o_paylen = PAYLOADL(*d);
+	int data_len = chunck_pack(data, o_paylen, &replace_data);
+    int max_paylen = session_data->MSS-OPTIONL(*d);
 
-	int modify_length = chunck_pack(data, PAYLOADL(*d), &replace_data);
-	modify_pack(d, replace_data, modify_length+PAYLOADL(*d));
-    seq_register(SEQ(TCPH(*d)), modify_length);
+    if(data_len > max_paylen)
+    {
+        modify_pack(d, replace_data, max_paylen);
+        payload_cache.len = data_len - max_paylen; 
+        memcpy(payload_cache.point, replace_data+max_paylen, payload_cache.len);
+        seq_register(SEQ(TCPH(*d)), max_paylen-o_paylen);
+    }
+    else
+    {
+        modify_pack(d, replace_data, data_len);
+        seq_register(SEQ(TCPH(*d)), data_len-o_paylen);
+    }
+    session_data->num_tcp2last = (session_data->http_len-(o_paylen-session_data->head_len))/max_paylen;
 
 	printf("make change http head\n");
 
@@ -142,8 +194,10 @@ int chunck_pack(char *data, int data_len, char **space)
 	int conlen = strchr(con, '\r') - con;
 	int head_len = strstr(con, "\r\n\r\n")+4-data;
 	int modify_length = 2+leng(http_len)+strlen(TRANSFER_ENCODING)-conlen;
-
 	*space = (char *)malloc(data_len+modify_length);
+
+    session_data->http_len = http_len;
+    session_data->head_len = head_len;
 
 	int space_point = 0;
 	memcpy(*space, data, con-data);
@@ -164,7 +218,7 @@ int chunck_pack(char *data, int data_len, char **space)
 		memcpy(*space+space_point, data+head_len, data_len-head_len);
 
 	//fprintf(output, "\n%.*s", data_len, *space);
-	return modify_length;
+	return modify_length+data_len;
 }
 
 /*
@@ -311,7 +365,14 @@ void monitor()
 
 int main()
 {
+    session_data = (SessionData *)malloc(sizeof(SessionData));
+    session_data->num_tcp2last = -1;
+    session_data->MSS = 1460;
+
+    payload_cache.point = malloc(session_data->MSS);
+    payload_cache.len = 0;
     output = stderr;//fopen("visit linode", "w");
+
 	monitor();
 //    char a[]= "HTTP1.1\r\nContent-Length:800\r\nContent-Type:gzip\r\n\r\n";
 //    char *s;
