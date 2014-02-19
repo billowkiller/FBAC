@@ -48,6 +48,7 @@ const char *PAGEJUMP = "<meta http-equiv=\"refresh\" content=\"0;url=http://www.
 FILE *output;
 SessionData *session_data;
 vlen payload_cache;
+int send_length=0;
 
 void PrintData (const u_char * data , int Size)
 {
@@ -75,8 +76,8 @@ void print_packet_info(void *data, int i)
     fprintf(output, "   |-Acknowledgement Flag : %d\n",(unsigned int)tcph->ack);
     fprintf(output, "   |-Finish Flag          : %d\n",(unsigned int)tcph->fin);
     fprintf(output, "   |-Payload Length: %u\n", PAYLOADL(data));
-//    fprintf(output, "   |-Data:\n");
-//    PrintData(PAYLOAD(data), PAYLOADL(data));
+    fprintf(output, "   |-Data:\n");
+    PrintData(PAYLOAD(data), PAYLOADL(data));
     fprintf(output, "\n");
 }
 
@@ -115,7 +116,7 @@ int handle_packet(char **d)
     if(SEQ(TCPH(*d)) == session_data->last_seq)
     {
         assert(PAYLOADL(*d)<max_paylen);
-		char *add_content = "\r\n0\r\n";
+		char *add_content = "\r\n0\r\n\r\n";
         int npaylen = payload_cache.len+PAYLOADL(*d)+strlen(add_content);
         void *data = malloc(npaylen);
         memcpy(data, payload_cache.point, payload_cache.len);
@@ -129,7 +130,7 @@ int handle_packet(char **d)
         assert(PAYLOADL(*d)==npaylen);
 
         printf("\nlast payload frag\n\n");
-        seq_register(SEQ(TCPH(*d)), payload_cache.len+strlen(add_content));
+        seq_register(SEQ(TCPH(*d)), 0);//payload_cache.len+strlen(add_content));
         return 1;
     }
     else if(payload_cache.len>0)
@@ -216,7 +217,11 @@ int chunck_pack(char *data, int data_len, char **space)
     int http_len = atoi(strlen(CONTENTLENGTH)+2+con);
 	int conlen = strchr(con, '\r') - con;
 	int head_len = strstr(con, "\r\n\r\n")+4-data;
-	int modify_length = 2+leng(http_len)+strlen(TRANSFER_ENCODING)-conlen;
+
+    char temp[10];
+    sprintf(temp, "%x\r\n", http_len);
+
+	int modify_length = strlen(temp)+strlen(TRANSFER_ENCODING)-conlen;
 	*space = (char *)malloc(data_len+modify_length);
 
     session_data->http_len = http_len;
@@ -232,15 +237,12 @@ int chunck_pack(char *data, int data_len, char **space)
 	memcpy(*space+space_point, con+conlen, head_len-(con-data)-conlen);
 	space_point += head_len-(con-data)-conlen;
 
-    char temp[10];
-    sprintf(temp, "%x", http_len);
-	memcpy(*space+space_point, temp, leng(http_len));
-	space_point += leng(http_len);
+	memcpy(*space+space_point, temp, strlen(temp));
+	space_point += strlen(temp);
 
 	if(data_len > head_len)
 		memcpy(*space+space_point, data+head_len, data_len-head_len);
 
-	//fprintf(output, "\n%.*s", data_len, *space);
 	return modify_length+data_len;
 }
 
@@ -268,9 +270,10 @@ int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
     if(handle_packet((char**)&pdata))
 		_recal_cksum((char**)&pdata);
 
-    print_packet_info(pdata, 0);
+    if(SEQ(TCPH(pdata)) == session_data->last_seq)
+		print_packet_info(pdata, 0);
 	
-	return nfq_set_verdict_mark(qh, id, NF_REPEAT, 1, IPL(pdata), pdata);
+	return nfq_set_verdict2(qh, id, NF_REPEAT, 1, IPL(pdata), pdata);
 }
 
 /*
@@ -297,7 +300,7 @@ int cb2(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
     handle_packet2((char **)&pdata);
 
     print_packet_info(pdata, 1);
-	return nfq_set_verdict_mark(qh, id, NF_REPEAT, 1, (u_int32_t)pdata_len, pdata);
+	return nfq_set_verdict2(qh, id, NF_REPEAT, 1, (u_int32_t)pdata_len, pdata);
 }
 void monitor()
 {
@@ -394,8 +397,8 @@ int main()
 
     payload_cache.point = malloc(session_data->MSS);
     payload_cache.len = 0;
-//    output = stderr;
-    output = fopen("log", "w");
+    output = stderr;
+//    output = fopen("log", "w");
 
 	monitor();
 //    char a[]= "HTTP1.1\r\nContent-Length:800\r\nContent-Type:gzip\r\n\r\n";
