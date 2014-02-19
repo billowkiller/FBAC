@@ -59,6 +59,9 @@ int _recal_cksum(char **d)
 
 	char * pseudo = (char *)malloc(PSEUDO_SIZE + TCPHL(tcph) + datalen);
 
+	//ip checksum
+    iph->check = 0;
+    iph->check = in_cksum((u_short *)iph, IPHL(iph));
 	//tcp checksum
 	struct pseudo_hdr * pseudo_h = (struct pseudo_hdr *)pseudo;
 	tcph->check = 0;

@@ -75,8 +75,8 @@ void print_packet_info(void *data, int i)
     fprintf(output, "   |-Acknowledgement Flag : %d\n",(unsigned int)tcph->ack);
     fprintf(output, "   |-Finish Flag          : %d\n",(unsigned int)tcph->fin);
     fprintf(output, "   |-Payload Length: %u\n", PAYLOADL(data));
-    fprintf(output, "   |-Data:\n");
-    PrintData(PAYLOAD(data), PAYLOADL(data));
+//    fprintf(output, "   |-Data:\n");
+//    PrintData(PAYLOAD(data), PAYLOADL(data));
     fprintf(output, "\n");
 }
 
@@ -114,18 +114,21 @@ int handle_packet(char **d)
 
     if(SEQ(TCPH(*d)) == session_data->last_seq)
     {
+        assert(PAYLOADL(*d)<max_paylen);
 		char *add_content = "\r\n0\r\n";
         int npaylen = payload_cache.len+PAYLOADL(*d)+strlen(add_content);
-        assert(max_paylen>npaylen);
         void *data = malloc(npaylen);
         memcpy(data, payload_cache.point, payload_cache.len);
         memcpy(data+payload_cache.len, PAYLOAD(*d), PAYLOADL(*d));
         memcpy(data+payload_cache.len+PAYLOADL(*d), add_content, strlen(add_content));
 
 		modify_pack(d, data, npaylen);
+        free(data);
+
+        assert(max_paylen>npaylen);
+        assert(PAYLOADL(*d)==npaylen);
 
         printf("\nlast payload frag\n\n");
-        print_packet_info(*d, 0);
         seq_register(SEQ(TCPH(*d)), payload_cache.len+strlen(add_content));
         return 1;
     }
@@ -137,6 +140,7 @@ int handle_packet(char **d)
         memcpy(data+payload_cache.len, PAYLOAD(*d), max_paylen-payload_cache.len);
         memcpy(payload_cache.point, PAYLOAD(*d)+max_paylen-payload_cache.len, payload_cache.len);
 		modify_pack(d, data, max_paylen);
+        free(data);
         return 1;
     }
     return 0;
@@ -185,11 +189,13 @@ int handle_http_head(char **d)
         payload_cache.len = data_len - max_paylen; 
         memcpy(payload_cache.point, replace_data+max_paylen, payload_cache.len);
         seq_register(SEQ(TCPH(*d)), max_paylen-o_paylen);
+        free(replace_data);
     }
     else
     {
         modify_pack(d, replace_data, data_len);
         seq_register(SEQ(TCPH(*d)), data_len-o_paylen);
+        free(replace_data);
     }
     session_data->last_seq= SEQ(TCPH(*d))+(1+(session_data->http_len-(o_paylen-session_data->head_len))/max_paylen)*max_paylen;
 
@@ -388,8 +394,8 @@ int main()
 
     payload_cache.point = malloc(session_data->MSS);
     payload_cache.len = 0;
-    output = stderr;
-//    output = fopen("log", "w");
+//    output = stderr;
+    output = fopen("log", "w");
 
 	monitor();
 //    char a[]= "HTTP1.1\r\nContent-Length:800\r\nContent-Type:gzip\r\n\r\n";
