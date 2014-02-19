@@ -49,6 +49,14 @@ FILE *output;
 SessionData *session_data;
 vlen payload_cache;
 
+void PrintData (const u_char * data , int Size)
+{
+    int i;
+    for(i=0; i<Size; i++)
+    {
+        fprintf(output, "%c",(data[i]));
+    }
+}
 /*
  * @i 1 source-->dest
  *    0 dest-->source
@@ -67,6 +75,8 @@ void print_packet_info(void *data, int i)
     fprintf(output, "   |-Acknowledgement Flag : %d\n",(unsigned int)tcph->ack);
     fprintf(output, "   |-Finish Flag          : %d\n",(unsigned int)tcph->fin);
     fprintf(output, "   |-Payload Length: %u\n", PAYLOADL(data));
+    fprintf(output, "   |-Data:\n");
+    PrintData(PAYLOAD(data), PAYLOADL(data));
     fprintf(output, "\n");
 }
 
@@ -104,18 +114,19 @@ int handle_packet(char **d)
 
     if(SEQ(TCPH(*d)) == session_data->last_seq)
     {
-		char *add_content = "\r\n0\r\n\r\n";
-        assert(max_paylen>payload_cache.len+PAYLOADL(*d)+strlen(add_content));
-        char *data = (char *)malloc(payload_cache.len+PAYLOADL(*d)+strlen(add_content));
+		char *add_content = "\r\n0\r\n";
+        int npaylen = payload_cache.len+PAYLOADL(*d)+strlen(add_content);
+        assert(max_paylen>npaylen);
+        void *data = malloc(npaylen);
         memcpy(data, payload_cache.point, payload_cache.len);
-        memcpy(data+payload_cache.len, PAYLOAD(data), PAYLOADL(*d));
+        memcpy(data+payload_cache.len, PAYLOAD(*d), PAYLOADL(*d));
         memcpy(data+payload_cache.len+PAYLOADL(*d), add_content, strlen(add_content));
 
-		modify_pack(d, data, payload_cache.len+PAYLOADL(*d)+strlen(add_content));
+		modify_pack(d, data, npaylen);
 
+        printf("\nlast payload frag\n\n");
+        print_packet_info(*d, 0);
         seq_register(SEQ(TCPH(*d)), payload_cache.len+strlen(add_content));
-        PS("seq_register done\n");
-        print_packet_info(*d, NULL);
         return 1;
     }
     else if(payload_cache.len>0)
@@ -195,9 +206,7 @@ int chunck_pack(char *data, int data_len, char **space)
 {
 	//fprintf(output, "\n%.*s", data_len, data);
     char *con = strstr(data, CONTENTLENGTH);
-    if(!con)
-        return 0;
-	
+    assert(con);
     int http_len = atoi(strlen(CONTENTLENGTH)+2+con);
 	int conlen = strchr(con, '\r') - con;
 	int head_len = strstr(con, "\r\n\r\n")+4-data;
@@ -218,7 +227,7 @@ int chunck_pack(char *data, int data_len, char **space)
 	space_point += head_len-(con-data)-conlen;
 
     char temp[10];
-    sprintf(temp, "%d", http_len);
+    sprintf(temp, "%x", http_len);
 	memcpy(*space+space_point, temp, leng(http_len));
 	space_point += leng(http_len);
 
@@ -249,10 +258,11 @@ int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 	if(pdata_len == -1){
 		pdata_len = 0;
 	}
-    
-    print_packet_info(pdata, 0);
+
     if(handle_packet((char**)&pdata))
 		_recal_cksum((char**)&pdata);
+
+    print_packet_info(pdata, 0);
 	
 	return nfq_set_verdict_mark(qh, id, NF_REPEAT, 1, IPL(pdata), pdata);
 }
@@ -378,7 +388,8 @@ int main()
 
     payload_cache.point = malloc(session_data->MSS);
     payload_cache.len = 0;
-    output = stderr;//fopen("visit linode", "w");
+    output = stderr;
+//    output = fopen("log", "w");
 
 	monitor();
 //    char a[]= "HTTP1.1\r\nContent-Length:800\r\nContent-Type:gzip\r\n\r\n";
