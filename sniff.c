@@ -45,6 +45,7 @@ extern int session_maintain(char **d, int from_dest);
 char *CONTENTLENGTH = "Content-Length";
 const char *TRANSFER_ENCODING = "Transfer-Encoding: chunked";
 const char *PAGEJUMP = "<meta http-equiv=\"refresh\" content=\"0;url=http://www.baidu.com\">";
+const char *CHUNKEND = "\r\n0\r\n\r\n";
 FILE *output;
 SessionData *session_data;
 vlen payload_cache;
@@ -112,19 +113,25 @@ int handle_packet(char **d)
      */
 	if(session_maintain(d, 1) && PAYLOADL(*d)==0)
         return 1;
+    else if(PAYLOADL(*d)==0)
+        return 0;
     
     int max_paylen = session_data->MSS-OPTIONL(*d);
 
     if(SEQ(TCPH(*d)) == session_data->last_seq) /* last payload */
     {
         assert(PAYLOADL(*d)<max_paylen);
-		char *add_content = "\r\n0\r\n\r\n";
+		char add_content[200];
+        sprintf(add_content, "\r\n%x\r\n%s\r\n0\r\n\r\n", strlen(PAGEJUMP), PAGEJUMP);
+        PD(strlen(add_content));
+
         int npaylen = payload_cache.len+PAYLOADL(*d)+strlen(add_content);
         void *data = malloc(npaylen);
         memcpy(data, payload_cache.point, payload_cache.len);
         memcpy(data+payload_cache.len, PAYLOAD(*d), PAYLOADL(*d));
         memcpy(data+payload_cache.len+PAYLOADL(*d), add_content, strlen(add_content));
 
+        printf("\n%.*s\n", npaylen, data);
 		modify_pack(d, data, npaylen);
         free(data);
 
@@ -133,7 +140,6 @@ int handle_packet(char **d)
 
         //printf("\nlast payload frag\n\n");
         seq_register(SEQ(TCPH(*d)), payload_cache.len+strlen(add_content));
-        PD(payload_cache.len+strlen(add_content));
         
         return 1;
     }
