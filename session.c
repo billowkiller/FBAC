@@ -58,13 +58,7 @@ int session_maintain(char **d, int from_dest)
 
 //int main()
 //{
-//    seq_register(1000, 20);
-//    seq_register(2000, 10);
-//    assert(0 == _seq_fetch(100));
-//    assert(20 == _seq_fetch(1000));
-//    seq_register(3000, 20);
-//    assert(30 == _seq_fetch(2000));
-//	assert(50 == _seq_fetch(2500));
-//	assert(50 == _seq_fetch(4000));
+//    seq_register(6000, 19);
+//    PD(_seq_fetch(6629));
 //	printf("test ok!!!\n");
 //}

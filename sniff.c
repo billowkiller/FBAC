@@ -76,8 +76,8 @@ void print_packet_info(void *data, int i)
     fprintf(output, "   |-Acknowledgement Flag : %d\n",(unsigned int)tcph->ack);
     fprintf(output, "   |-Finish Flag          : %d\n",(unsigned int)tcph->fin);
     fprintf(output, "   |-Payload Length: %u\n", PAYLOADL(data));
-    fprintf(output, "   |-Data:\n");
-    PrintData(PAYLOAD(data), PAYLOADL(data));
+//    fprintf(output, "   |-Data:\n");
+//    PrintData(PAYLOAD(data), PAYLOADL(data));
     fprintf(output, "\n");
 }
 
@@ -102,18 +102,20 @@ int handle_packet(char **d)
         session_data->MSS = mss<session_data->MSS ? mss : session_data->MSS;
     }
 
-	session_maintain(d, 1);
-
-	if(PAYLOADL(*d)==0) return 0;
-
     if(!strncmp(PAYLOAD(*d), "HTTP", 4))
     {
         return handle_http_head(d);
     }
+
+    /*
+     * all packet after response must session maintain
+     */
+	if(session_maintain(d, 1) && PAYLOADL(*d)==0)
+        return 1;
     
     int max_paylen = session_data->MSS-OPTIONL(*d);
 
-    if(SEQ(TCPH(*d)) == session_data->last_seq)
+    if(SEQ(TCPH(*d)) == session_data->last_seq) /* last payload */
     {
         assert(PAYLOADL(*d)<max_paylen);
 		char *add_content = "\r\n0\r\n\r\n";
@@ -129,11 +131,13 @@ int handle_packet(char **d)
         assert(max_paylen>npaylen);
         assert(PAYLOADL(*d)==npaylen);
 
-        printf("\nlast payload frag\n\n");
-        seq_register(SEQ(TCPH(*d)), 0);//payload_cache.len+strlen(add_content));
+        //printf("\nlast payload frag\n\n");
+        seq_register(SEQ(TCPH(*d)), payload_cache.len+strlen(add_content));
+        PD(payload_cache.len+strlen(add_content));
+        
         return 1;
     }
-    else if(payload_cache.len>0)
+    else if(payload_cache.len>0) /* normal payload packet */
     {
         assert(max_paylen==PAYLOADL(*d));
         void *data = malloc(max_paylen);
@@ -270,9 +274,7 @@ int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
     if(handle_packet((char**)&pdata))
 		_recal_cksum((char**)&pdata);
 
-    if(SEQ(TCPH(pdata)) == session_data->last_seq)
-		print_packet_info(pdata, 0);
-	
+	print_packet_info(pdata, 0);
 	return nfq_set_verdict2(qh, id, NF_REPEAT, 1, IPL(pdata), pdata);
 }
 
@@ -297,9 +299,10 @@ int cb2(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 		pdata_len = 0;
 	}
 
-    handle_packet2((char **)&pdata);
-
     print_packet_info(pdata, 1);
+    if(handle_packet2((char **)&pdata))
+        _recal_cksum((char **)&pdata);
+
 	return nfq_set_verdict2(qh, id, NF_REPEAT, 1, (u_int32_t)pdata_len, pdata);
 }
 void monitor()
