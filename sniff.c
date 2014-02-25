@@ -30,8 +30,16 @@ typedef struct
     int len;
 }vlen;
 
+
+typedef struct{
+    int http_len;  //origin http length
+    int head_len;  //response header length
+    int MSS;
+    long last_seq; //last payload tcp seq
+}SessionData;
+
 //size --> seq change, allow +/-
-extern int seq_register(uint32_t seq, int size);
+extern int seq_register(long seq, int size);
 extern int session_maintain(char **d, int from_dest);
 
 char *CONTENTLENGTH = "Content-Length";
@@ -100,8 +108,8 @@ int handle_packet(char **d)
         assert(max_paylen>payload_cache.len+PAYLOADL(*d)+strlen(add_content));
         char *data = (char *)malloc(payload_cache.len+PAYLOADL(*d)+strlen(add_content));
         memcpy(data, payload_cache.point, payload_cache.len);
-        memcpy(data+payload_cache.len, PAYLOAD(data), PAYLOADL(data));
-        memcpy(data+payload_cache.len+PAYLOADL(data), add_content, strlen(add_content));
+        memcpy(data+payload_cache.len, PAYLOAD(data), PAYLOADL(*d));
+        memcpy(data+payload_cache.len+PAYLOADL(*d), add_content, strlen(add_content));
 
 		modify_pack(d, data, payload_cache.len+PAYLOADL(*d)+strlen(add_content));
 

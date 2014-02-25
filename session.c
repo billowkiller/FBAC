@@ -2,7 +2,7 @@
 #include "include.h"
 
 typedef struct{
-    uint32_t seq;
+    long seq;
     int size;
 }seq_unit;
 

@@ -31,9 +31,3 @@
 #define SEQ(X) (ntohl(((struct tcphdr *)(X))->seq)) //uint32_t tcp seq number
 #define ACK(X) (ntohl(((struct tcphdr *)(X))->ack_seq)) //tcp ack number
 
-typedef struct{
-    int http_len;  //origin http length
-    int head_len;  //response header length
-    int MSS;
-    long last_seq; //last payload tcp seq
-}SessionData;
