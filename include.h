@@ -17,9 +17,13 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#define PR(X, Y) printf(#X " = " Y "\n", X ) //i=1; PR(i, "%d")
+#define PS(X) printf(#X " = %s\n", X ) //PR(str)
+#define PD(X) printf(#X " = %d\n", X ) //PD(int)
+
 #define TCPH(X) ((char *)(X)+IPHL(X)) //ip jump to tcp
 #define TCPHL(X) (((struct tcphdr *)(X))->doff * 4) //tcp header length
-#define OPTIONL(X) (TCPHL(X)-20)
+#define OPTIONL(X) (TCPHL(TCPH(X))-20)
 #define IPHL(X) (((struct iphdr *)(X))->ihl * 4)  //ip header length
 #define IPL(X) (ntohs(((struct iphdr *)(X))->tot_len)) //ip length
 #define PAYLOAD(X) ((char *)(X)+IPHL(X)+TCPHL(TCPH(X))) //payload length
@@ -31,5 +35,5 @@ typedef struct{
     int http_len;  //origin http length
     int head_len;  //response header length
     int MSS;
-    int num_tcp2last;
+    long last_seq; //last payload tcp seq
 }SessionData;

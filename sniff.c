@@ -77,8 +77,11 @@ int modify_pack(char **d, char *data, int len)
 
 int handle_packet(char **d)
 {
-    int mss = fetch_mss(TCPH(*d));
-    session_data->MSS = mss<session_data->MSS ? mss : session_data->MSS;
+    if(((struct tcphdr *)TCPH(*d))->syn)
+    {
+        int mss = fetch_mss(TCPH(*d));
+        session_data->MSS = mss<session_data->MSS ? mss : session_data->MSS;
+    }
 
 	session_maintain(d, 1);
 
@@ -89,10 +92,25 @@ int handle_packet(char **d)
         return handle_http_head(d);
     }
     
-    session_data->num_tcp2last--;
     int max_paylen = session_data->MSS-OPTIONL(*d);
 
-    if(session_data->num_tcp2last && payload_cache.len>0)
+    if(SEQ(TCPH(*d)) == session_data->last_seq)
+    {
+		char *add_content = "\r\n0\r\n\r\n";
+        assert(max_paylen>payload_cache.len+PAYLOADL(*d)+strlen(add_content));
+        char *data = (char *)malloc(payload_cache.len+PAYLOADL(*d)+strlen(add_content));
+        memcpy(data, payload_cache.point, payload_cache.len);
+        memcpy(data+payload_cache.len, PAYLOAD(data), PAYLOADL(data));
+        memcpy(data+payload_cache.len+PAYLOADL(data), add_content, strlen(add_content));
+
+		modify_pack(d, data, payload_cache.len+PAYLOADL(*d)+strlen(add_content));
+
+        seq_register(SEQ(TCPH(*d)), payload_cache.len+strlen(add_content));
+        PS("seq_register done\n");
+        print_packet_info(*d, NULL);
+        return 1;
+    }
+    else if(payload_cache.len>0)
     {
         assert(max_paylen==PAYLOADL(*d));
         void *data = malloc(max_paylen);
@@ -102,28 +120,13 @@ int handle_packet(char **d)
 		modify_pack(d, data, max_paylen);
         return 1;
     }
-    else if(0 == session_data->num_tcp2last)
-    {
-        print_packet_info(*d, NULL);
-		char *add_content = "\r\n0\r\n\r\n";
-        assert(max_paylen>payload_cache.len+PAYLOADL(*d)+strlen(add_content));
-        char *data = (char *)malloc(payload_cache.len+PAYLOADL(*d)+strlen(add_content));
-        memcpy(data, payload_cache.point, payload_cache.len);
-        memcpy(data+payload_cache.len, PAYLOAD(data), PAYLOADL(data));
-        memcpy(data+payload_cache.len+PAYLOADL(data), add_content, strlen(add_content));
-
-		modify_pack(d, data, PAYLOADL(*d)+strlen(add_content));
-
-        seq_register(SEQ(TCPH(*d)), payload_cache.len+strlen(add_content));
-        print_packet_info(*d, NULL);
-        return 1;
-    }
     return 0;
 }
 
 int handle_packet2(char **d)
 {
-    session_data->MSS = fetch_mss(TCPH(*d));
+    if(((struct tcphdr *)TCPH(*d))->syn)
+        session_data->MSS = fetch_mss(TCPH(*d));
 	return session_maintain(d, 0);
 }
 
@@ -140,13 +143,10 @@ int leng(int a)
 int fetch_mss(char *p)
 {
     char *tcp = p;
-    if(((struct tcphdr *)tcp)->syn)
-    {
-        tcp += sizeof(struct tcphdr);
-        assert(2 == *tcp++);
-        tcp++;
-        return(ntohs(*((uint16_t *)tcp)));
-    }
+    tcp += sizeof(struct tcphdr);
+    assert(2 == *tcp++);
+    tcp++;
+    return(ntohs(*((uint16_t *)tcp)));
 }
 /*
  * nogzip, nochuncked
@@ -172,7 +172,7 @@ int handle_http_head(char **d)
         modify_pack(d, replace_data, data_len);
         seq_register(SEQ(TCPH(*d)), data_len-o_paylen);
     }
-    session_data->num_tcp2last = (session_data->http_len-(o_paylen-session_data->head_len))/max_paylen;
+    session_data->last_seq= SEQ(TCPH(*d))+(1+(session_data->http_len-(o_paylen-session_data->head_len))/max_paylen)*max_paylen;
 
 	printf("make change http head\n");
 
@@ -242,10 +242,10 @@ int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 		pdata_len = 0;
 	}
     
+    print_packet_info(pdata, 0);
     if(handle_packet((char**)&pdata))
 		_recal_cksum((char**)&pdata);
 	
-    print_packet_info(pdata, 0);
 	return nfq_set_verdict_mark(qh, id, NF_REPEAT, 1, IPL(pdata), pdata);
 }
 
@@ -366,7 +366,6 @@ void monitor()
 int main()
 {
     session_data = (SessionData *)malloc(sizeof(SessionData));
-    session_data->num_tcp2last = -1;
     session_data->MSS = 1460;
 
     payload_cache.point = malloc(session_data->MSS);

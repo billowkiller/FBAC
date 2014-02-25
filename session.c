@@ -6,10 +6,9 @@ typedef struct{
     int size;
 }seq_unit;
 
-GSList* list = NULL;
-SessionData *session_data;
+static GSList* list = NULL;
 
-int seq_register(uint32_t seq, int size)
+int seq_register(long seq, int size)
 {
     if(0==size) return;
 
@@ -26,7 +25,7 @@ int seq_register(uint32_t seq, int size)
     return unit->size;
 }
 
-static int _seq_fetch(uint32_t seq)
+static int _seq_fetch(long seq)
 {
     int size = 0;
     GSList *iterator = NULL;
@@ -41,7 +40,7 @@ static int _seq_fetch(uint32_t seq)
 
 int session_maintain(char **d, int from_dest)
 {
-	uint32_t seq = from_dest ? SEQ(TCPH(*d)) : ACK(TCPH(*d)); 
+	long seq = from_dest ? SEQ(TCPH(*d)) : ACK(TCPH(*d)); 
 	int alenth = _seq_fetch(seq);
 
 	//don't need modify seq or ack
@@ -61,11 +60,11 @@ int session_maintain(char **d, int from_dest)
 //{
 //    seq_register(1000, 20);
 //    seq_register(2000, 10);
-//    assert(0 == seq_fetch(100));
-//    assert(20 == seq_fetch(1000));
+//    assert(0 == _seq_fetch(100));
+//    assert(20 == _seq_fetch(1000));
 //    seq_register(3000, 20);
-//    assert(30 == seq_fetch(2000));
-//	assert(50 == seq_fetch(2500));
-//	assert(50 == seq_fetch(4000));
+//    assert(30 == _seq_fetch(2000));
+//	assert(50 == _seq_fetch(2500));
+//	assert(50 == _seq_fetch(4000));
 //	printf("test ok!!!\n");
 //}
